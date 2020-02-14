@@ -1,0 +1,2 @@
+Apparantly, Image.onload is not allways called if the source was in the cache.
+I'm not sure if this is still a problem on modern browsers, or how to fix it if it is.

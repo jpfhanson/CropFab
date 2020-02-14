@@ -1,0 +1,16 @@
+<!DOCTYPE=HTML5>
+
+<html>
+  <head>
+    <title>Test Page</title>
+  </head>
+
+  <body onload="imageColumn=new ImageColumn()">
+	<script src="cropfab.js"></script>
+    <input type="file" accept="image/*" onchange="imageColumn.loadImages(this)" multiple>
+    <p>Above canvas column</p>
+	<div id="image-column">
+    </div>
+    <p>Bellow canvas column</p>
+  </body>
+</html>
