@@ -39,6 +39,7 @@ class ImagePanel {
 		// note: if the canvas gets padding, the geomotry things using clientHeight and clientWidth will have to be changed to take it into acount
 		this.canvas = document.createElement('canvas');
 		this.canvas.onmousedown = (event) => {this.onMouseDown(event)};
+		this.canvas.onmousemove = (event) => {this.onMouseMove(event)};
 		// onmousemove and onmouseup are handed to this object by the ImageColumn
 		this.canvas.style.width = "100%";
 		div.append(this.canvas);
@@ -70,16 +71,15 @@ class ImagePanel {
 		if(this.mouseMode == "move") {
 			this.cropCenterX += this.convertToCanvasX(event.movementX);
 			this.cropCenterY += this.convertToCanvasY(event.movementY);
-			console.log(this.cropCenterX+','+this.cropCenterY);
 			if(this.cropLeft < 0) {
-				this.cropCenterX = this.config.cropWidth/2;
+				this.cropCenterX = this.config.cropWidth/2-this.xOffset;
 			} else if(this.cropRight > this.canvas.width) {
-				this.cropCenterX = this.canvas.width-this.config.cropWidth/2;
+				this.cropCenterX = this.canvas.width-this.config.cropWidth/2-this.xOffset;
 			}
 			if(this.cropTop < 0) {
-				this.cropCenterY = this.config.cropHeight/2;
+				this.cropCenterY = this.config.cropHeight/2-this.yOffset;
 			} else if(this.cropBottom > this.canvas.height) {
-				this.cropCenterY = this.canvas.height-this.config.cropHeight/2;
+				this.cropCenterY = this.canvas.height-this.config.cropHeight/2-this.yOffset;
 			}
 			this.redraw();
 		}
@@ -132,18 +132,18 @@ class ImageColumn {
 		this.config = new Configuration();
 		window.onresize = () => {this.resize()};
 		this.currentImagePanel = null;
-		window.onmousemove =	(event) => {this.onMouseMove(event)};
-		window.onmouseup =		(event) => {this.onMouseUp(event)};
+		window.onmouseup 	= (event) => {this.onMouseEnd(event)};
+		window.onmousemove 	= (event) => {this.onMouseMove(event)};
 
 		this.imagesStillLoading = 0;
 	}
 	// I want mouse up and move to work on the current pannel even if they happen somewhere else on the page
 	onMouseMove(event) {
-		if(this.config.currentImagePanel != null) {
-			this.config.currentImagePanel.onMouseMove(event);
+		if(event.which == 0) {
+			this.onMouseEnd(event);
 		}
 	}
-	onMouseUp(event) {
+	onMouseEnd(event) {
 		if(this.config.currentImagePanel != null) {
 			this.config.currentImagePanel.onMouseUp(event);
 		}
