@@ -40,9 +40,18 @@ class ImagePanel {
 		this.canvas = document.createElement('canvas');
 		this.canvas.onmousedown = (event) => {this.onMouseDown(event)};
 		this.canvas.onmousemove = (event) => {this.onMouseMove(event)};
-		// onmousemove and onmouseup are handed to this object by the ImageColumn
+		// onmouseup is handed to this object by the ImageColumn
 		this.canvas.style.width = "100%";
-		div.append(this.canvas);
+		this.preview = document.createElement('canvas');
+		this.preview.style.width = "100%";
+		let saveButton = document.createElement('button');
+		saveButton.onclick = () => {this.saveImage()};
+		saveButton.innerHTML = "Save Image";
+		this.div = document.createElement('div');
+		this.div.appendChild(this.canvas);
+		this.div.appendChild(this.preview);
+		this.div.appendChild(saveButton);
+		div.appendChild(this.div);
 	}
 	convertToCanvasX(x) {
 		return x*this.canvas.width/this.canvas.clientWidth;
@@ -61,13 +70,17 @@ class ImagePanel {
 			}
 		}
 	}
-	onMouseUp(event) {
+	onMouseEnd(event) {
 		this.mouseMode = "none";
 		if(this.config.currentImagePanel === this) {
 			this.config.currentImagePanel = null;
 		}
 	}
 	onMouseMove(event) {
+		if(this.mouseMode != "none" && event.which == 0) {
+			this.onMouseEnd(event);
+			return;
+		}
 		if(this.mouseMode == "move") {
 			this.cropCenterX += this.convertToCanvasX(event.movementX);
 			this.cropCenterY += this.convertToCanvasY(event.movementY);
@@ -84,9 +97,32 @@ class ImagePanel {
 			this.redraw();
 		}
 	}
+	saveImage() {
+		let resultCanvas = document.createElement("canvas");
+		resultCanvas.width = this.config.cropWidth;
+		resultCanvas.height = this.config.cropHeight;
+		let ctx = resultCanvas.getContext('2d');
+		ctx.drawImage(this.originalImage,this.config.cropWidth/2-this.cropCenterX,this.config.cropHeight/2-this.cropCenterY,this.config.cropWidth,this.config.cropHeight);
+		let filenameParts = this.name.split('.')
+		let imageType;
+		if(filenameParts.length > 1) {
+			imageType = filenameParts.pop();
+			if(imageType == "jpg") {imageType = "jpeg"}
+		} else {
+			imageType = 'png';
+		}
+		//let resultURL = resultCanvas.toDataURL('image/'+imageType);
+		let resultURL = this.preview.toDataURL("image/"+imageType).replace("image/"+imageType,"image/octet-stream").replace("image/png","image/octet-stream");
+		let fakeLink = document.createElement('a');
+		console.log(resultURL);
+		fakeLink.href = resultURL;
+		fakeLink.download = filenameParts.pop()+'.jpeg';
+		fakeLink.click();
+	}
 	resize(divWidth) {
 		const invAspectRatio = this.config.greatestImageHeight/this.config.greatestImageWidth;
 		this.canvas.style.height = Math.ceil(divWidth*invAspectRatio);
+		this.preview.style.height = Math.ceil(divWidth*this.config.cropHeight/this.config.cropWidth);
 		this.redraw();
 	}
 	redraw() {
@@ -104,6 +140,12 @@ class ImagePanel {
 		/*for(let center of [[left,up],[left,down],[right,up],[right,down]]) {
 			ctx.fillRect(center[0]-10,center[1]-10,center[0]+10,center[1]+10);
 		}*/
+
+
+		this.preview.width = this.config.cropWidth;
+		this.preview.height = this.config.cropHeight;
+		let previewCtx = this.preview.getContext('2d');
+		previewCtx.drawImage(this.originalImage,this.config.cropWidth/2-this.cropCenterX,this.config.cropHeight/2-this.cropCenterY);
 	}
 	get xOffset() {
 		return (this.canvas.width-this.originalImage.naturalWidth)/2;
@@ -145,7 +187,7 @@ class ImageColumn {
 	}
 	onMouseEnd(event) {
 		if(this.config.currentImagePanel != null) {
-			this.config.currentImagePanel.onMouseUp(event);
+			this.config.currentImagePanel.onMouseEnd(event);
 		}
 	}
 	loadImages(input) {
