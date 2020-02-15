@@ -7,14 +7,9 @@
 // loadImages(input): loads image files from file inputs
 //  example html: <input type="file" onchange="imageColumn.loadImages(this)" accept="image/*" multiple>
 
+// TODO: refactor this out
 class Configuration {
 	constructor() {
-		this.greatestImageWidth = 0;
-		this.greatestImageHeight = 0;
-		// these must be set before this config is used in an ImagePanel
-		this.cropWidth = null;
-		this.cropHeight = null;
-
 		// This is a bit of a hack.
 		// It isn't configuration. It is just the ImagePanel
 		// that the mouse is currently interacting with so the
@@ -23,86 +18,182 @@ class Configuration {
 	}
 }
 
+class Box {
+	constructor(x,y,width,height) {
+		this.left = x;
+		this.top = y;
+		this._width = width;
+		this._height = height;
+	}
+	static fromCenter(centerX,centerY,width,height) {
+		return new Box(centerX-width/2,centerY-height/2,width,height);
+	}
+	drawRectOn(canvasCtx,xOffset=0,yOffset=0) {
+		canvasCtx.lineWidth = 10;
+		canvasCtx.strokeRect(this.left+xOffset,this.top+yOffset,
+								this.width,this.height);
+	}
+	cropImageTo(canvas,image) {
+		canvas.width = this.width;
+		canvas.height = this.height;
+		let ctx = canvas.getContext('2d');
+		ctx.clearRect(0,0,canvas.width,canvas.height);
+		ctx.drawImage(image,-this.left,-this.top);
+	}
+	moveToWithin(left,top,right,bottom) {
+		if(this.left < left) {
+			this.left = left;
+		} else if(this.right > right) {
+			this.right = right;
+		}
+		if(this.top < top) {
+			this.top = top;
+		} else if(this.bottom > bottom) {
+			this.bottom = bottom;
+		}
+	}
+	get right() {
+		return this.left+this.width;
+	}
+	set right(x) {
+		this.left = x-this.width;
+	}
+	get bottom() {
+		return this.top+this.height;
+	}
+	set bottom(y) {
+		this.top = y-this.height;
+	}
+	get width() {return this._width}
+	get height() {return this._height}
+	// width and height setters are untested
+	set width(width) {
+		this.x += (this._width-width)/2;
+	}
+	set height(height) {
+		this.y += (this._height-height)/2;
+	}
+}
+
 class ImagePanel {
-	constructor(name,lastModified,originalImage,config,div) {
-		// after construction, resize must be called to finish setting up
+	constructor(name,lastModified,originalImage,config,containerDiv) {
+		// after construction, resizeExternal and resizeCanvas must be called to finish setting up
 		this.name = name;
 		this.lastModified = lastModified;
 		this.originalImage = originalImage;
 		this.config = config;
 
-		this.cropCenterX = this.originalImage.naturalWidth/2;
-		this.cropCenterY = this.originalImage.naturalHeight/2;
+		this.cropBox = Box.fromCenter(this.originalImage.naturalWidth/2,
+										this.originalImage.naturalHeight/2,
+										500,500);
 
 		this.mouseMode = "none";
-
-		// note: if the canvas gets padding, the geomotry things using clientHeight and clientWidth will have to be changed to take it into acount
+		this.initDiv(containerDiv);
+	}
+	initDiv(containerDiv) {
+		// initiate the main canvas
+		// note: if you deside to give the canvas padding, the geomotry things using clientHeight and clientWidth will have to be changed to take it into acount
 		this.canvas = document.createElement('canvas');
+		this.canvas.style.width = "100%";
+		// height is worked out dynamicaly in this.resize
 		this.canvas.onmousedown = (event) => {this.onMouseDown(event)};
 		this.canvas.onmousemove = (event) => {this.onMouseMove(event)};
 		// onmouseup is handed to this object by the ImageColumn
-		this.canvas.style.width = "100%";
+
+		// initiate the preview canvas
 		this.preview = document.createElement('canvas');
 		this.preview.style.width = "100%";
+
+		// initiate the save button
 		let saveButton = document.createElement('button');
 		saveButton.onclick = () => {this.saveImage()};
 		saveButton.innerHTML = "Save Image";
+
+		// initiate the div itself
 		this.div = document.createElement('div');
 		this.div.appendChild(this.canvas);
 		this.div.appendChild(this.preview);
 		this.div.appendChild(saveButton);
-		div.appendChild(this.div);
+		containerDiv.appendChild(this.div);
 	}
-	convertToCanvasX(x) {
-		return x*this.canvas.width/this.canvas.clientWidth;
+	
+	// methods for modifying the canvases
+	resizeExternal() {
+		// when the width of the canvases changes, maintain the aspect ratio
+		// also called when the aspect ratio changes
+		this.canvas.style.height = Math.ceil(this.canvas.clientWidth*this.canvas.height/this.canvas.width);
+		this.preview.style.height = Math.ceil(this.preview.clienWidth*this.cropBox.height/this.cropBox.width);
 	}
-	convertToCanvasY(y) {
-		return y*this.canvas.height/this.canvas.clientHeight;
+	resizeCanvas(width,height) {
+		this.canvas.width = width;
+		this.canvas.height = height;
+		this.resizeExternal();
+		this.redraw();
 	}
+	changeCropSize(width,height) {
+		// this function is untested
+		this.preview.width = width;
+		this.preview.height = height;
+		this.cropBox.width = width;
+		this.cropBox.height = height;
+	}
+	redraw() {
+		let ctx = this.canvas.getContext('2d');
+
+		// blank out the canvas
+		ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+
+		// draw the image
+		ctx.drawImage(this.originalImage,this.xOffset,this.yOffset);
+
+		// draw the croping rectangle
+		this.cropBox.drawRectOn(ctx,this.xOffset,this.yOffset);
+
+		// draw the preview
+		this.cropBox.cropImageTo(this.preview,this.originalImage);
+	}
+	
+	// event handling methods
 	onMouseDown(event) {
 		// calculate the mouse posision in the canvases coordinate system
-		const x = this.convertToCanvasX(event.offsetX);
-		const y = this.convertToCanvasY(event.offsetY);
-		if(this.cropLeft <= x && x <= this.cropRight) {
-			if(this.cropTop <= y && y <= this.cropBottom) {
+		const x = this.clientToCanvasX(event.offsetX);
+		const y = this.clientToCanvasY(event.offsetY);
+		// if the mouse is in the crop box
+		if(this.cropBox.left+this.xOffset <= x && x <= this.cropBox.right+this.xOffset) {
+			if(this.cropBox.top+this.yOffset <= y && y <= this.cropBox.bottom+this.yOffset) {
+				// get ready to move the box
 				this.mouseMode = "move";
 				this.config.currentImagePanel = this;
 			}
 		}
 	}
 	onMouseEnd(event) {
+		// the mouse button has been released
+		// For some reason, mouseup events don't always get here, so
+		// whether the button is still pressed is checked before taking action
+		// in other methods. This is called if it is not still pressed.
 		this.mouseMode = "none";
 		if(this.config.currentImagePanel === this) {
 			this.config.currentImagePanel = null;
 		}
 	}
 	onMouseMove(event) {
+		// if the mouse was released at some point and no one told us
 		if(this.mouseMode != "none" && event.which == 0) {
 			this.onMouseEnd(event);
 			return;
 		}
 		if(this.mouseMode == "move") {
-			this.cropCenterX += this.convertToCanvasX(event.movementX);
-			this.cropCenterY += this.convertToCanvasY(event.movementY);
-			if(this.cropLeft < 0) {
-				this.cropCenterX = this.config.cropWidth/2-this.xOffset;
-			} else if(this.cropRight > this.canvas.width) {
-				this.cropCenterX = this.canvas.width-this.config.cropWidth/2-this.xOffset;
-			}
-			if(this.cropTop < 0) {
-				this.cropCenterY = this.config.cropHeight/2-this.yOffset;
-			} else if(this.cropBottom > this.canvas.height) {
-				this.cropCenterY = this.canvas.height-this.config.cropHeight/2-this.yOffset;
-			}
+			this.cropBox.left += this.clientToCanvasX(event.movementX);
+			this.cropBox.top += this.clientToCanvasY(event.movementY);
+			this.cropBox.moveToWithin(-this.xOffset,-this.yOffset,
+										this.canvas.width-this.xOffset,
+										this.canvas.height-this.yOffset);
 			this.redraw();
 		}
 	}
+
 	saveImage() {
-		let resultCanvas = document.createElement("canvas");
-		resultCanvas.width = this.config.cropWidth;
-		resultCanvas.height = this.config.cropHeight;
-		let ctx = resultCanvas.getContext('2d');
-		ctx.drawImage(this.originalImage,this.config.cropWidth/2-this.cropCenterX,this.config.cropHeight/2-this.cropCenterY,this.config.cropWidth,this.config.cropHeight);
 		let filenameParts = this.name.split('.')
 		let imageType;
 		if(filenameParts.length > 1) {
@@ -111,7 +202,6 @@ class ImagePanel {
 		} else {
 			imageType = 'png';
 		}
-		//let resultURL = resultCanvas.toDataURL('image/'+imageType);
 		let resultURL = this.preview.toDataURL("image/"+imageType).replace("image/"+imageType,"image/octet-stream").replace("image/png","image/octet-stream");
 		let fakeLink = document.createElement('a');
 		console.log(resultURL);
@@ -119,51 +209,19 @@ class ImagePanel {
 		fakeLink.download = filenameParts.pop()+'.jpeg';
 		fakeLink.click();
 	}
-	resize(divWidth) {
-		const invAspectRatio = this.config.greatestImageHeight/this.config.greatestImageWidth;
-		this.canvas.style.height = Math.ceil(divWidth*invAspectRatio);
-		this.preview.style.height = Math.ceil(divWidth*this.config.cropHeight/this.config.cropWidth);
-		this.redraw();
+	
+	// helper methods
+	clientToCanvasX(x) {
+		return x*this.canvas.width/this.canvas.clientWidth;
 	}
-	redraw() {
-		this.canvas.width = this.config.greatestImageWidth;
-		this.canvas.height = this.config.greatestImageHeight;
-
-
-		let ctx = this.canvas.getContext('2d');
-		// draw the image
-		ctx.drawImage(this.originalImage,this.xOffset,this.yOffset);
-
-		// draw the croping rectangle
-		ctx.lineWidth = 10;
-		ctx.strokeRect(this.cropLeft,this.cropTop,this.config.cropWidth,this.config.cropHeight);
-		/*for(let center of [[left,up],[left,down],[right,up],[right,down]]) {
-			ctx.fillRect(center[0]-10,center[1]-10,center[0]+10,center[1]+10);
-		}*/
-
-
-		this.preview.width = this.config.cropWidth;
-		this.preview.height = this.config.cropHeight;
-		let previewCtx = this.preview.getContext('2d');
-		previewCtx.drawImage(this.originalImage,this.config.cropWidth/2-this.cropCenterX,this.config.cropHeight/2-this.cropCenterY);
+	clientToCanvasY(y) {
+		return y*this.canvas.height/this.canvas.clientHeight;
 	}
 	get xOffset() {
 		return (this.canvas.width-this.originalImage.naturalWidth)/2;
 	}
 	get yOffset() {
 		return(this.canvas.height-this.originalImage.naturalHeight)/2;
-	}
-	get cropLeft() {
-		return this.xOffset+this.cropCenterX-this.config.cropWidth/2;
-	}
-	get cropTop() {
-		return this.yOffset+this.cropCenterY-this.config.cropHeight/2;
-	}
-	get cropRight() {
-		return this.xOffset+this.cropCenterX+this.config.cropWidth/2;
-	}
-	get cropBottom() {
-		return this.yOffset+this.cropCenterY+this.config.cropHeight/2;
 	}
 }
 
@@ -177,9 +235,12 @@ class ImageColumn {
 		window.onmouseup 	= (event) => {this.onMouseEnd(event)};
 		window.onmousemove 	= (event) => {this.onMouseMove(event)};
 
+		this.greatestImageWidth = 0;
+		this.greatestImageHeight = 0;
+
 		this.imagesStillLoading = 0;
 	}
-	// I want mouse up and move to work on the current pannel even if they happen somewhere else on the page
+	// I want mouse up move to work on the current pannel even if they happen somewhere else on the page
 	onMouseMove(event) {
 		if(event.which == 0) {
 			this.onMouseEnd(event);
@@ -211,14 +272,8 @@ class ImageColumn {
 		}
 	}
 	addImage(name,lastModified,image) {
-		this.config.greatestImageWidth = Math.max(this.config.greatestImageWidth,image.naturalWidth);
-		this.config.greatestImageHeight = Math.max(this.config.greatestImageHeight,image.naturalHeight);
-		if(this.config.cropWidth == null) {
-			this.config.cropWidth = image.naturalWidth/3;
-		}
-		if(this.config.cropHeight == null) {
-			this.config.cropHeight = image.naturalHeight/3;
-		}
+		this.greatestImageWidth = Math.max(this.greatestImageWidth,image.naturalWidth);
+		this.greatestImageHeight = Math.max(this.greatestImageHeight,image.naturalHeight);
 		this.images.push(new ImagePanel(name,lastModified,image,this.config,this.div));
 	}
 	imageLoadEnded() {
@@ -228,11 +283,17 @@ class ImageColumn {
 		}
 		if(this.imagesStillLoading == 0) {
 			this.resize();
+			this.resizeCanvases();
 		}
 	}
 	resize() {
 		for(let image of this.images) {
-			image.resize(this.div.clientWidth);
+			image.resizeExternal();
+		}
+	}
+	resizeCanvases() {
+		for(let image of this.images) {
+			image.resizeCanvas(this.greatestImageWidth,this.greatestImageHeight);
 		}
 	}
         
