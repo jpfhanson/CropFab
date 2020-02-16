@@ -1,0 +1,42 @@
+/*
+ * spa.menubar.css
+ * Menubar styles
+*/
+
+.spa-menubar-logo {
+  height : 100%;
+  float  : left;
+  background-color : blue;
+  border-radius    : 5px;
+  overflow : hidden;
+}
+.spa-menubar-logo>img {
+  height : 100%;
+}
+.spa-menubar-menu {
+  float  : right;
+  height : 100%;
+  border-radius    : 5px;
+}
+.spa-menubar-usagebutton {
+  height : 50%;
+  border : none;
+  background-color : blue;
+  border-radius    : 5px;
+  overflow : hidden;
+  cursor   : pointer;
+}
+.spa-menubar-usagebutton>img {
+  height : 100%;
+}
+.spa-menubar-aboutbutton {
+  height : 50%;
+  border : none;
+  background-color : blue;
+  border-radius    : 5px;
+  overflow : hidden;
+  cursor   : pointer;
+}
+.spa-menubar-aboutbutton>img {
+  height : 100%;
+}

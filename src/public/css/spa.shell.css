@@ -1,0 +1,59 @@
+/*
+ * spa.shell.css
+ * Shell styles
+*/
+
+.spa-shell-menubar, .spa-shell-imagelist, .spa-shell-toolbox,
+.spa-shell-footer {
+  position : absolute;
+}
+.spa-shell-menubar {
+  position : fixed;
+  top    : 8px;
+  left   : 50%;
+  height : 50px;
+  width  : 620px;
+  margin-left : -317px;
+  border-radius    : 5px;
+  z-index          : 1;
+  background-color : darkblue;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
+              0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.spa-shell-imagelist {
+  position : absolute;
+  top    : 70px;
+  left   : 50%;
+  width  : 600px;
+  margin-left : -300px;
+  padding-top    : 50px;
+  padding-bottom : 50px;
+  text-align: center;
+}
+.spa-shell-toolbox {
+  position : fixed;
+  top    : 50px;
+  right  : 5%;
+  width  : 100px;
+  height : 400px;
+  border-radius    : 5px;
+  z-index          : 1;
+  background-color : #eaedef;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
+              0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.spa-shell-popup {
+  margin-top    : -200px;
+  margin-left   : -200px;
+  top           : 50%;
+  left          : 50%;
+  width         : 400px;
+  height        : 400px;
+  background    : #fff;
+  border-radius : 3px;
+  z-index       : 2;
+  background-color : #eaedef;
+  border-radius    : 5px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
+              0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
