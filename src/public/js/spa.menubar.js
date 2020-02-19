@@ -54,8 +54,8 @@ spa.menubar = (function () {
         + 'Finally, inspect your images and save them, or undo '
         + 'and try again.\n\n'
         + 'Enjoy!',
-      menubar_height : 58,
-      menubar_width  : 680,
+      menubar_height : 73,
+      menubar_width  : 780,
     },
     stateMap  = { $container : null },
     jqueryMap = {},
@@ -142,8 +142,8 @@ spa.menubar = (function () {
     setMenubarDimensions();
 
     // bind user input events
-    jqueryMap.$usage.bind(    'click', onUsageClick);
-    jqueryMap.$about.bind(    'click', onAboutClick);
+    jqueryMap.$usage.bind('click', onUsageClick);
+    jqueryMap.$about.bind('click', onAboutClick);
 
     return true;
   };
