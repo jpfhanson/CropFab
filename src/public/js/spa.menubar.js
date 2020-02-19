@@ -25,15 +25,14 @@ spa.menubar = (function () {
       },
       main_html : String()
         + '<div class="spa-menubar-logo">'
-          + '<img src="/images/cropfablogo0200215a.svg" />'
+          + '<h1>PARALLEL IMAGE CROPER</h1>'
         + '</div>'
         + '<div class="spa-menubar-menu">'
-          + '<div class=spa-menubar-aboutbutton>'
-          + '<img src="/images/aboutbutton0200215a.svg" />'
-          + '</div>'
-          + '<div class=spa-menubar-usagebutton>'
-          + '<img src="/images/usagebutton0200215a.svg" />'
-          + '</div>'
+          + '<button class=spa-menubar-aboutbutton>'
+          + 'About</button>'
+          + '<br/>'
+          + '<button class=spa-menubar-usagebutton>'
+          + 'Usage</button>'
         + '</div>',
       about_text : String()
         + 'Welcome to CROPFAB!\n\n'
@@ -109,24 +108,6 @@ spa.menubar = (function () {
 
 
   //------------------- BEGIN PUBLIC METHODS -------------------
-  // // Begin public method /configModule/
-  // // Purpose    : Adjust configuration of allowed keys
-  // // Arguments  : A map of settable keys and values
-  // //   * color_name - color to use
-  // // Settings   :
-  // //   * configMap.settable_map declares allowed keys
-  // // Returns    : true
-  // // Throws     : none
-  // //
-  // configModule = function ( input_map ) {
-  //   spa.util.setConfigMap({
-  //     input_map    : input_map,
-  //     settable_map : configMap.settable_map,
-  //     config_map   : configMap
-  //   });
-  //   return true;
-  // };
-  // End public method /configModule/
 
   // Begin public method /initModule/
   // Purpose    : Initializes module

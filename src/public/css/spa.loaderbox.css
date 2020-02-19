@@ -5,13 +5,14 @@
 .spa-loaderbox {
   width  : 100%;
   text-align: center;
-  background-color : #eaedef;
+  padding-top: 100px;
+  /*background-color : #eaedef;*/
+  background-color : lightgray;
   border-style     : solid;
-  border-width     : 8px;
+  border-width     : 4px;
   border-color     : black;
   border-radius    : 5px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
               0 6px 20px 0 rgba(0, 0, 0, 0.19);
   overflow  : hidden;
-  text-align: center;
 }

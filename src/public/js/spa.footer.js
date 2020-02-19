@@ -19,14 +19,6 @@ spa.footer = (function () {
   //---------------- BEGIN MODULE SCOPE VARIABLES --------------
   var
     configMap = {
-      settable_map : { 
-        height   : true,
-        width    : true,
-        textsize : true
-      },
-      height    : 50,
-      width     : 160,
-      textsize  : 12,
       main_html : String()
         + '<div class="spa-footer">'
           + '<p>Frontend by Ted Morin</p>'
@@ -38,21 +30,11 @@ spa.footer = (function () {
     },
     jqueryMap = {},
 
-    setFooterDimensions, setJqueryMap, 
+    setJqueryMap, 
     configModule, initModule, handleResize;
   //----------------- END MODULE SCOPE VARIABLES ---------------
 
   //------------------- BEGIN UTILITY METHODS ------------------
-  // Begin UTILITY method /setFooterDimensions/
-  setFooterDimensions = function() {
-    jqueryMap.$container.css('width', 
-                      configMap.width);
-    jqueryMap.$container.css('margin-left', spa.util.getMarginLeft(
-                      configMap.width));
-    jqueryMap.$container.css('height', 
-                      configMap.height);
-  };
-  // End UTILITY method /setFooterDimensions/
   //-------------------- END UTILITY METHODS -------------------
 
   //--------------------- BEGIN DOM METHODS --------------------
@@ -107,7 +89,6 @@ spa.footer = (function () {
     stateMap.$append_target = $append_target;
     $append_target.append( configMap.main_html );
     setJqueryMap();
-    setFooterDimensions();
 
     return true;
   };

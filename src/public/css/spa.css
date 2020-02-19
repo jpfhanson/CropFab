@@ -37,10 +37,10 @@
     left     : 0;
     bottom   : 0;
     right    : 0;
-    background-image: url(/images/cropfabback0200213b.svg);
-    background-repeat: repeat;
+    /*background-image: url(/images/cropfabback0200213b.svg);*/
+    /*background-repeat: repeat;*/
     background-size: 400px;
-    background-color: darkblue;
+    background-color: gray;
 
     min-width  : 600px;
     overflow   : auto;

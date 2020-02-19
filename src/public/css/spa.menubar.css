@@ -6,7 +6,7 @@
 .spa-menubar-logo {
   height : 100%;
   float  : left;
-  background-color : blue;
+  /*background-color : darkgray;*/
   border-radius    : 5px;
   overflow : hidden;
 }
@@ -18,25 +18,15 @@
   height : 100%;
   border-radius    : 5px;
 }
-.spa-menubar-usagebutton {
+.spa-menubar-menu>button {
   height : 50%;
-  border : none;
-  background-color : blue;
-  border-radius    : 5px;
-  overflow : hidden;
-  cursor   : pointer;
+  width  : 100px;
+  /*background-color : blue;*/
+  /*border-radius    : 5px;*/
+  /*overflow : hidden;*/
+  /*cursor   : pointer;*/
+
 }
-.spa-menubar-usagebutton>img {
-  height : 100%;
-}
-.spa-menubar-aboutbutton {
-  height : 50%;
-  border : none;
-  background-color : blue;
-  border-radius    : 5px;
-  overflow : hidden;
-  cursor   : pointer;
-}
-.spa-menubar-aboutbutton>img {
+.spa-menubar-menu>button>img {
   height : 100%;
 }
