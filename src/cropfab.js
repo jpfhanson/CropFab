@@ -7,6 +7,13 @@
 // loadImages(input): loads image files from file inputs
 //  example html: <input type="file" onchange="imageColumn.loadImages(this)" accept="image/*" multiple>
 
+function saveFile(dataURL,filename) {
+	let fakeLink = document.createElement('a');
+	fakeLink.href = dataURL;
+	fakeLink.download = filename;
+	fakeLink.click();
+}
+
 // TODO: refactor this out
 class Configuration {
 	constructor() {
@@ -203,11 +210,12 @@ class ImagePanel {
 			imageType = 'png';
 		}
 		let resultURL = this.preview.toDataURL("image/"+imageType).replace("image/"+imageType,"image/octet-stream").replace("image/png","image/octet-stream");
-		let fakeLink = document.createElement('a');
-		console.log(resultURL);
-		fakeLink.href = resultURL;
-		fakeLink.download = filenameParts.pop()+'.jpeg';
-		fakeLink.click();
+		saveFile(resultURL,this.name);
+	}
+	async addToZip(zip) {
+		let blob = await new Promise((resolve) => {this.preview.toBlob(resolve,'image/jpeg')});
+		zip.file(this.name,blob,{base64:true});
+		return null;
 	}
 	
 	// helper methods
@@ -296,5 +304,11 @@ class ImageColumn {
 			image.resizeCanvas(this.greatestImageWidth,this.greatestImageHeight);
 		}
 	}
-        
+	async saveImages() {
+		let zip = new JSZip();
+		for(let image of this.images) {
+			await image.addToZip(zip);
+		}
+		zip.generateAsync({type:"blob"}).then((content) => saveFile(URL.createObjectURL(content),"croped_images.zip"));
+	}
 }

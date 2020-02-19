@@ -6,8 +6,10 @@
   </head>
 
   <body onload="imageColumn=new ImageColumn()">
-	<script src="cropfab.js"></script>
+    <script src="./jszip.js"></script>
+    <script  src="./cropfab.js"></script>
     <input type="file" accept="image/*" onchange="imageColumn.loadImages(this)" multiple>
+	<button type="button" onclick="imageColumn.saveImages()">Save</button>
     <p>Above canvas column</p>
 	<div id="image-column">
     </div>
