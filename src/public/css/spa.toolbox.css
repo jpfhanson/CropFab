@@ -1,0 +1,43 @@
+/*
+ * spa.toolbox.css
+ * Toolbox styles
+*/
+
+.spa-toolbox-hide {
+  font-weight     : 20;
+  padding-left    : 5px;
+  text-align      : left;
+  height          : 20px;
+  width           : 100%;
+  background-color: gray;
+}
+.spa-toolbox-loadbutton {
+  height : 20px;
+  width  : 100%;
+}
+.spa-toolbox-cropbutton {
+  height : 20px;
+  width  : 100%;
+}
+.spa-toolbox-savebutton {
+  height : 20px;
+  width  : 100%;
+}
+.spa-toolbox-croplimits {
+  text-align  :center ;
+}
+.spa-toolbox-croplimits>div {
+  display : inline-block;
+  height  : 40px;
+  width   : 40%;
+}
+.spa-toolbox-croplimits>div>input {
+  height : 20px;
+  width  : 100%;
+}
+.spa-toolbox-advert {
+  height        : 45px;
+  width         : 100%;
+  border-style  : solid;
+  border-width  : 1px;
+}
