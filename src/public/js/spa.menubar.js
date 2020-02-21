@@ -25,7 +25,7 @@ spa.menubar = (function () {
       },
       main_html : String()
         + '<div class="spa-menubar-logo">'
-          + '<h1>PARALLEL IMAGE CROPER</h1>'
+          + '<h1>PARALLEL IMAGE CROPPER</h1>'
         + '</div>'
         + '<div class="spa-menubar-menu">'
           + '<button class=spa-menubar-aboutbutton>'

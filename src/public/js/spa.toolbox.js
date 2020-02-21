@@ -21,7 +21,7 @@ spa.toolbox = (function () {
     configMap = {
       main_html : String()
         + '<button class="spa-toolbox-hide">'
-        + '  -</button>'
+        + '<b>-</b></button>'
         + '<button class="spa-toolbox-loadbutton">'
         + 'Load</button>'
         + '<button class="spa-toolbox-cropbutton">'

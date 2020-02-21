@@ -28,6 +28,7 @@
 }
 .spa-toolbox-croplimits>div {
   display : inline-block;
+  margin  : 2px;
   height  : 40px;
   width   : 40%;
 }
