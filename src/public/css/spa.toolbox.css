@@ -3,7 +3,26 @@
  * Toolbox styles
 */
 
-.spa-toolbox-hide {
+.spa-toolbox {
+  position         : fixed;
+  background-color : lightgray;
+  bottom           : 0;
+  right            : 0;
+  z-index          : 2;
+  text-align       : center;
+  width            : 10em;
+  border-style     : solid;
+  border-width     : .2em;
+  border-color     : black;
+  border-top-left-radius    : .3em;
+  box-shadow       : 0 4px 8px 0 rgba(0, 0, 0, 0.2),
+                     0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+  border-right-style: none;
+  border-bottom-style: none;
+  border-bottom-right-radius: 0;
+}
+.spa-toolbox-togglebutton {
   font-weight     : 20;
   padding-left    : 5px;
   text-align      : left;

@@ -19,13 +19,13 @@ spa.shell = (function () {
   var
     configMap = {
       anchor_schema_map : {
-        chat  : { opened : true, closed : true }
+        toolbox  : { opened : true, closed : true }
       },
       resize_interval : 200,
       main_html : String()
         + '<div class="spa-shell-menubar"></div>'
         + '<div class="spa-shell-imagelist"></div>'
-        + '<div class="spa-shell-toolbox"></div>'
+        // + '<div class="spa-shell-toolbox"></div>'
         // + '<div class="spa-shell-modal"></div>'
     },
     stateMap = {
@@ -37,8 +37,8 @@ spa.shell = (function () {
 
     copyAnchorMap,    setJqueryMap,   changeAnchorPart,
     onResize,         onHashchange,
-    onTapAcct,        onLogin,        onLogout,
-    setChatAnchor,    initModule;
+    // onTapAcct,        onLogin,        onLogout,
+    setToolboxAnchor,    initModule;
   //----------------- END MODULE SCOPE VARIABLES ---------------
 
   //------------------- BEGIN UTILITY METHODS ------------------
@@ -57,7 +57,7 @@ spa.shell = (function () {
       $container : $container,
       $menubar : $container.find('.spa-shell-menubar'),
       $imagelist : $container.find('.spa-shell-imagelist'),
-      $toolbox   : $container.find('.spa-shell-toolbox'),
+      // $toolbox   : $container.find('.spa-shell-toolbox'),
       $footer : $container.find('.spa-shell-footer')
     };
   };
@@ -140,10 +140,9 @@ spa.shell = (function () {
   //   * Compares proposed application state with current
   //   * Adjust the application only where proposed state
   //     differs from existing and is allowed by anchor schema
-  //
   onHashchange = function ( event ) {
     var
-      _s_chat_previous, _s_chat_proposed, s_chat_proposed,
+      _s_toolbox_previous, _s_toolbox_proposed, s_toolbox_proposed,
       anchor_map_proposed,
       is_ok = true,
       anchor_map_previous = copyAnchorMap();
@@ -156,42 +155,42 @@ spa.shell = (function () {
     }
     stateMap.anchor_map = anchor_map_proposed;
 
-    // // convenience vars
-    // _s_chat_previous = anchor_map_previous._s_chat;
-    // _s_chat_proposed = anchor_map_proposed._s_chat;
+    // convenience vars
+    _s_toolbox_previous = anchor_map_previous._s_toolbox;
+    _s_toolbox_proposed = anchor_map_proposed._s_toolbox;
 
-    // // Begin adjust chat component if changed
-    // if ( ! anchor_map_previous
-    //  || _s_chat_previous !== _s_chat_proposed
-    // ) {
-    //   s_chat_proposed = anchor_map_proposed.chat;
-    //   switch ( s_chat_proposed ) {
-    //     case 'opened' :
-    //       is_ok = spa.chat.setSliderPosition( 'opened' );
-    //     break;
-    //     case 'closed' :
-    //       is_ok = spa.chat.setSliderPosition( 'closed' );
-    //     break;
-    //     default :
-    //       spa.chat.setSliderPosition( 'closed' );
-    //       delete anchor_map_proposed.chat;
-    //       $.uriAnchor.setAnchor( anchor_map_proposed, null, true );
-    //   }
-    // }
-    // // End adjust chat component if changed
+    // Begin adjust toolbox component if changed
+    if ( ! anchor_map_previous
+     || _s_toolbox_previous !== _s_toolbox_proposed
+    ) {
+      s_toolbox_proposed = anchor_map_proposed.toolbox;
+      switch ( s_toolbox_proposed ) {
+        case 'opened' :
+          is_ok = spa.toolbox.setToolboxPosition( 'opened' );
+        break;
+        case 'closed' :
+          is_ok = spa.toolbox.setToolboxPosition( 'closed' );
+        break;
+        default :
+          spa.toolbox.setToolboxPosition( 'closed' );
+          delete anchor_map_proposed.toolbox;
+          $.uriAnchor.setAnchor( anchor_map_proposed, null, true );
+      }
+    }
+    // End adjust toolbox component if changed
 
-    // // Begin revert anchor if slider change denied
-    // if ( ! is_ok ) {
-    //   if ( anchor_map_previous ) {
-    //     $.uriAnchor.setAnchor( anchor_map_previous, null, true );
-    //     stateMap.anchor_map = anchor_map_previous;
-    //   }
-    //   else {
-    //     delete anchor_map_proposed.chat;
-    //     $.uriAnchor.setAnchor( anchor_map_proposed, null, true );
-    //   }
-    // }
-    // // End revert anchor if slider change denied
+    // Begin revert anchor if toolbox change denied
+    if ( ! is_ok ) {
+      if ( anchor_map_previous ) {
+        $.uriAnchor.setAnchor( anchor_map_previous, null, true );
+        stateMap.anchor_map = anchor_map_previous;
+      }
+      else {
+        delete anchor_map_proposed.toolbox;
+        $.uriAnchor.setAnchor( anchor_map_proposed, null, true );
+      }
+    }
+    // End revert anchor if toolbox change denied
 
     return false;
   };
@@ -216,25 +215,25 @@ spa.shell = (function () {
 
   //-------------------- END EVENT HANDLERS --------------------
 
-  //---------------------- BEGIN CALLBACKS ---------------------
-  // // Begin callback method /setChatAnchor/
-  // // Example  : setChatAnchor( 'closed' );
-  // // Purpose  : Change the chat component of the anchor
-  // // Arguments:
-  // //   * position_type - may be 'closed' or 'opened'
-  // // Action   :
-  // //   Changes the URI anchor parameter 'chat' to the requested
-  // //   value if possible.
-  // // Returns  :
-  // //   * true  - requested anchor part was updated
-  // //   * false - requested anchor part was not updated
-  // // Throws   : none
-  // //
-  // setChatAnchor = function ( position_type ) {
-  //   return changeAnchorPart({ chat : position_type });
-  // };
-  // // End callback method /setChatAnchor/
-  //----------------------- END CALLBACKS ----------------------
+  // ---------------------- BEGIN CALLBACKS ---------------------
+  // Begin callback method /setToolboxAnchor/
+  // Example  : setToolboxAnchor( 'closed' );
+  // Purpose  : Change the toolbox component of the anchor
+  // Arguments:
+  //   * position_type - may be 'closed' or 'opened'
+  // Action   :
+  //   Changes the URI anchor parameter 'toolbox' to the requested
+  //   value if possible.
+  // Returns  :
+  //   * true  - requested anchor part was updated
+  //   * false - requested anchor part was not updated
+  // Throws   : none
+  //
+  setToolboxAnchor = function ( position_type ) {
+    return changeAnchorPart({ toolbox : position_type });
+  };
+  // End callback method /setToolboxAnchor/
+  // ----------------------- END CALLBACKS ----------------------
 
   //------------------- BEGIN PUBLIC METHODS -------------------
   // Begin Public method /initModule/
@@ -265,20 +264,29 @@ spa.shell = (function () {
     });
 
     // spa.menubar.configModule({
-    //   chat_model   : spa.model.chat,
+    //   toolbox_model   : spa.model.toolbox,
     //   people_model : spa.model.people
     // });
     spa.menubar.initModule( jqueryMap.$menubar );
 
     // configure and initialize feature modules
     // spa.imagelist.configModule({
-    //   set_chat_anchor : setChatAnchor,
-    //   chat_model      : spa.model.chat,
+    //   set_toolbox_anchor : setToolboxAnchor,
+    //   toolbox_model      : spa.model.toolbox,
     //   people_model    : spa.model.people
     // });
     spa.imagelist.initModule( jqueryMap.$imagelist );
 
-    spa.toolbox.initModule( jqueryMap.$toolbox );
+    // configure and initialize feature modules
+    spa.toolbox.configModule({
+
+      set_toolbox_anchor   : setToolboxAnchor,
+      on_load              : console.log,
+      on_crop              : console.log,
+      on_save              : console.log,
+      cropper_model        : console.log
+    });
+    spa.toolbox.initModule( jqueryMap.$container );
 
     spa.footer.initModule( jqueryMap.$container );
 

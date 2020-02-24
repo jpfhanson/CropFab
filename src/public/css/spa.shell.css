@@ -34,26 +34,6 @@
   padding-bottom : 50px;
   text-align: center;
 }
-.spa-shell-toolbox {
-  position         : fixed;
-  background-color : lightgray;
-  bottom           : 0;
-  right            : 0;
-  z-index          : 1;
-  text-align       : center;
-  width            : 150px;
-  /*height           : 250px;*/
-  border-style     : solid;
-  border-width     : 4px;
-  border-color     : black;
-  border-radius    : 5px;
-  box-shadow       : 0 4px 8px 0 rgba(0, 0, 0, 0.2),
-                     0 6px 20px 0 rgba(0, 0, 0, 0.19);
-
-  border-right-style: none;
-  border-bottom-style: none;
-  border-bottom-right-radius: 0;
-}
 .spa-shell-popup {
   background-color : lightgray;
   margin-top    : -200px;
