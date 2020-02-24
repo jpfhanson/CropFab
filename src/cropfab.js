@@ -12,6 +12,7 @@ function saveFile(dataURL,filename) {
 	fakeLink.href = dataURL;
 	fakeLink.download = filename;
 	fakeLink.click();
+	setTimeout(() => {window.URL.revokeObjectURL(dataURL)});
 }
 
 // TODO: refactor this out
@@ -199,21 +200,12 @@ class ImagePanel {
 			this.redraw();
 		}
 	}
-
 	saveImage() {
-		let filenameParts = this.name.split('.')
-		let imageType;
-		if(filenameParts.length > 1) {
-			imageType = filenameParts.pop();
-			if(imageType == "jpg") {imageType = "jpeg"}
-		} else {
-			imageType = 'png';
-		}
-		let resultURL = this.preview.toDataURL("image/"+imageType).replace("image/"+imageType,"image/octet-stream").replace("image/png","image/octet-stream");
+		let resultURL = this.preview.toDataURL("image/"+this.imageType).replace("image/"+this.imageType,"image/octet-stream").replace("image/png","image/octet-stream");
 		saveFile(resultURL,this.name);
 	}
 	async addToZip(zip) {
-		let blob = await new Promise((resolve) => {this.preview.toBlob(resolve,'image/jpeg')});
+		let blob = await new Promise((resolve) => {this.preview.toBlob(resolve,'image/'+this.imageType)});
 		zip.file(this.name,blob,{base64:true});
 		return null;
 	}
@@ -231,6 +223,20 @@ class ImagePanel {
 	get yOffset() {
 		return(this.canvas.height-this.originalImage.naturalHeight)/2;
 	}
+	get fileType() {
+		let filenameParts = this.name.split('.')
+		let imageType;
+		if(filenameParts.length > 1) {
+			if(filenameParts[-1] == "jpg") {
+				return "jpeg";
+			} else {
+				return filenameParts[-1];
+			}
+		} else {
+			imageType = 'png';
+		}
+	}
+
 }
 
 class ImageColumn {
@@ -302,6 +308,11 @@ class ImageColumn {
 	resizeCanvases() {
 		for(let image of this.images) {
 			image.resizeCanvas(this.greatestImageWidth,this.greatestImageHeight);
+		}
+	}
+	changeCropSize(width,height) {
+		for(let image of this.images) {
+			image.changeCropSize(width,height);
 		}
 	}
 	async saveImages() {
