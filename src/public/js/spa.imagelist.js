@@ -19,10 +19,23 @@ spa.imagelist = (function () {
   //---------------- BEGIN MODULE SCOPE VARIABLES --------------
   var
     configMap = {
-      settable_map : { columns: true },
-      columns   : 1
+      settable_map : { 
+        columns       : true,
+
+        cropper_model : true,
+        on_load       : true,
+        on_drop       : true
+      },
+      columns   : 1,
+
+      cropper_model : null,
+      on_load       : null,
+      on_drop       : null
     },
-    stateMap  = { $container : null },
+    stateMap  = { 
+      $container : null,
+      columns    : 1
+    },
     jqueryMap = {},
 
     setJqueryMap, configModule, initModule,
@@ -79,6 +92,12 @@ spa.imagelist = (function () {
   initModule = function ( $container ) {
     stateMap.$container = $container;
     setJqueryMap();
+
+    spa.loaderbox.configModule({
+      cropper_model   : spa.model,
+      on_load         : configMap.on_load,
+      on_drop         : configMap.on_drop
+    });
     spa.loaderbox.initModule($container);
     return true;
   };
@@ -91,7 +110,7 @@ spa.imagelist = (function () {
   // Returns    : false? TODO
   // Throws     : none
   //
-  handleResize = function ( event ) {
+  handleResize = function () {
     return false;
   };
   // End public method /handleResize/

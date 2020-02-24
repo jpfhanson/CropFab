@@ -38,7 +38,7 @@ spa.shell = (function () {
     copyAnchorMap,    setJqueryMap,   changeAnchorPart,
     onResize,         onHashchange,
     // onTapAcct,        onLogin,        onLogout,
-    setToolboxAnchor,    initModule;
+    setToolboxAnchor, loadImages,    initModule;
   //----------------- END MODULE SCOPE VARIABLES ---------------
 
   //------------------- BEGIN UTILITY METHODS ------------------
@@ -233,6 +233,25 @@ spa.shell = (function () {
     return changeAnchorPart({ toolbox : position_type });
   };
   // End callback method /setToolboxAnchor/
+
+  // Begin callback method /loadImages/
+  // Purpose    : function called whenever images should be loaded
+  //              (should maybe be in spa.shell?)
+  // Arguments  :
+  //  * $container the jquery element used by this feature
+  // Returns    : Boolean
+  //   * true  - image(s) were loaded
+  //   * false - image(s) were not loaded
+  // Throws     : none
+  //
+  loadImages = function () {
+    // start loading an image
+    // (TODO call image-getting code)
+
+    // tell loaderbox that images are being loaded
+    spa.loaderbox.handleLoad();
+  };
+  // End callback method /loadImages/
   // ----------------------- END CALLBACKS ----------------------
 
   //------------------- BEGIN PUBLIC METHODS -------------------
@@ -263,25 +282,25 @@ spa.shell = (function () {
       schema_map : configMap.anchor_schema_map
     });
 
+    // configure and initialize feature modules
     // spa.menubar.configModule({
     //   toolbox_model   : spa.model.toolbox,
     //   people_model : spa.model.people
     // });
     spa.menubar.initModule( jqueryMap.$menubar );
 
-    // configure and initialize feature modules
-    // spa.imagelist.configModule({
-    //   set_toolbox_anchor : setToolboxAnchor,
-    //   toolbox_model      : spa.model.toolbox,
-    //   people_model    : spa.model.people
-    // });
+    spa.imagelist.configModule({
+      cropper_model   : spa.model,
+      on_load         : loadImages,
+      on_drop         : console.log
+    });
     spa.imagelist.initModule( jqueryMap.$imagelist );
 
     // configure and initialize feature modules
     spa.toolbox.configModule({
 
       set_toolbox_anchor   : setToolboxAnchor,
-      on_load              : console.log,
+      on_load              : loadImages,
       on_crop              : console.log,
       on_save              : console.log,
       cropper_model        : console.log

@@ -98,11 +98,15 @@ spa.footer = (function () {
   // Purpose    : handles resize events
   // Arguments  :
   //  * event
-  // Returns    : false? TODO
+  // Returns    : Boolean
+  //   * false - resize not considered
+  //   * true  - resize considered
   // Throws     : none
   //
   handleResize = function ( event ) {
-    return false;
+    // don't do anything if we don't have a container
+    if ( ! jqueryMap.$container ) { return false; }
+    return true;
   };
   // End public method /handleResize/
 
