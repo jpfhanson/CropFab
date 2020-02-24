@@ -15,17 +15,6 @@ function saveFile(dataURL,filename) {
 	setTimeout(() => {window.URL.revokeObjectURL(dataURL)});
 }
 
-// TODO: refactor this out
-class Configuration {
-	constructor() {
-		// This is a bit of a hack.
-		// It isn't configuration. It is just the ImagePanel
-		// that the mouse is currently interacting with so the
-		// the ImageColumn can tell it when the mouse is released.
-		this.currentImagePanel = null;
-	}
-}
-
 class Box {
 	constructor(x,y,width,height) {
 		this.left = x;
@@ -84,12 +73,11 @@ class Box {
 }
 
 class ImagePanel {
-	constructor(name,lastModified,originalImage,config,containerDiv) {
+	constructor(name,lastModified,originalImage,containerDiv) {
 		// after construction, resizeExternal and resizeCanvas must be called to finish setting up
 		this.name = name;
 		this.lastModified = lastModified;
 		this.originalImage = originalImage;
-		this.config = config;
 
 		this.cropBox = Box.fromCenter(this.originalImage.naturalWidth/2,
 										this.originalImage.naturalHeight/2,
@@ -171,7 +159,6 @@ class ImagePanel {
 			if(this.cropBox.top+this.yOffset <= y && y <= this.cropBox.bottom+this.yOffset) {
 				// get ready to move the box
 				this.mouseMode = "move";
-				this.config.currentImagePanel = this;
 			}
 		}
 	}
@@ -181,9 +168,6 @@ class ImagePanel {
 		// whether the button is still pressed is checked before taking action
 		// in other methods. This is called if it is not still pressed.
 		this.mouseMode = "none";
-		if(this.config.currentImagePanel === this) {
-			this.config.currentImagePanel = null;
-		}
 	}
 	onMouseMove(event) {
 		// if the mouse was released at some point and no one told us
@@ -243,27 +227,13 @@ class ImageColumn {
 	constructor() {
 		this.div = document.getElementById("image-column");
 		this.images = new Array();
-		this.config = new Configuration();
 		window.onresize = () => {this.resize()};
 		this.currentImagePanel = null;
-		window.onmouseup 	= (event) => {this.onMouseEnd(event)};
-		window.onmousemove 	= (event) => {this.onMouseMove(event)};
 
 		this.greatestImageWidth = 0;
 		this.greatestImageHeight = 0;
 
 		this.imagesStillLoading = 0;
-	}
-	// I want mouse up move to work on the current pannel even if they happen somewhere else on the page
-	onMouseMove(event) {
-		if(event.which == 0) {
-			this.onMouseEnd(event);
-		}
-	}
-	onMouseEnd(event) {
-		if(this.config.currentImagePanel != null) {
-			this.config.currentImagePanel.onMouseEnd(event);
-		}
 	}
 	loadImages(input) {
 		this.imagesStillLoading += input.files.length;
@@ -288,7 +258,7 @@ class ImageColumn {
 	addImage(name,lastModified,image) {
 		this.greatestImageWidth = Math.max(this.greatestImageWidth,image.naturalWidth);
 		this.greatestImageHeight = Math.max(this.greatestImageHeight,image.naturalHeight);
-		this.images.push(new ImagePanel(name,lastModified,image,this.config,this.div));
+		this.images.push(new ImagePanel(name,lastModified,image,this.div));
 	}
 	imageLoadEnded() {
 		this.imagesStillLoading--;
