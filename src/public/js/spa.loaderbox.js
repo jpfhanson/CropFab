@@ -31,7 +31,7 @@ spa.loaderbox = (function () {
       },
       image_width : 560,
       image_height: 420,
-      alone_height_em : 50,
+      alone_height_em : 25,
       other_height_em : 10,
 
       cropper_model : null,
@@ -39,7 +39,14 @@ spa.loaderbox = (function () {
       on_drop       : null,
 
       main_html : String()
-        + '<div class="spa-loaderbox"></div>',
+        + '<div class="spa-loaderbox">'
+        + '</div>',
+      loadinput_html : String()
+        + '<input type="file" '
+          + 'accept="image/*" '
+          + 'onchange="spa.shell.loadImages(this)" '
+          + 'multiple '
+        + '/>',
       alone_html : String()
         + '<h2>Load images here!</h2>',
       other_html : String()
@@ -56,7 +63,7 @@ spa.loaderbox = (function () {
     jqueryMap = {},
 
     getEmSize, setJqueryMap, configModule, initModule,
-    setPxSizes, onLoadClick, handleLoad, 
+    setPxSizes, handleLoad, 
     handleResize;
   //----------------- END MODULE SCOPE VARIABLES ---------------
 
@@ -92,12 +99,12 @@ spa.loaderbox = (function () {
   //---------------------- END DOM METHODS ---------------------
 
   //------------------- BEGIN EVENT HANDLERS -------------------
-  // Begin event handler /onLoadClick/
-  onLoadClick = function () {
-    console.log("Load fired by loaderbox!");
-    configMap.on_load();
-  };
-  // End event handler /onLoadClick/
+  // // Begin event handler /onLoadClick/
+  // onLoadClick = function () {
+  //   console.log("Load fired by loaderbox!");
+  //   configMap.on_load();
+  // };
+  // // End event handler /onLoadClick/
   //-------------------- END EVENT HANDLERS --------------------
 
 
@@ -151,17 +158,9 @@ spa.loaderbox = (function () {
     $append_target.append(configMap.main_html);
     setJqueryMap();
 
-    // bind user input events
-    jqueryMap.$container.bind('click', onLoadClick);
+    // call the resize function to add correct-size content
+    handleResize();
 
-    // update the depending according to imagelist content
-    if (stateMap.alone) {
-      jqueryMap.$container.css('height', configMap.image_height);
-      jqueryMap.$container.html(configMap.alone_html);
-    } else {
-      jqueryMap.$container.css('height', configMap.image_height*0.5);
-      jqueryMap.$container.html(configMap.other_html);
-    }
     return true;
   };
   // End public method /initModule/
@@ -182,10 +181,14 @@ spa.loaderbox = (function () {
     setPxSizes();
     if ( stateMap.alone ){
       jqueryMap.$container.css('height', stateMap.alone_height_px);
-      jqueryMap.$container.html(configMap.alone_html);
+      jqueryMap.$container.html(configMap.loadinput_html
+        + configMap.alone_html
+      );
     } else {
       jqueryMap.$container.css('height', stateMap.other_height_px);
-      jqueryMap.$container.html(configMap.other_html);
+      jqueryMap.$container.html(configMap.loadinput_html
+        + configMap.other_html
+      );
     }
     return true;
   };

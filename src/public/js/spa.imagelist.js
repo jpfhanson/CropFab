@@ -34,7 +34,8 @@ spa.imagelist = (function () {
     },
     stateMap  = { 
       $container : null,
-      columns    : 1
+      columns    : 1,
+      next_id    : 0
     },
     jqueryMap = {},
 
@@ -108,19 +109,21 @@ spa.imagelist = (function () {
   // Arguments  : 
   //     * imagedata  - the image data
   //     * settingMap - additional settings for the imagebox
-  // Returns    : Boolean
-  //     * true   - image added
-  //     * false  - no image added
+  // Returns    : 
+  //     * imagebox   - the new imagebox
   // Throws     : none
   //
-  addImagebox = function ( imagedata, settingMap ) {
-    var success = spa.imagebox.makeImagebox( 
+  addImagebox = function ( imagebox_back, settingMap ) {
+    var imagebox = spa.imagebox.makeImagebox( 
       jqueryMap.$container, 
-      imagedata,
+      imagebox_back,
       settingMap // configs
     );
-    if (success) { return true; }
-    return false;
+
+    imagebox.stateMap.id = stateMap.next_id;
+    stateMap.next_id++;
+
+    return imagebox;
   };
   // End public method /addImagebox/
 

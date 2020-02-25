@@ -19,8 +19,7 @@ function saveFile(dataURL,filename) {
 }
 
 class ImageColumn {
-  constructor(makeCanvases) {
-    this.makeCanvases = makeCanvases;
+  constructor() {
     this.images = new Array();
     window.onresize = () => {this.resize()};
     this.currentImagePanel = null;
@@ -45,7 +44,7 @@ class ImageColumn {
         }
         image.src = reader.result;
       };
-      reader.onabourt = () => {this.imageLoadEnded()};
+      reader.onabort = () => {this.imageLoadEnded()};
       reader.onerror = () => {this.imageLoadEnded()};
       reader.readAsDataURL(file);
     }
@@ -55,7 +54,7 @@ class ImageColumn {
     this.greatestImageHeight = Math.max(this.greatestImageHeight,image.naturalHeight);
     let imageBox = new ImageBox(name,lastModified,image);
     this.images.push(imageBox);
-    this.makeCanvases(imageBox);
+    spa.shell.handleImageLoad(imageBox);
   }
   imageLoadEnded() {
     this.imagesStillLoading--;
@@ -103,3 +102,5 @@ class ImageColumn {
     zip.generateAsync({type:"blob"}).then((content) => saveFile(URL.createObjectURL(content),"croped_images.zip"));
   }
 }
+
+spa.imagecolumn = new ImageColumn();

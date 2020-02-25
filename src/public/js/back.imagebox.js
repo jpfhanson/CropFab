@@ -77,6 +77,7 @@ class ImageBox {
   }
   setMainCanvas(canvas) {
     this.mainCanvas = canvas;
+    console.log(canvas);
     this.mainCanvas.onmousedown = (event) => {this.onMouseDown(event)};
     this.mainCanvas.onmousemove = (event) => {this.onMouseMove(event)};
     this.resizeCanvas();

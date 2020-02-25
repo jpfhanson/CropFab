@@ -36,9 +36,11 @@ spa.imagebox = (function () {
 
       main_html : String()
         + '<div class="spa-imagebox">'
-          + '<h2>IMAGEBOX</h2>'
-          + '<div class="spa-imagebox-toolbox"></div>'
-          + '<div class="spa-imagebox-canvas"></div>'
+          + '<div class="spa-imagebox-panel">'
+            + '<canvas class="spa-imagebox-previewcanvas"></canvas>'
+            + '<div class="spa-imagebox-toolbox"></div>'
+          + '</div>'
+          + '<canvas class="spa-imagebox-maincanvas"></canvas>'
         + '</div>'
     },
     stateMap  = { 
@@ -49,47 +51,48 @@ spa.imagebox = (function () {
     },
     jqueryMap = {},
 
-    // getEmSize, setPxSizes, 
-    setJqueryMap, configModule, makeImagebox, onClick;
+    getEmSize, setPxSizes, 
+    // setJqueryMap, 
+    configModule, makeImagebox;
   //----------------- END MODULE SCOPE VARIABLES ---------------
 
-  // //------------------- BEGIN UTILITY METHODS ------------------
-  // getEmSize = function ( elem ) {
-  //   return Number(
-  //     getComputedStyle( elem, '' ).fontSize.match(/\d*\.?\d*/)[0]
-  //   );
-  // };
-  // //-------------------- END UTILITY METHODS -------------------
+  //------------------- BEGIN UTILITY METHODS ------------------
+  getEmSize = function ( elem ) {
+    return Number(
+      getComputedStyle( elem, '' ).fontSize.match(/\d*\.?\d*/)[0]
+    );
+  };
+  //-------------------- END UTILITY METHODS -------------------
 
   //--------------------- BEGIN DOM METHODS --------------------
   // Begin DOM method /setJqueryMap/
-  setJqueryMap = function (imagebox) {
-    var $imagelist = imagebox.stateMap.$imagelist;
+  setJqueryMap = function () {
+    var $imagelist = this.stateMap.$imagelist,
+        $container = $('.spa-imagebox').last(this.stateMap.$imagelist);
 
-    jqueryMap = { 
+
+    this.jqueryMap = { 
       $imagelist     : $imagelist,
-      $container     : $imagelist.last('.spa-imagebox')
+      $container     : $container,
+      $maincanvas    : $container.find('.spa-imagebox-maincanvas'),
+      $previewcanvas : $container.find('.spa-imagebox-previewcanvas'),
+      $toolbox       : $container.find('.spa-imagebox-toolbox'),
     };
   };
   // End DOM method /setJqueryMap/
 
-  // // Begin DOM method /setPxSizes/
-  // setPxSizes = function () {
-  //   var px_per_em = getEmSize( jqueryMap.$container.get(0) );
+  // Begin DOM method /setPxSizes/
+  setPxSizes = function () {
+    var px_per_em = getEmSize( jqueryMap.$container.get(0) );
 
-  //   stateMap.px_per_em     = px_per_em;
-  //   stateMap.box_height_px = configMap.box_height_em * px_per_em;
-  //   stateMap.box_height_px = configMap.box_height_em * px_per_em;
-  // };
-  // // End DOM method /setPxSizes/
+    stateMap.px_per_em     = px_per_em;
+    stateMap.box_height_px = configMap.box_height_em * px_per_em;
+    stateMap.box_height_px = configMap.box_height_em * px_per_em;
+  };
+  // End DOM method /setPxSizes/
   //---------------------- END DOM METHODS ---------------------
 
   //------------------- BEGIN EVENT HANDLERS -------------------
-  // Begin event handler /onLoadClick/
-  onClick = function () {
-    console.log("Imagebox clicked!");
-  };
-  // End event handler /onLoadClick/
   //-------------------- END EVENT HANDLERS --------------------
 
   //------------------- BEGIN PUBLIC METHODS -------------------
@@ -121,28 +124,33 @@ spa.imagebox = (function () {
   // Returns    : the imagebox object
   // Throws     : none
   //
-  makeImagebox = function ( $imagelist, imagedata, settingMap ) {
-    var imagebox = {
-      stateMap  : {},
-      jqueryMap : {},
-      imagedata : null,
-      id        : null
+  makeImagebox = function ( $imagelist, imagebox_back, settingMap ) {
+    var imagebox = Object.create(this);
+    imagebox.stateMap  = {
+      $imagelist : $imagelist,
+      backend    : imagebox_back,
     };
-    imagebox.stateMap.$imagelist = $imagelist;
-    console.log($imagelist);
+    imagebox.jqueryMap = {};
     $imagelist.find(".spa-loaderbox").before(configMap.main_html);
-    setJqueryMap(imagebox);
-    console.log("Implement imagedata usage, TODO:  " + imagedata);
+    imagebox.setJqueryMap = setJqueryMap;
+    imagebox.setJqueryMap();
+
+    // apply settings
     console.log("Implement settingMap usage, TODO: " + settingMap);
 
-    // bind user input events
-    jqueryMap.$container.bind('click', function() {
-      return onClick(imagebox.stateMap.id);
-    });
+    // initialize backend
+    console.log(imagebox.jqueryMap.$maincanvas.get(0));
+    imagebox_back.setMainCanvas(
+          imagebox.jqueryMap.$maincanvas.get(0));
+    imagebox_back.setPreviewCanvas(
+          imagebox.jqueryMap.$previewcanvas.get(0));
+
+    // // initialize toolbox
+    // spa.imagebox.backend.makeToolbox( imagebox.jqueryMap.$toolbox );
 
     return imagebox;
   };
-  // End public method /initModule/
+  // End public method /makeImagebox/
 
   // return public methods
   return {

@@ -38,7 +38,7 @@ spa.shell = (function () {
     copyAnchorMap,    setJqueryMap,   changeAnchorPart,
     onResize,         onHashchange,
     // onTapAcct,        onLogin,        onLogout,
-    setToolboxAnchor, loadImages,    initModule;
+    setToolboxAnchor, loadImages,  handleImageLoad,  initModule;
   //----------------- END MODULE SCOPE VARIABLES ---------------
 
   //------------------- BEGIN UTILITY METHODS ------------------
@@ -235,31 +235,45 @@ spa.shell = (function () {
   // End callback method /setToolboxAnchor/
 
   // Begin callback method /loadImages/
-  // Purpose    : function called whenever images should be loaded
-  //              (should maybe be in spa.shell?)
+  // Purpose    : function called WHENEVER images should be loaded
   // Arguments  :
-  //  * $container the jquery element used by this feature
+  //   * input - whatever the file input gives on change
   // Returns    : Boolean
   //   * true  - image(s) were loaded
   //   * false - image(s) were not loaded
   // Throws     : none
   //
-  loadImages = function () {
-    // // start loading an image
-    // (TODO call image-getting code)
-    var imagedata_list = [0, 1];
-
-    // // pass the data to the model
-    // TODO
-
-    // pass the data to the imagelist
-    // spa.imagelist.addImage(imagedata_list);
-    imagedata_list.forEach(spa.imagelist.addImagebox);
+  loadImages = function (input) {
+    // load images via backend
+    // shellcallback on image load is spa.shell.onImageLoad
+    spa.imagecolumn.loadImages(input);
 
     // tell loaderbox that images are being loaded
     spa.loaderbox.handleLoad();
   };
   // End callback method /loadImages/
+
+
+  // Begin callback method /handleImageLoad/
+  // Purpose    : function called WHENEVER image has been loaded
+  // Arguments  :
+  //  * $container the jquery element used by this feature
+  // Returns    : true
+  // Throws     : none
+  //
+  handleImageLoad = function (imagebox_back) {
+    // pass the newly made made imagebox backend to a new imagebox
+    var imagebox = spa.imagelist.addImagebox(
+      imagebox_back,
+      {} // settingMap
+    );
+
+    // maybe do something with the new imagebox?
+    console.log("image added: id = " + imagebox.stateMap.id);
+
+    return true;
+  };
+  // End callback method /handleImageLoad/
   // ----------------------- END CALLBACKS ----------------------
 
   //------------------- BEGIN PUBLIC METHODS -------------------
@@ -300,7 +314,8 @@ spa.shell = (function () {
     spa.imagelist.configModule({
       cropper_model   : spa.model,
       on_load         : loadImages,
-      on_drop         : console.log
+      on_drop         : handleImageLoad // ted: purely to shut up jslint
+                                        // ted: find a better solution!
     });
     spa.imagelist.initModule( jqueryMap.$imagelist );
 
@@ -330,6 +345,9 @@ spa.shell = (function () {
   };
   // End PUBLIC method /initModule/
 
-  return { initModule : initModule };
+  return { initModule : initModule,
+    loadImages       : loadImages,      // should be passed not exposed
+    handleImageLoad  : handleImageLoad  // should be passed not exposed
+  };
   //------------------- END PUBLIC METHODS ---------------------
 }());
