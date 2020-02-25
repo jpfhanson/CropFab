@@ -39,7 +39,7 @@ spa.imagelist = (function () {
     jqueryMap = {},
 
     setJqueryMap, configModule, initModule,
-    handleResize;
+    handleResize, addImagebox;
   //----------------- END MODULE SCOPE VARIABLES ---------------
 
   //------------------- BEGIN UTILITY METHODS ------------------
@@ -103,6 +103,27 @@ spa.imagelist = (function () {
   };
   // End public method /initModule/
 
+  // Begin public method /addImagebox/
+  // Purpose    : Add an imagebox to the imagelist
+  // Arguments  : 
+  //     * imagedata  - the image data
+  //     * settingMap - additional settings for the imagebox
+  // Returns    : Boolean
+  //     * true   - image added
+  //     * false  - no image added
+  // Throws     : none
+  //
+  addImagebox = function ( imagedata, settingMap ) {
+    var success = spa.imagebox.makeImagebox( 
+      jqueryMap.$container, 
+      imagedata,
+      settingMap // configs
+    );
+    if (success) { return true; }
+    return false;
+  };
+  // End public method /addImagebox/
+
   // Begin public method /handleResize/
   // Purpose    : handles resize events
   // Arguments  :
@@ -119,6 +140,7 @@ spa.imagelist = (function () {
   return {
     configModule : configModule,
     initModule   : initModule,
+    addImagebox  : addImagebox,
     handleResize : handleResize
   };
   //------------------- END PUBLIC METHODS ---------------------

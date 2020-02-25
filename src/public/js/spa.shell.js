@@ -245,8 +245,16 @@ spa.shell = (function () {
   // Throws     : none
   //
   loadImages = function () {
-    // start loading an image
+    // // start loading an image
     // (TODO call image-getting code)
+    var imagedata_list = [0, 1];
+
+    // // pass the data to the model
+    // TODO
+
+    // pass the data to the imagelist
+    // spa.imagelist.addImage(imagedata_list);
+    imagedata_list.forEach(spa.imagelist.addImagebox);
 
     // tell loaderbox that images are being loaded
     spa.loaderbox.handleLoad();
