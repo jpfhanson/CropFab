@@ -5,9 +5,11 @@
     <title>Test Page</title>
   </head>
 
-  <body onload="imageColumn=new ImageColumn()">
-    <script src="./jszip.js"></script>
-    <script  src="./cropfab.js"></script>
+  <body onload="imageColumn=new ImageColumn((image) => makeCanvases(document.getElementById('image-column'),image,true,true))">
+    <script src="./testBackingStuff.js"></script>
+    <script src="./public/js/jszip.js"></script>
+	<script src="./public/js/back.imagebox.js"></script>
+	<script src="./public/js/back.imagelist.js"></script>
     <input type="file" accept="image/*" onchange="imageColumn.loadImages(this)" multiple>
 	<button type="button" onclick="imageColumn.saveImages()">Save</button>
     <p>Above canvas column</p>
