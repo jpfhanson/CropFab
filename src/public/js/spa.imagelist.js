@@ -21,13 +21,15 @@ classes.imagelist = class {
 
         cropper_model : true,
         on_load       : true,
-        on_drop       : true
+        on_drop       : true,
+        set_crop_size : true
       },
       columns   : 1,
 
       cropper_model : null,
       on_load       : null,
-      on_drop       : null
+      on_drop       : null,
+      set_crop_size : null,
     };
     this.stateMap  = { 
       $container : null,
@@ -35,6 +37,8 @@ classes.imagelist = class {
       next_id    : 0,
       greatest_image_width : 0,
       greatest_image_height : 0,
+      crop_width  : null,
+      crop_height : null,
       image_array : new Array(),
     };
     this.jqueryMap = {};
@@ -116,7 +120,18 @@ classes.imagelist = class {
   // Throws     : none
   //
   addImagebox(name,lastModifiedDate,image) {
-    var backend = new classes.ImageModel(name,lastModifiedDate,image);
+    if(this.stateMap.crop_width == null) {
+      if(this.stateMap.crop_height != null) {throw new Error();}
+      this.stateMap.crop_width = image.naturalWidth/3;
+      this.stateMap.crop_height = image.naturalHeight/3;
+      this.configMap.set_crop_size(this.stateMap.crop_width,
+                                   this.stateMap.crop_height);
+    } else if(this.stateMap.crop_height == null) {
+      throw new Error();
+    }
+      
+    var backend = new classes.ImageModel(name,lastModifiedDate,image,
+                          this.stateMap.crop_width,this.stateMap.crop_height);
     var imagebox = spa.imagebox.makeImagebox( 
       this.jqueryMap.$container, backend
     );
@@ -156,7 +171,7 @@ classes.imagelist = class {
   // Returns    : none
   // Throws     : none
   changeCropWidth(width) {
-    //untested
+    this.stateMap.crop_width = width;
     for(let image of this.stateMap.image_array) {
       image.changeCropWidth(width);
     }
@@ -169,9 +184,9 @@ classes.imagelist = class {
   // Returns    : none
   // Throws     : none
   changeCropHeight(height) {
-    //untested
+    this.stateMap.crop_height = height;
     for(let image of this.stateMap.image_array) {
-      image.changeCropWidth(height);
+      image.changeCropHeight(height);
     }
   }
   // End public method /changeCropHeight/

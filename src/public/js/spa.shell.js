@@ -338,6 +338,7 @@ classes.shell = class {
     spa.imagelist.configModule({
       cropper_model   : spa.model,
       on_load         : () => {this.beginLoadingImages();},
+      set_crop_size   : (w,h) => {spa.toolbox.setCropSize(w,h);},
     });
     spa.imagelist.initModule( this.jqueryMap.$imagelist );
 
@@ -347,7 +348,7 @@ classes.shell = class {
       on_load              : () => {this.beginLoadingImages();},
       on_crop              : console.log,
       on_save              : () => {spa.imagelist.saveImages()},
-      cropper_model        : console.log
+      cropper_model        : spa.imagelist,
     });
     spa.toolbox.initModule( this.jqueryMap.$container );
 

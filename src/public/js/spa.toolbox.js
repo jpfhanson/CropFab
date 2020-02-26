@@ -30,12 +30,10 @@ classes.toolbox = class {
           + '<button class="spa-toolbox-loadbutton">'
             + 'Load</button>'
           + '</input>'
-          + '<button class="spa-toolbox-cropbutton">'
-          + 'Crop</button>'
           + '<button class="spa-toolbox-savebutton">'
           + 'Save</button>'
           + '<div class="spa-toolbox-croplimits">'
-            + '<div>'
+/*            + '<div>'
               + '<input type="number" class="spa-toolbox-croptop" />'
               + 'Top'
             + '</div>'
@@ -52,6 +50,14 @@ classes.toolbox = class {
             + '<div>'
               + '<input type="number" class="spa-toolbox-cropbottom" />'
               + 'Bottom'
+            + '</div>'*/
+            + '<div>'
+              + 'Width'
+              + '<input type="number" class="spa-toolbox-cropwidth" />'
+            + '</div>'
+            + '<div>'
+              + 'Height'
+              + '<input type="number" class="spa-toolbox-cropheight" />'
             + '</div>'
           + '</div>'
           + '<div class="spa-toolbox-advert">'
@@ -90,7 +96,7 @@ classes.toolbox = class {
       toolbox_hidden_px : 0,
       toolbox_closed_px : 0,
       toolbox_opened_px : 0,
-      image_selecteed  : null,
+      image_selecteed   : null,
     };
     this.jqueryMap = {};
   }
@@ -102,8 +108,8 @@ classes.toolbox = class {
 
   //----------------- BEGIN MODULE SCOPE METHODS ----------------
     // setJqueryMap, getEmSize, setPxSizes, setToolboxPosition,
-    // onToggleClick, onLoadClick, onCropClick, onSaveClick,
-    // onCropLimitChange, handleCropLimitChange,
+    // onToggleClick, onLoadClick, onSaveClick,
+    // onCropWidthChange, onCropHeightChange, handleCropLimitChange,
     // configModule, initModule, handleResize;
   //------------------ END MODULE SCOPE METHODS -----------------
 
@@ -126,13 +132,10 @@ classes.toolbox = class {
       $container     : $container,
       $togglebutton  : $container.find('.spa-toolbox-togglebutton'),
       $loadbutton    : $container.find('.spa-toolbox-loadbutton'),
-      $cropbutton    : $container.find('.spa-toolbox-cropbutton'),
       $savebutton    : $container.find('.spa-toolbox-savebutton'),
       $croplimit     : $container.find('.spa-toolbox-croplimits'),
-      $cropleft      : $container.find('.spa-toolbox-cropleft'),
-      $cropright     : $container.find('.spa-toolbox-cropright'),
-      $croptop       : $container.find('.spa-toolbox-croptop'),
-      $cropbottom    : $container.find('.spa-toolbox-cropbottom'), 
+      $cropwidth     : $container.find('.spa-toolbox-cropwidth'),
+      $cropheight    : $container.find('.spa-toolbox-cropheight'),
       $advert        : $container.find('.spa-toolbox-advert')};
   }
   // End DOM method /setJqueryMap/
@@ -184,14 +187,6 @@ classes.toolbox = class {
   }
   // End EVENT HANDLER method /onLoadClick/
 
-  // Begin EVENT HANDLER method /onCropClick/
-  onCropClick() {
-    console.log("Cropping!");
-    this.configMap.on_crop();
-    return false;
-  }
-  // End EVENT HANDLER method /onCropClick/
-
   // Begin EVENT HANDLER method /onSaveClick/
   onSaveClick() {
     console.log("Saving!");
@@ -200,6 +195,23 @@ classes.toolbox = class {
   }
   // End EVENT HANDLER method /onSaveClick/
 
+  // Begin EVENT HANDLER method /onCropWidthChange/
+  onCropWidthChange() {
+    console.log("Changing crop width!");
+    this.configMap.cropper_model.changeCropWidth(
+            this.jqueryMap.$cropwidth.get(0).value);
+  }
+  // End EVENT HANDLER method /onCropWidthChange/
+
+  // Begin EVENT HANDLER method /onCropHeightChange/
+  onCropHeightChange() {
+    console.log("Changing crop height!");
+    this.configMap.cropper_model.changeCropHeight(
+            this.jqueryMap.$cropheight.get(0).value);
+  }
+  // End EVENT HANDLER method /onCropHeightChange/
+    
+  /*
   // Begin EVENT HANDLER method /onCropLimitChange/
   onCropLimitChange() {
     console.log("Changing crop limits!");
@@ -213,6 +225,7 @@ classes.toolbox = class {
     return false;
   }
   // End EVENT HANDLER method /onCropLimitChange/
+  */
 
   //-------------------- END EVENT HANDLERS --------------------
 
@@ -315,6 +328,18 @@ classes.toolbox = class {
   }
   // End public method /configModule/
 
+  // Begin public method /setCropSize/
+  // Purpose    : Sets the inputs to reflect the crop size
+  // Arguments  : width,height - the crop size
+  // Returns    : true
+  // Throws     : none
+  setCropSize(width,height) {
+    this.jqueryMap.$cropwidth.get(0).value = width;
+    this.jqueryMap.$cropheight.get(0).value = height;
+  }
+  // End public method /setCropSize/
+
+ /*
   // Begin public method /handleCropLimitChange/
   // Purpose    : Updates inputs to reflect new crop limits
   // Arguments  :
@@ -331,6 +356,7 @@ classes.toolbox = class {
     return true;
   }
   // End public method /handleCropLimitChange/
+  */
 
   // Begin public method /initModule/
   // Purpose    : Initializes module
@@ -350,10 +376,9 @@ classes.toolbox = class {
       () => {this.onToggleClick();});
     this.jqueryMap.$loadbutton.bind('click', 
       () => {this.onLoadClick();});
-    this.jqueryMap.$cropbutton.bind('click', 
-      () => {this.onCropClick();});
     this.jqueryMap.$savebutton.bind('click', 
       () => {this.onSaveClick();});
+    /*
     this.jqueryMap.$cropleft.bind('change', 
       () => {this.onCropLimitChange();});
     this.jqueryMap.$cropright.bind('change', 
@@ -362,6 +387,11 @@ classes.toolbox = class {
       () => {this.onCropLimitChange();});
     this.jqueryMap.$cropbottom.bind('change', 
       () => {this.onCropLimitChange();});
+    */
+    this.jqueryMap.$cropwidth.bind('change',
+      () => {this.onCropWidthChange();});
+    this.jqueryMap.$cropheight.bind('change',
+      () => {this.onCropHeightChange();});
     return true;
   }
   // End public method /initModule/

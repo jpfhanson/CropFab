@@ -31,7 +31,7 @@ classes.ImageModel = class {
   //                        (must be >= the width of the image)
   //   * mainCanvasHeight - the internal height of the canvas
   //                        (must be >= the height of the image)
-  constructor(name,lastModifiedDate,originalImage) {
+  constructor(name,lastModifiedDate,originalImage,crop_width,crop_height) {
     // after construction, resizeExternal and resizeCanvas must be called to finish setting up
     this.name = name;
     this.lastModifiedDate = lastModifiedDate;
@@ -43,7 +43,7 @@ classes.ImageModel = class {
 
     this.cropBox = this.Box.fromCenter(this.originalImage.naturalWidth/2,
                     this.originalImage.naturalHeight/2,
-                    500,500);
+                    crop_width,crop_height);
 
     this.mouseMode = "none";
     // these are needed so we can add and remove the listeners
@@ -131,16 +131,18 @@ classes.ImageModel = class {
   // Actions   : set the crop size
   changeCropWidth(width) {
     // untested
-    this.cropBox.width = width;
+    this.cropBox.setWidth(width);
+    this.redraw();
   }
   // Begin public method changeCropHeight
   // Purpose   : Set the croping height
   // Arguments : height  - the new height
   // Returns   : none
   // Actions   : set the crop height
-  changeCropHeight(width) {
+  changeCropHeight(height) {
     // untested
-    this.cropBox.height = height;
+    this.cropBox.setHeight(height);
+    this.redraw();
   }
 
   // Begin public method redraw
@@ -369,6 +371,7 @@ classes.ImageModel = class {
     // Actions   : Set the Boxes height, not changing the center point
     setHeight(height) {
       this.y += (this.height-height)/2;
+      this.height = height;
     }
     // Begin public method contains
     // Purpose   : Check if a point is in this Box
