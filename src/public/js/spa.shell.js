@@ -29,9 +29,12 @@ classes.shell = class {
       $container  : undefined,
       anchor_map  : {},
       resize_idto : undefined,
+      duckbilledplatipus  : undefined, // see the bottom of this method
       images_still_loading : 0
     };
     this.jqueryMap = {};
+    this.stateMap.file_input = document.createElement("input");
+    this.stateMap.file_input.type = "file"
   }
   //---------------- BEGIN MODULE SCOPE VARIABLES --------------
     // copyAnchorMap,    setJqueryMap,   changeAnchorPart,
@@ -334,9 +337,9 @@ classes.shell = class {
     // configure and initialize feature modules
     spa.toolbox.configModule({
       set_toolbox_anchor   : (position) => {this.setToolboxAnchor(position);},
-      on_load              : () => {this.loadImages();}, // fix this
+      on_load              : () => {this.stateMap.file_input.click();}, // fix this
       on_crop              : console.log,
-      on_save              : console.log,
+      on_save              : () => {spa.imagelist.saveImages()},
       cropper_model        : console.log
     });
     spa.toolbox.initModule( this.jqueryMap.$container );
@@ -353,6 +356,10 @@ classes.shell = class {
       .bind( 'resize',     () => {this.onResize();} )
       .bind( 'hashchange', () => {this.onHashchange();} )
       .trigger( 'hashchange' );
+
+    // Set up the file loading mechanizum
+    this.stateMap.file_input.addEventListener("change",
+                                              (input) => {this.loadImages(input)});
   }
   //------------------- END PUBLIC METHODS ---------------------
 };

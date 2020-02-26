@@ -189,8 +189,9 @@ classes.imagelist = class {
     }
     zip.generateAsync({type:"blob"}).then((content) => {
         let fakeLink = document.createElement("a");
+        let dataURL= URL.createObjectURL(content);
         fakeLink.href = dataURL;
-        fakeLink.download = filename;
+        fakeLink.download = "cropped_images.zip";
         fakeLink.click();
         setTimeout(() => {window.URL.revokeObjectURL(dataURL);});
       });
