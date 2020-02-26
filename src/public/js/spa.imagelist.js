@@ -40,13 +40,16 @@ classes.imagelist = class {
       crop_width  : null,
       crop_height : null,
       image_array : new Array(),
+      x_crop_resize_dir : 0,
+      y_crop_resize_dir : 0,
     };
     this.jqueryMap = {};
   }
   //---------------- BEGIN MODULE SCOPE METHODS --------------
     // setJqueryMap, configModule, initModule,
     // handleResize, addImagebox, imagesDoneLoading,
-    // changeCropWidth, changeCropHeight,
+    // changeCropWidth, changeCropHeight, startCropResize
+    // onMouseMove, onMouseUp
   //----------------- END MODULE SCOPE METHODS ---------------
 
   //------------------- BEGIN UTILITY METHODS ------------------
@@ -64,10 +67,63 @@ classes.imagelist = class {
   //---------------------- END DOM METHODS ---------------------
 
   //------------------- BEGIN EVENT HANDLERS -------------------
-  // example: onClickButton = ...
+  onMouseMove(event) {
+    if(event.which == 0) {
+      this.onMouseUp(event);
+      return
+    }
+    let changed = false;
+    if(this.stateMap.x_crop_resize_dir != 0) {
+      let width = this.stateMap.crop_width+
+                  event.movementX*this.stateMap.x_crop_resize_dir*2;
+      if(width < 1) {
+        width = 1;
+      } else if(width > this.stateMap.greatest_image_width) {
+        width = this.stateMap.greatest_image_width;
+      }
+      this.changeCropWidth(width);
+      changed = true;
+    }
+    if(this.stateMap.y_crop_resize_dir != 0) {
+      let height = this.stateMap.crop_height+
+                  event.movementX*this.stateMap.y_crop_resize_dir*2;
+      if(height < 1) {
+        height = 1;
+      } else if(height > this.stateMap.greatest_image_height) {
+        width = this.stateMap.greatest_image_height;
+      }
+      this.changeCropHeight(height);
+      changed = true;
+    }
+    if(changed) {
+      console.log('bing');
+      this.configMap.set_crop_size(this.stateMap.crop_width,
+                                  this.stateMap.crop_height);
+    }
+  }
+  onMouseUp(event) {
+    // called by onMouseMove even if the mouse is already up
+    this.x_crop_resize_dir = 0;
+    this.y_crop_resize_dir = 0;
+  }
+    
   //-------------------- END EVENT HANDLERS --------------------
 
-
+  //-------------------BEGIN CALLBACK METHODS-------------------
+  // Begin public method /startCropResize/
+  // Purpose   : Start changing the crop box size as the mouse moves
+  // Arguments : Show whether to grow or shrink or not change the crop size
+  //              for a mouse movement in a given direction
+  //    * xdir  - -1 will make horizontal mouse movement to the right shrink the
+  //              crop box and left will grow it, 1 will do the oppisit, 0
+  //              means do not grow or shrink horizontally
+  //    * ydir  - xdir, but vertical
+  // Reutrns   : none
+  // Throws    : none
+  startCropResize(xdir,ydir) {
+    this.stateMap.x_crop_resize_dir = xdir;
+    this.stateMap.y_crop_resize_dir = ydir;
+  }
 
   //------------------- BEGIN PUBLIC METHODS -------------------
   // Begin public method /configModule/
@@ -106,6 +162,10 @@ classes.imagelist = class {
       on_drop         : this.configMap.on_drop
     });
     spa.loaderbox.initModule($container);
+    this.jqueryMap.$container.get(0).addEventListener("mousemove",
+                                  (event) => {this.onMouseMove(event);})
+    this.jqueryMap.$container.get(0).addEventListener("mouseup",
+                                  (event) => {this.onMouseUp(event);})
     return true;
   }
   // End public method /initModule/
@@ -131,7 +191,8 @@ classes.imagelist = class {
     }
       
     var backend = new classes.ImageModel(name,lastModifiedDate,image,
-                          this.stateMap.crop_width,this.stateMap.crop_height);
+                          this.stateMap.crop_width,this.stateMap.crop_height,
+                          (x,y) => {this.startCropResize(x,y)});
     var imagebox = spa.imagebox.makeImagebox( 
       this.jqueryMap.$container, backend
     );

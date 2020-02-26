@@ -31,11 +31,13 @@ classes.ImageModel = class {
   //                        (must be >= the width of the image)
   //   * mainCanvasHeight - the internal height of the canvas
   //                        (must be >= the height of the image)
-  constructor(name,lastModifiedDate,originalImage,crop_width,crop_height) {
+  constructor(name,lastModifiedDate,originalImage,crop_width,crop_height,
+                startCropResizeCallback) {
     // after construction, resizeExternal and resizeCanvas must be called to finish setting up
     this.name = name;
     this.lastModifiedDate = lastModifiedDate;
     this.originalImage = originalImage;
+    this.startCropResizeCallback = startCropResizeCallback;
     this.mainCanvasWidth = undefined;
     this.mainCanvasHeight = undefined;
     this.mainCanvas = null;
@@ -130,7 +132,6 @@ classes.ImageModel = class {
   // Returns   : none
   // Actions   : set the crop size
   changeCropWidth(width) {
-    // untested
     this.cropBox.setWidth(width);
     this.redraw();
   }
@@ -140,7 +141,6 @@ classes.ImageModel = class {
   // Returns   : none
   // Actions   : set the crop height
   changeCropHeight(height) {
-    // untested
     this.cropBox.setHeight(height);
     this.redraw();
   }
@@ -180,9 +180,26 @@ classes.ImageModel = class {
   onMouseDown(event) {
     if(this.mainCanvas != null && event.which == 1) {
       // calculate the mouse posision in the canvases coordinate system
-      const x = this.clientToCanvasX(event.offsetX);
-      const y = this.clientToCanvasY(event.offsetY);
-      if(this.cropBox.contains(x-this.xOffset,y-this.yOffset)) {
+      const x = this.clientToCanvasX(event.offsetX)-this.xOffset;
+      const y = this.clientToCanvasY(event.offsetY)-this.yOffset;
+      // if user clicks an edge, tell shell to start resizing the crop box
+      // x and y direction are multiplied by mouse movements to see how much
+      // to resize
+      let xdirection = 0;
+      let ydirection = 0;
+      if(this.cropBox.onLeftEdge(x,y)) {
+        xdirection = -1;
+      } else if(this.cropBox.onRightEdge(x,y)) {
+        xdirection = 1;
+      }
+      if(this.cropBox.onTopEdge(x,y)) {
+        ydirection = -1;
+      } else if(this.cropBox.onBottomEdge(x,y)) {
+        ydirection = 1;
+      }
+      if(xdirection != 0 || ydirection != 0) {
+        this.startCropResizeCallback(xdirection,ydirection);
+      } else if(this.cropBox.contains(x,y)) {
         this.mouseMode = "move";
       }
     }
@@ -295,6 +312,7 @@ classes.ImageModel = class {
       // when width and height are modified, x and y are moved
       this.width = width;
       this.height = height;
+      this.edgeClickWidth = 75;
     }
     // Begin static public method fromCenter
     // Purpose   : construct a Box from a given center point
@@ -331,6 +349,7 @@ classes.ImageModel = class {
     cropImageTo(canvas,image) {
       canvas.width = this.width;
       canvas.height = this.height;
+      canvas.style.height = canvas.clientWidth*this.height/this.width;
       let ctx = canvas.getContext('2d');
       ctx.clearRect(0,0,canvas.width,canvas.height);
       ctx.drawImage(image,-this.left,-this.top);
@@ -370,7 +389,7 @@ classes.ImageModel = class {
     // Returns   : none
     // Actions   : Set the Boxes height, not changing the center point
     setHeight(height) {
-      this.y += (this.height-height)/2;
+      this.top += (this.height-height)/2;
       this.height = height;
     }
     // Begin public method contains
@@ -389,6 +408,82 @@ classes.ImageModel = class {
       }
       return false;
     }
+
+    // Begin public method onLeftEdge
+    // Purpose   : Determain if a point is on the left edge
+    // Arguments :
+    //    * x,y - the point
+    // Returns   :
+    //    * true if the point is on the endge
+    //    * false otherwise
+    // Actions   : none
+    onLeftEdge(x,y) {
+      console.log("checking left endge");
+      console.log(this.left);
+      console.log(x);
+      console.log(Math.abs(this.left-x));
+      console.log(this.edgeClickWidth);
+      if(Math.abs(this.left-x) <= this.edgeClickWidth) {
+        console.log("valid x");
+        if(this.top-this.edgeClickWidth <= y <= this.bottom+this.edgeClickWidth) {
+          console.log("on left edge");
+          return true;
+        }
+      }
+      return false;
+    }
+    
+    // Begin public method onRightEdge
+    // Purpose   : Determain if a point is on the right edge
+    // Arguments :
+    //    * x,y - the point
+    // Returns   :
+    //    * true if the point is on the endge
+    //    * false otherwise
+    // Actions   : none
+    onRightEdge(x,y) {
+      if(Math.abs(this.right-x) <= this.edgeClickWidth) {
+        if(this.top-this.edgeClickWidth <= y <= this.bottom+this.edgeClickWidth) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // Begin public method onTopEdge
+    // Purpose   : Determain if a point is on the left edge
+    // Arguments :
+    //    * x,y - the point
+    // Returns   :
+    //    * true if the point is on the endge
+    //    * false otherwise
+    // Actions   : none
+    onTopEdge(x,y) {
+      if(Math.abs(this.top-y) <= this.edgeClickWidth) {
+        if(this.left-this.edgeClickWidth <= x <= this.right+this.edgeClickWidth) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // Begin public method onBottomEdge
+    // Purpose   : Determain if a point is on the left edge
+    // Arguments :
+    //    * x,y - the point
+    // Returns   :
+    //    * true if the point is on the endge
+    //    * false otherwise
+    // Actions   : none
+    onBottomEdge(x,y) {
+      if(Math.abs(this.bottom-y) <= this.edgeClickWidth) {
+        if(this.left-this.edgeClickWidth <= x <= this.right+this.edgeClickWidth) {
+          return true;
+        }
+      }
+      return false;
+    }
+
     // Begin public method move
     // Purpose   : Move the box
     // Arguments : vx,vy - How far to move it
