@@ -5,14 +5,13 @@
  * Ted Morin - fyodrpetrovichiv@gmail.com
 */
 
-/*jslint         browser : true, continue : true,
-  devel  : true, indent  : 2,    maxerr   : 50,
-  newcap : true, nomen   : true, plusplus : true,
-  regexp : true, sloppy  : true, vars     : false,
-  white  : true
+/*jshint           browser   : true, regexp   : true,
+  devel  : true,   indent    : 2,    maxerr   : 50,
+  newcap : true,   nomen     : true, plusplus : true,
+  white  : true,   esversion : 6,    laxbreak : true
 */
 
-/*global $, spa */
+/*global $, spa, classes, getComputedStyle */
 
 spa.model = (function () {
 

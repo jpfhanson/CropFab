@@ -5,20 +5,17 @@
  * Ted Morin - fyodrpetrovichiv@gmail.com
 */
 
-/*jslint         browser : true, continue : true,
-  devel  : true, indent  : 2,    maxerr   : 50,
-  newcap : true, nomen   : true, plusplus : true,
-  regexp : true, sloppy  : true, vars     : false,
-  white  : true
+/*jshint           browser   : true, regexp   : true,
+  devel  : true,   indent    : 2,    maxerr   : 50,
+  newcap : true,   nomen     : true, plusplus : true,
+  white  : true,   esversion : 6,    laxbreak : true
 */
 
-/*global $, spa */
+/*global $, spa, classes, getComputedStyle */
 
-spa.imagelist = (function () {
-
-  //---------------- BEGIN MODULE SCOPE VARIABLES --------------
-  var
-    configMap = {
+classes.imagelist = class {
+  constructor() {
+    this.configMap = {
       settable_map : { 
         columns       : true,
 
@@ -31,17 +28,18 @@ spa.imagelist = (function () {
       cropper_model : null,
       on_load       : null,
       on_drop       : null
-    },
-    stateMap  = { 
+    };
+    this.stateMap  = { 
       $container : null,
       columns    : 1,
       next_id    : 0
-    },
-    jqueryMap = {},
-
-    setJqueryMap, configModule, initModule,
-    handleResize, addImagebox;
-  //----------------- END MODULE SCOPE VARIABLES ---------------
+    };
+    this.jqueryMap = {};
+  }
+  //---------------- BEGIN MODULE SCOPE METHODS --------------
+    // setJqueryMap, configModule, initModule,
+    // handleResize, addImagebox;
+  //----------------- END MODULE SCOPE METHODS ---------------
 
   //------------------- BEGIN UTILITY METHODS ------------------
   // example : getTrimmedString
@@ -49,11 +47,11 @@ spa.imagelist = (function () {
 
   //--------------------- BEGIN DOM METHODS --------------------
   // Begin DOM method /setJqueryMap/
-  setJqueryMap = function () {
-    var $container = stateMap.$container;
+  setJqueryMap() {
+    var $container = this.stateMap.$container;
 
-    jqueryMap = { $container : $container };
-  };
+    this.jqueryMap = { $container : $container };
+  }
   // End DOM method /setJqueryMap/
   //---------------------- END DOM METHODS ---------------------
 
@@ -73,14 +71,14 @@ spa.imagelist = (function () {
   // Returns    : true
   // Throws     : none
   //
-  configModule = function ( input_map ) {
+  configModule( input_map ) {
     spa.util.setConfigMap({
       input_map    : input_map,
-      settable_map : configMap.settable_map,
-      config_map   : configMap
+      settable_map : this.configMap.settable_map,
+      config_map   : this.configMap
     });
     return true;
-  };
+  }
   // End public method /configModule/
 
   // Begin public method /initModule/
@@ -90,18 +88,18 @@ spa.imagelist = (function () {
   // Returns    : true
   // Throws     : none
   //
-  initModule = function ( $container ) {
-    stateMap.$container = $container;
-    setJqueryMap();
+  initModule( $container ) {
+    this.stateMap.$container = $container;
+    this.setJqueryMap();
 
     spa.loaderbox.configModule({
       cropper_model   : spa.model,
-      on_load         : configMap.on_load,
-      on_drop         : configMap.on_drop
+      on_load         : this.configMap.on_load,
+      on_drop         : this.configMap.on_drop
     });
     spa.loaderbox.initModule($container);
     return true;
-  };
+  }
   // End public method /initModule/
 
   // Begin public method /addImagebox/
@@ -113,18 +111,18 @@ spa.imagelist = (function () {
   //     * imagebox   - the new imagebox
   // Throws     : none
   //
-  addImagebox = function ( imagebox_back, settingMap ) {
+  addImagebox( imagebox_back, settingMap ) {
     var imagebox = spa.imagebox.makeImagebox( 
-      jqueryMap.$container, 
+      this.jqueryMap.$container, 
       imagebox_back,
       settingMap // configs
     );
 
-    imagebox.stateMap.id = stateMap.next_id;
-    stateMap.next_id++;
+    imagebox.stateMap.id = this.stateMap.next_id;
+    this.stateMap.next_id += 1;
 
     return imagebox;
-  };
+  }
   // End public method /addImagebox/
 
   // Begin public method /handleResize/
@@ -134,17 +132,11 @@ spa.imagelist = (function () {
   // Returns    : false? TODO
   // Throws     : none
   //
-  handleResize = function () {
+  handleResize() {
     return false;
-  };
+  }
   // End public method /handleResize/
-
-  // return public methods
-  return {
-    configModule : configModule,
-    initModule   : initModule,
-    addImagebox  : addImagebox,
-    handleResize : handleResize
-  };
   //------------------- END PUBLIC METHODS ---------------------
-}());
+};
+
+spa.imagelist = new classes.imagelist();

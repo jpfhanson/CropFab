@@ -5,48 +5,47 @@
  * Ted Morin - fyodrpetrovichiv@gmail.com
 */
 
-/*jslint         browser : true, continue : true,
-  devel  : true, indent  : 2,    maxerr   : 50,
-  newcap : true, nomen   : true, plusplus : true,
-  regexp : true, sloppy  : true, vars     : false,
-  white  : true
+/*jshint           browser   : true, regexp   : true,
+  devel  : true,   indent    : 2,    maxerr   : 50,
+  newcap : true,   nomen     : true, plusplus : true,
+  white  : true,   esversion : 6,    laxbreak : true
 */
 
-/*global $, spa */
+/*global $, spa, classes, getComputedStyle */
 
-spa.footer = (function () {
-
-  //---------------- BEGIN MODULE SCOPE VARIABLES --------------
-  var
-    configMap = {
+classes.footer = class {
+  constructor() {
+    this.configMap = {
       main_html : String()
         + '<div class="spa-footer">'
           + '<p>Frontend by Ted Morin</p>'
           + '<p>Backend by JP Hanson</p>'
         + '</div>'
-    },
-    stateMap  = {
+    };
+    this.stateMap  = {
       $container : null
-    },
-    jqueryMap = {},
+    };
+    this.jqueryMap = {};
+  }
 
-    setJqueryMap, 
-    configModule, initModule, handleResize;
-  //----------------- END MODULE SCOPE VARIABLES ---------------
+  //---------------- BEGIN MODULE SCOPE METHODS --------------
+    // setJqueryMap, 
+    // configModule, initModule, handleResize;
+  //----------------- END MODULE SCOPE METHODS ---------------
 
   //------------------- BEGIN UTILITY METHODS ------------------
   //-------------------- END UTILITY METHODS -------------------
 
   //--------------------- BEGIN DOM METHODS --------------------
   // Begin DOM method /setJqueryMap/
-  setJqueryMap = function () {
-    var $append_target = stateMap.$append_target;
+  setJqueryMap() {
+    var $append_target = this.stateMap.$append_target;
 
-    jqueryMap = { 
+    this.jqueryMap = { 
       $append_target : $append_target,
       $container : $append_target.find('.spa-footer')
     };
-  };
+  }
   // End DOM method /setJqueryMap/
   //---------------------- END DOM METHODS ---------------------
 
@@ -83,15 +82,15 @@ spa.footer = (function () {
   // Returns    : true
   // Throws     : none
   //
-  initModule = function ( $append_target ) {
+  initModule( $append_target ) {
 
     // load chat slider html and jquery cache
-    stateMap.$append_target = $append_target;
-    $append_target.append( configMap.main_html );
-    setJqueryMap();
+    this.stateMap.$append_target = $append_target;
+    $append_target.append( this.configMap.main_html );
+    this.setJqueryMap();
 
     return true;
-  };
+  }
   // End public method /initModule/
 
   // Begin public method /handleResize/
@@ -103,18 +102,13 @@ spa.footer = (function () {
   //   * true  - resize considered
   // Throws     : none
   //
-  handleResize = function ( event ) {
+  handleResize( event ) {
     // don't do anything if we don't have a container
-    if ( ! jqueryMap.$container ) { return false; }
+    if ( ! this.jqueryMap.$container ) { return false; }
     return true;
-  };
+  }
   // End public method /handleResize/
-
-  // return public methods
-  return {
-    configModule : configModule,
-    initModule   : initModule,
-    handleResize : handleResize
-  };
   //------------------- END PUBLIC METHODS ---------------------
-}());
+};
+
+spa.footer = new classes.footer();
