@@ -23,25 +23,23 @@ classes.shell = class {
       resize_interval : 200,
       main_html : String()
         + '<div class="spa-shell-menubar"></div>'
-        + '<div class="spa-shell-imagelist"></div>'
+        + '<div class="spa-shell-imagelist"></div>',
+      file_input : undefined,
     };
     this.stateMap = {
       $container  : undefined,
       anchor_map  : {},
       resize_idto : undefined,
-      duckbilledplatipus  : undefined, // see the bottom of this method
       images_still_loading : 0
     };
     this.jqueryMap = {};
-    this.stateMap.file_input = document.createElement("input");
-    this.stateMap.file_input.type = "file"
   }
   //---------------- BEGIN MODULE SCOPE VARIABLES --------------
     // copyAnchorMap,    setJqueryMap,   changeAnchorPart,
     // onResize,         onHashchange,
     // // onTapAcct,        onLogin,        onLogout,
-    // setToolboxAnchor, loadImages,  imageLoadEnded, 
-    // initModule;
+    // setToolboxAnchor, beginLoadingImages, loadImages,
+    // imageLoadEnded, initModule;
   //----------------- END MODULE SCOPE VARIABLES ---------------
 
   //------------------- BEGIN UTILITY METHODS ------------------
@@ -216,37 +214,14 @@ classes.shell = class {
   }
   // End Event handler /onResize/
 
-  //-------------------- END EVENT HANDLERS --------------------
-
-  // ---------------------- BEGIN CALLBACKS ---------------------
-  // Begin callback method /setToolboxAnchor/
-  // Example  : setToolboxAnchor( 'closed' );
-  // Purpose  : Change the toolbox component of the anchor
-  // Arguments:
-  //   * position_type - may be 'closed' or 'opened'
-  // Action   :
-  //   Changes the URI anchor parameter 'toolbox' to the requested
-  //   value if possible.
-  // Returns  :
-  //   * true  - requested anchor part was updated
-  //   * false - requested anchor part was not updated
-  // Throws   : none
-  //
-  setToolboxAnchor( position_type ) {
-    return this.changeAnchorPart({ toolbox : position_type });
-  }
-  // End callback method /setToolboxAnchor/
-
-  // Begin callback method /loadImages/
+  // Begin event handler /loadImages/
   // Purpose    : function called WHENEVER images should be loaded
-  // Arguments  :
-  //   * input - whatever the file input gives on change
-  // Returns    : Boolean
-  //   * true  - image(s) were loaded
-  //   * false - image(s) were not loaded
+  // Arguments  : none
+  // Returns    : true
   // Throws     : none
   //
-  loadImages(input) {
+  loadImages() {
+    let input = this.configMap.file_input;
     this.stateMap.images_still_loading += input.files.length;
     for (let file of input.files) {
       const reader = new FileReader();
@@ -268,8 +243,40 @@ classes.shell = class {
 
     // tell loaderbox that images are being loaded
     spa.loaderbox.handleLoad();
+    
+    return true;
   }
-  // End callback method /loadImages/
+  // End event handler /loadImages/
+
+  //-------------------- END EVENT HANDLERS --------------------
+
+  // ---------------------- BEGIN CALLBACKS ---------------------
+  // Begin callback method /setToolboxAnchor/
+  // Example  : setToolboxAnchor( 'closed' );
+  // Purpose  : Change the toolbox component of the anchor
+  // Arguments:
+  //   * position_type - may be 'closed' or 'opened'
+  // Action   :
+  //   Changes the URI anchor parameter 'toolbox' to the requested
+  //   value if possible.
+  // Returns  :
+  //   * true  - requested anchor part was updated
+  //   * false - requested anchor part was not updated
+  // Throws   : none
+  //
+  setToolboxAnchor( position_type ) {
+    return this.changeAnchorPart({ toolbox : position_type });
+  }
+  // End callback method /setToolboxAnchor/
+
+  //Begin callback method /beginLoadingImages/
+  // Purpose    : Called when the user wants to load images
+  // Arguments  : none
+  // Returns    : true
+  // Throws     : none
+  beginLoadingImages() {
+    this.configMap.file_input.click();
+  }
 
   // Begin callback method /imageLoadEnded/
   // Purpose    : Called when an image finishs loading so it can tell
@@ -330,14 +337,14 @@ classes.shell = class {
 
     spa.imagelist.configModule({
       cropper_model   : spa.model,
-      on_load         : () => {this.loadImages();},
+      on_load         : () => {this.beginLoadingImages();},
     });
     spa.imagelist.initModule( this.jqueryMap.$imagelist );
 
     // configure and initialize feature modules
     spa.toolbox.configModule({
       set_toolbox_anchor   : (position) => {this.setToolboxAnchor(position);},
-      on_load              : () => {this.stateMap.file_input.click();}, // fix this
+      on_load              : () => {this.beginLoadingImages();},
       on_crop              : console.log,
       on_save              : () => {spa.imagelist.saveImages()},
       cropper_model        : console.log
@@ -357,9 +364,15 @@ classes.shell = class {
       .bind( 'hashchange', () => {this.onHashchange();} )
       .trigger( 'hashchange' );
 
-    // Set up the file loading mechanizum
-    this.stateMap.file_input.addEventListener("change",
-                                              (input) => {this.loadImages(input)});
+    // Set up the file loading mechanism
+    // The file_input is not in the html because it is never displayed.
+    // It is just a backend mechanism.
+    this.configMap.file_input = document.createElement("input");
+    this.configMap.file_input.type = "file";
+    this.configMap.file_input.accept = "image/*";
+    this.configMap.file_input.multiple = true;
+    this.configMap.file_input.addEventListener("change",
+                                              () => {this.loadImages()});
   }
   //------------------- END PUBLIC METHODS ---------------------
 };

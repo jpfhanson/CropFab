@@ -21,11 +21,14 @@ classes.toolbox = class {
         + '<div class="spa-toolbox">'
           + '<button class="spa-toolbox-togglebutton">'
           + '<b>-</b></button>'
-          + '<input type="file" '
+          /*+ '<input type="file" '
             + 'class="spa-toolbox-loadbutton'
             + 'accept="image/*" '
             + 'onchange="spa.shell.loadImages(this)" '
             + 'multiple >'
+          */
+          + '<button class="spa-toolbox-loadbutton">'
+            + 'Load</button>'
           + '</input>'
           + '<button class="spa-toolbox-cropbutton">'
           + 'Crop</button>'
@@ -175,7 +178,7 @@ classes.toolbox = class {
 
   // Begin EVENT HANDLER method /onLoadClick/
   onLoadClick() {
-    console.log("Loading!");
+    console.log("Toolbox loading!");
     this.configMap.on_load();
     return false;
   }
