@@ -5,26 +5,28 @@
  * Ted Morin - fyodrpetrovichiv@gmail.com
 */
 
-/*jslint         browser : true, continue : true,
-  devel  : true, indent  : 2,    maxerr   : 50,
-  newcap : true, nomen   : true, plusplus : true,
-  regexp : true, sloppy  : true, vars     : false,
-  white  : true
+/*jshint           browser   : true, regexp   : true,
+  devel  : true,   indent    : 2,    maxerr   : 50,
+  newcap : true,   nomen     : true, plusplus : true,
+  white  : true,   esversion : 6,    laxbreak : true
 */
 
-/*global $, spa, getComputedStyle */
+/*global $, spa, classes, getComputedStyle */
 
-spa.toolbox = (function () {
-
-  //---------------- BEGIN MODULE SCOPE VARIABLES --------------
-  var
-    configMap = {
+classes.toolbox = class {
+  // return public methods
+  constructor () {
+    this.configMap = {
       main_html : String()
         + '<div class="spa-toolbox">'
           + '<button class="spa-toolbox-togglebutton">'
           + '<b>-</b></button>'
-          + '<button class="spa-toolbox-loadbutton">'
-          + 'Load</button>'
+          + '<input type="file" '
+            + 'class="spa-toolbox-loadbutton'
+            + 'accept="image/*" '
+            + 'onchange="spa.shell.loadImages(this)" '
+            + 'multiple >'
+          + '</input>'
           + '<button class="spa-toolbox-cropbutton">'
           + 'Crop</button>'
           + '<button class="spa-toolbox-savebutton">'
@@ -77,8 +79,8 @@ spa.toolbox = (function () {
       on_crop              : null,
       on_save              : null,
       cropper_model        : null
-    },
-    stateMap  = {
+    };
+    this.stateMap  = {
       $append_target    : null,
       position_type     : 'closed',
       px_per_em         : 0,
@@ -86,31 +88,38 @@ spa.toolbox = (function () {
       toolbox_closed_px : 0,
       toolbox_opened_px : 0,
       image_selecteed  : null,
-    },
-    jqueryMap = {},
+    };
+    this.jqueryMap = {};
+  }
+    // handleCropLimitChange : handleCropLimitChange,
+    // handleResize          : handleResize,
+    // configModule          : configModule,
+    // setToolboxPosition    : setToolboxPosition,
+    // initModule            : initModule
 
-    setJqueryMap, getEmSize, setPxSizes, setToolboxPosition,
-    onToggleClick, onLoadClick, onCropClick, onSaveClick,
-    onCropLimitChange, handleCropLimitChange,
-    configModule, initModule, handleResize;
-  //----------------- END MODULE SCOPE VARIABLES ---------------
+  //----------------- BEGIN MODULE SCOPE METHODS ----------------
+    // setJqueryMap, getEmSize, setPxSizes, setToolboxPosition,
+    // onToggleClick, onLoadClick, onCropClick, onSaveClick,
+    // onCropLimitChange, handleCropLimitChange,
+    // configModule, initModule, handleResize;
+  //------------------ END MODULE SCOPE METHODS -----------------
 
   //------------------- BEGIN UTILITY METHODS ------------------
-  getEmSize = function ( elem ) {
+  getEmSize( elem ) {
     return Number(
       getComputedStyle( elem, '' ).fontSize.match(/\d*\.?\d*/)[0]
     );
-  };
+  }
   //-------------------- END UTILITY METHODS -------------------
 
   //--------------------- BEGIN DOM METHODS --------------------
   // Begin DOM method /setJqueryMap/
-  setJqueryMap = function () {
+  setJqueryMap() {
     var
-      $append_target = stateMap.$append_target,
+      $append_target = this.stateMap.$append_target,
       $container     = $append_target.find( '.spa-toolbox' );
 
-    jqueryMap = { 
+    this.jqueryMap = { 
       $container     : $container,
       $togglebutton  : $container.find('.spa-toolbox-togglebutton'),
       $loadbutton    : $container.find('.spa-toolbox-loadbutton'),
@@ -122,74 +131,74 @@ spa.toolbox = (function () {
       $croptop       : $container.find('.spa-toolbox-croptop'),
       $cropbottom    : $container.find('.spa-toolbox-cropbottom'), 
       $advert        : $container.find('.spa-toolbox-advert')};
-  };
+  }
   // End DOM method /setJqueryMap/
 
   // Begin DOM method /setPxSizes/
-  setPxSizes = function () {
+  setPxSizes() {
     var px_per_em, window_height_em, opened_height_em;
 
-    px_per_em = getEmSize( jqueryMap.$container.get(0) );
+    px_per_em = this.getEmSize( this.jqueryMap.$container.get(0) );
     window_height_em = Math.floor(
       ( $(window).height() / px_per_em ) + 0.5
     );
 
     opened_height_em
-      = window_height_em > configMap.window_height_min_em
-      ? configMap.toolbox_opened_em
-      : configMap.toolbox_opened_min_em;
+      = window_height_em > this.configMap.window_height_min_em
+      ? this.configMap.toolbox_opened_em
+      : this.configMap.toolbox_opened_min_em;
 
-    stateMap.px_per_em         = px_per_em;
-    stateMap.toolbox_closed_px = configMap.toolbox_closed_em * px_per_em;
-    stateMap.toolbox_opened_px = opened_height_em * px_per_em;
+    this.stateMap.px_per_em         = px_per_em;
+    this.stateMap.toolbox_closed_px = this.configMap.toolbox_closed_em * px_per_em;
+    this.stateMap.toolbox_opened_px = opened_height_em * px_per_em;
     // jqueryMap.$container.css({
     //   height : ( opened_height_em - 2 ) * px_per_em
     // });
-  };
+  }
   // End DOM method /setPxSizes/
   //---------------------- END DOM METHODS ---------------------
 
   //------------------- BEGIN EVENT HANDLERS -------------------
   // Begin EVENT HANDLER method /onToggleClick/
-  onToggleClick = function (){
+  onToggleClick(){
     console.log("Toggled!");
-    var set_toolbox_anchor = configMap.set_toolbox_anchor;
-    if ( stateMap.position_type === 'opened' ) {
+    var set_toolbox_anchor = this.configMap.set_toolbox_anchor;
+    if ( this.stateMap.position_type === 'opened' ) {
       set_toolbox_anchor( 'closed' );
     }
-    else if ( stateMap.position_type === 'closed' ){
+    else if ( this.stateMap.position_type === 'closed' ){
       set_toolbox_anchor( 'opened' );
     }
     return false;
-  };
+  }
   // End EVENT HANDLER method /onToggleClick/
 
   // Begin EVENT HANDLER method /onLoadClick/
-  onLoadClick = function () {
+  onLoadClick() {
     console.log("Loading!");
-    configMap.on_load();
+    this.configMap.on_load();
     return false;
-  };
+  }
   // End EVENT HANDLER method /onLoadClick/
 
   // Begin EVENT HANDLER method /onCropClick/
-  onCropClick = function () {
+  onCropClick() {
     console.log("Cropping!");
-    configMap.on_crop();
+    this.configMap.on_crop();
     return false;
-  };
+  }
   // End EVENT HANDLER method /onCropClick/
 
   // Begin EVENT HANDLER method /onSaveClick/
-  onSaveClick = function () {
+  onSaveClick() {
     console.log("Saving!");
-    configMap.on_save();
+    this.configMap.on_save();
     return false;
-  };
+  }
   // End EVENT HANDLER method /onSaveClick/
 
   // Begin EVENT HANDLER method /onCropLimitChange/
-  onCropLimitChange = function () {
+  onCropLimitChange() {
     console.log("Changing crop limits!");
     var croplimits = {
       top    : jqueryMap.$croptop.val,
@@ -197,9 +206,9 @@ spa.toolbox = (function () {
       right  : jqueryMap.$cropright.val,
       bottom : jqueryMap.$cropbottom.val
     };
-    configMap.cropper_model.updateCropLimits(croplimits);
+    this.configMap.cropper_model.updateCropLimits(croplimits);
     return false;
-  };
+  }
   // End EVENT HANDLER method /onCropLimitChange/
 
   //-------------------- END EVENT HANDLERS --------------------
@@ -222,32 +231,32 @@ spa.toolbox = (function () {
   //   * false - The requested position was not achieved
   // Throws    : none
   //
-  setToolboxPosition = function ( position_type, callback ) {
+  setToolboxPosition( position_type, callback ) {
     var
       height_px, animate_time, toggle_text;
 
     // return true if slider already in requested position
-    if ( stateMap.position_type === position_type ){
+    if ( this.stateMap.position_type === position_type ){
       return true;
     }
 
     // prepare animate parameters
     switch ( position_type ){
       case 'opened' :
-        height_px     = stateMap.toolbox_opened_px;
-        animate_time  = configMap.toolbox_open_time;
+        height_px     = this.stateMap.toolbox_opened_px;
+        animate_time  = this.configMap.toolbox_open_time;
         toggle_text   = '-';
       break;
 
       case 'hidden' :
         height_px     = 0;
-        animate_time  = configMap.toolbox_open_time;
+        animate_time  = this.configMap.toolbox_open_time;
         toggle_text   = '+';
       break;
 
       case 'closed' :
-        height_px     = stateMap.toolbox_closed_px;
-        animate_time  = configMap.toolbox_close_time;
+        height_px     = this.stateMap.toolbox_closed_px;
+        animate_time  = this.configMap.toolbox_close_time;
         toggle_text   = '+';
       break;
 
@@ -256,18 +265,18 @@ spa.toolbox = (function () {
     }
 
     // animate toolbox position change
-    stateMap.position_type = '';
-    jqueryMap.$container.animate(
+    this.stateMap.position_type = '';
+    this.jqueryMap.$container.animate(
       { height : height_px },
       animate_time,
-      function () {
-        jqueryMap.$togglebutton.text( toggle_text );
-        stateMap.position_type = position_type;
-        if ( callback ) { callback( jqueryMap.$container ); }
+      () => {
+        this.jqueryMap.$togglebutton.text( toggle_text );
+        this.stateMap.position_type = position_type;
+        if ( callback ) { callback( this.jqueryMap.$container ); }
       }
     );
     return true;
-  };
+  }
   // End public DOM method /setToolboxPosition/
 
   //------------------- BEGIN PUBLIC METHODS -------------------
@@ -293,14 +302,14 @@ spa.toolbox = (function () {
   // Throws    : JavaScript error object and stack trace on
   //             unacceptable or missing arguments
   //
-  configModule = function ( input_map ) {
+  configModule( input_map ) {
     spa.util.setConfigMap({
       input_map    : input_map,
-      settable_map : configMap.settable_map,
-      config_map   : configMap
+      settable_map : this.configMap.settable_map,
+      config_map   : this.configMap
     });
     return true;
-  };
+  }
   // End public method /configModule/
 
   // Begin public method /handleCropLimitChange/
@@ -310,14 +319,14 @@ spa.toolbox = (function () {
   // Returns    : true
   // Throws     : none
   //
-  handleCropLimitChange = function ( croplimits ) {
+  handleCropLimitChange( croplimits ) {
     console.log("Updating Crop Limits!");
-    jqueryMap.$cropleft.value   = croplimits.left;
-    jqueryMap.$cropright.value  = croplimits.right; 
-    jqueryMap.$croptop.value    = croplimits.top;
-    jqueryMap.$cropbottom.value = croplimits.bottom;
+    this.jqueryMap.$cropleft.value   = croplimits.left;
+    this.jqueryMap.$cropright.value  = croplimits.right; 
+    this.jqueryMap.$croptop.value    = croplimits.top;
+    this.jqueryMap.$cropbottom.value = croplimits.bottom;
     return true;
-  };
+  }
   // End public method /handleCropLimitChange/
 
   // Begin public method /initModule/
@@ -327,23 +336,31 @@ spa.toolbox = (function () {
   // Returns    : true
   // Throws     : none
   //
-  initModule = function ( $append_target ) {
-    stateMap.$append_target = $append_target;
-    $append_target.append( configMap.main_html );
-    setJqueryMap();
-    handleResize();
+  initModule( $append_target ) {
+    this.stateMap.$append_target = $append_target;
+    $append_target.append( this.configMap.main_html );
+    this.setJqueryMap();
+    this.handleResize();
 
     // bind user input events
-    jqueryMap.$togglebutton.bind('click', onToggleClick);
-    jqueryMap.$loadbutton.bind('click', onLoadClick);
-    jqueryMap.$cropbutton.bind('click', onCropClick);
-    jqueryMap.$savebutton.bind('click', onSaveClick);
-    jqueryMap.$cropleft.bind('change', onCropLimitChange);
-    jqueryMap.$cropright.bind('change', onCropLimitChange);
-    jqueryMap.$croptop.bind('change', onCropLimitChange);
-    jqueryMap.$cropbottom.bind('change', onCropLimitChange);
+    this.jqueryMap.$togglebutton.bind('click', 
+      () => {this.onToggleClick();});
+    this.jqueryMap.$loadbutton.bind('click', 
+      () => {this.onLoadClick();});
+    this.jqueryMap.$cropbutton.bind('click', 
+      () => {this.onCropClick();});
+    this.jqueryMap.$savebutton.bind('click', 
+      () => {this.onSaveClick();});
+    this.jqueryMap.$cropleft.bind('change', 
+      () => {this.onCropLimitChange();});
+    this.jqueryMap.$cropright.bind('change', 
+      () => {this.onCropLimitChange();});
+    this.jqueryMap.$croptop.bind('change', 
+      () => {this.onCropLimitChange();});
+    this.jqueryMap.$cropbottom.bind('change', 
+      () => {this.onCropLimitChange();});
     return true;
-  };
+  }
   // End public method /initModule/
 
   // Begin public method /handleResize/
@@ -359,29 +376,22 @@ spa.toolbox = (function () {
   //   * true  - resize considered
   // Throws     : none
   //
-  handleResize = function () {
+  handleResize() {
     // don't do anything if we don't have a toolbox container
-    if ( ! jqueryMap.$container ) { return false; }
+    if ( ! this.jqueryMap.$container ) { return false; }
 
-    setPxSizes();
-    if ( stateMap.position_type === 'opened' ){
-      jqueryMap.$container.css({ height : stateMap.toolbox_opened_px });
-      jqueryMap.$togglebutton.text( '-' );
+    this.setPxSizes();
+    if ( this.stateMap.position_type === 'opened' ){
+      this.jqueryMap.$container.css({ height : this.stateMap.toolbox_opened_px });
+      this.jqueryMap.$togglebutton.text( '-' );
     } else {
-      jqueryMap.$container.css({ height : stateMap.toolbox_closed_px });
-      jqueryMap.$togglebutton.text( '+' );
+      this.jqueryMap.$container.css({ height : this.stateMap.toolbox_closed_px });
+      this.jqueryMap.$togglebutton.text( '+' );
     }
     return true;
-  };
+  }
   // End public method /handleResize/
-
-  // return public methods
-  return {
-    handleCropLimitChange : handleCropLimitChange,
-    handleResize          : handleResize,
-    configModule          : configModule,
-    setToolboxPosition    : setToolboxPosition,
-    initModule            : initModule
-  };
   //------------------- END PUBLIC METHODS ---------------------
-}());
+};
+
+spa.toolbox = new classes.toolbox();

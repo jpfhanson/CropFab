@@ -5,19 +5,18 @@
  * Ted Morin fyodrpetrovichiv
 */
 
-/*jslint         browser : true, continue : true,
-  devel  : true, indent  : 2,    maxerr   : 50,
-  newcap : true, nomen   : true, plusplus : true,
-  regexp : true, sloppy  : true, vars     : false,
-  white  : true
+/*jshint           browser   : true, regexp   : true,
+  devel  : true,   indent    : 2,    maxerr   : 50,
+  newcap : true,   nomen     : true, plusplus : true,
+  white  : true,   esversion : 6,    laxbreak : true
 */
-/*global $, spa */
 
-spa.shell = (function () {
-  'use strict';
-  //---------------- BEGIN MODULE SCOPE VARIABLES --------------
-  var
-    configMap = {
+/*global $, spa, classes, getComputedStyle */
+
+classes.shell = class {
+  // 'use strict';
+  constructor() {
+    this.configMap = {
       anchor_schema_map : {
         toolbox  : { opened : true, closed : true }
       },
@@ -25,42 +24,41 @@ spa.shell = (function () {
       main_html : String()
         + '<div class="spa-shell-menubar"></div>'
         + '<div class="spa-shell-imagelist"></div>'
-        // + '<div class="spa-shell-toolbox"></div>'
-        // + '<div class="spa-shell-modal"></div>'
-    },
-    stateMap = {
+    };
+    this.stateMap = {
       $container  : undefined,
       anchor_map  : {},
       resize_idto : undefined
-    },
-    jqueryMap = {},
-
-    copyAnchorMap,    setJqueryMap,   changeAnchorPart,
-    onResize,         onHashchange,
-    // onTapAcct,        onLogin,        onLogout,
-    setToolboxAnchor, loadImages,  handleImageLoad,  initModule;
+    };
+    this.jqueryMap = {};
+  }
+  //---------------- BEGIN MODULE SCOPE VARIABLES --------------
+    // copyAnchorMap,    setJqueryMap,   changeAnchorPart,
+    // onResize,         onHashchange,
+    // // onTapAcct,        onLogin,        onLogout,
+    // setToolboxAnchor, loadImages,  handleImageLoad,  initModule;
   //----------------- END MODULE SCOPE VARIABLES ---------------
 
   //------------------- BEGIN UTILITY METHODS ------------------
   // Returns copy of stored anchor map; minimizes overhead
-  copyAnchorMap = function () {
-    return $.extend( true, {}, stateMap.anchor_map );
-  };
+  copyAnchorMap() {
+    return $.extend( true, {}, this.stateMap.anchor_map );
+  }
   //-------------------- END UTILITY METHODS -------------------
 
   //--------------------- BEGIN DOM METHODS --------------------
   // Begin DOM method /setJqueryMap/
-  setJqueryMap = function () {
-    var $container = stateMap.$container;
+  setJqueryMap() {
+    var $container = this.stateMap.$container;
 
-    jqueryMap = {
+    this.jqueryMap = {
       $container : $container,
       $menubar : $container.find('.spa-shell-menubar'),
       $imagelist : $container.find('.spa-shell-imagelist'),
       // $toolbox   : $container.find('.spa-shell-toolbox'),
       $footer : $container.find('.spa-shell-footer')
     };
-  };
+  }
   // End DOM method /setJqueryMap/
 
   // Begin DOM method /changeAnchorPart/
@@ -82,9 +80,9 @@ spa.shell = (function () {
   //     * Attempts to change the URI using uriAnchor.
   //     * Returns true on success, and false on failure.
   //
-  changeAnchorPart = function ( arg_map ) {
+  changeAnchorPart( arg_map ) {
     var
-      anchor_map_revise = copyAnchorMap(),
+      anchor_map_revise = this.copyAnchorMap(),
       bool_return       = true,
       key_name, key_name_dep;
 
@@ -118,13 +116,13 @@ spa.shell = (function () {
     }
     catch ( error ) {
       // replace URI with existing state
-      $.uriAnchor.setAnchor( stateMap.anchor_map,null,true );
+      $.uriAnchor.setAnchor( this.stateMap.anchor_map,null,true );
       bool_return = false;
     }
     // End attempt to update URI...
 
     return bool_return;
-  };
+  }
   // End DOM method /changeAnchorPart/
   //--------------------- END DOM METHODS ----------------------
 
@@ -140,12 +138,12 @@ spa.shell = (function () {
   //   * Compares proposed application state with current
   //   * Adjust the application only where proposed state
   //     differs from existing and is allowed by anchor schema
-  onHashchange = function ( event ) {
+  onHashchange( event ) {
     var
       _s_toolbox_previous, _s_toolbox_proposed, s_toolbox_proposed,
       anchor_map_proposed,
       is_ok = true,
-      anchor_map_previous = copyAnchorMap();
+      anchor_map_previous = this.copyAnchorMap();
 
     // attempt to parse anchor
     try { anchor_map_proposed = $.uriAnchor.makeAnchorMap(); }
@@ -153,7 +151,7 @@ spa.shell = (function () {
       $.uriAnchor.setAnchor( anchor_map_previous, null, true );
       return false;
     }
-    stateMap.anchor_map = anchor_map_proposed;
+    this.stateMap.anchor_map = anchor_map_proposed;
 
     // convenience vars
     _s_toolbox_previous = anchor_map_previous._s_toolbox;
@@ -183,7 +181,7 @@ spa.shell = (function () {
     if ( ! is_ok ) {
       if ( anchor_map_previous ) {
         $.uriAnchor.setAnchor( anchor_map_previous, null, true );
-        stateMap.anchor_map = anchor_map_previous;
+        this.stateMap.anchor_map = anchor_map_previous;
       }
       else {
         delete anchor_map_proposed.toolbox;
@@ -193,24 +191,24 @@ spa.shell = (function () {
     // End revert anchor if toolbox change denied
 
     return false;
-  };
+  }
   // End Event handler /onHashchange/
 
   // Begin Event handler /onResize/
-  onResize = function () {
-    if ( stateMap.resize_idto ) { return true; }
+  onResize() {
+    if ( this.stateMap.resize_idto ) { return true; }
 
     // spa.menubar.handleResize();
     // spa.imagelist.handleResize();
     // spa.toolbox.handleResize();
     // spa.footer.handleResize();
-    stateMap.resize_idto = setTimeout(
-      function () { stateMap.resize_idto = undefined; },
+    this.stateMap.resize_idto = setTimeout(() => { 
+      this.stateMap.resize_idto = undefined; },
       configMap.resize_interval
     );
 
     return true;
-  };
+  }
   // End Event handler /onResize/
 
   //-------------------- END EVENT HANDLERS --------------------
@@ -229,9 +227,9 @@ spa.shell = (function () {
   //   * false - requested anchor part was not updated
   // Throws   : none
   //
-  setToolboxAnchor = function ( position_type ) {
-    return changeAnchorPart({ toolbox : position_type });
-  };
+  setToolboxAnchor( position_type ) {
+    return this.changeAnchorPart({ toolbox : position_type });
+  }
   // End callback method /setToolboxAnchor/
 
   // Begin callback method /loadImages/
@@ -243,14 +241,14 @@ spa.shell = (function () {
   //   * false - image(s) were not loaded
   // Throws     : none
   //
-  loadImages = function (input) {
+  loadImages(input) {
     // load images via backend
     // shellcallback on image load is spa.shell.onImageLoad
     spa.imagecolumn.loadImages(input);
 
     // tell loaderbox that images are being loaded
     spa.loaderbox.handleLoad();
-  };
+  }
   // End callback method /loadImages/
 
 
@@ -261,7 +259,7 @@ spa.shell = (function () {
   // Returns    : true
   // Throws     : none
   //
-  handleImageLoad = function (imagebox_back) {
+  handleImageLoad(imagebox_back) {
     // pass the newly made made imagebox backend to a new imagebox
     var imagebox = spa.imagelist.addImagebox(
       imagebox_back,
@@ -272,7 +270,7 @@ spa.shell = (function () {
     console.log("image added: id = " + imagebox.stateMap.id);
 
     return true;
-  };
+  }
   // End callback method /handleImageLoad/
   // ----------------------- END CALLBACKS ----------------------
 
@@ -293,15 +291,15 @@ spa.shell = (function () {
   // Returns   : none 
   // Throws    : none
   //
-  initModule = function ( $container ) {
+  initModule( $container ) {
     // load HTML and map jQuery collections
-    stateMap.$container = $container;
-    $container.html( configMap.main_html );
-    setJqueryMap();
+    this.stateMap.$container = $container;
+    $container.html( this.configMap.main_html );
+    this.setJqueryMap();
 
     // configure uriAnchor to use our schema
     $.uriAnchor.configModule({
-      schema_map : configMap.anchor_schema_map
+      schema_map : this.configMap.anchor_schema_map
     });
 
     // configure and initialize feature modules
@@ -309,28 +307,28 @@ spa.shell = (function () {
     //   toolbox_model   : spa.model.toolbox,
     //   people_model : spa.model.people
     // });
-    spa.menubar.initModule( jqueryMap.$menubar );
+    spa.menubar.initModule( this.jqueryMap.$menubar );
 
     spa.imagelist.configModule({
       cropper_model   : spa.model,
-      on_load         : loadImages,
-      on_drop         : handleImageLoad // ted: purely to shut up jslint
+      on_load         : () => {this.loadImages();},
+      on_drop         : () => {this.handleImageLoad();} 
+                                        // ted: purely to shut up jslint
                                         // ted: find a better solution!
     });
-    spa.imagelist.initModule( jqueryMap.$imagelist );
+    spa.imagelist.initModule( this.jqueryMap.$imagelist );
 
     // configure and initialize feature modules
     spa.toolbox.configModule({
-
-      set_toolbox_anchor   : setToolboxAnchor,
-      on_load              : loadImages,
+      set_toolbox_anchor   : (position) => {this.setToolboxAnchor(position);},
+      on_load              : () => {this.loadImages();}, // fix this
       on_crop              : console.log,
       on_save              : console.log,
       cropper_model        : console.log
     });
-    spa.toolbox.initModule( jqueryMap.$container );
+    spa.toolbox.initModule( this.jqueryMap.$container );
 
-    spa.footer.initModule( jqueryMap.$container );
+    spa.footer.initModule( this.jqueryMap.$container );
 
     // Handle URI anchor change events.
     // This is done /after/ all feature modules are configured
@@ -339,15 +337,11 @@ spa.shell = (function () {
     // is considered on-load
     //
     $(window)
-      .bind( 'resize',     onResize )
-      .bind( 'hashchange', onHashchange )
+      .bind( 'resize',     () => {this.onResize();} )
+      .bind( 'hashchange', () => {this.onHashchange();} )
       .trigger( 'hashchange' );
-  };
-  // End PUBLIC method /initModule/
-
-  return { initModule : initModule,
-    loadImages       : loadImages,      // should be passed not exposed
-    handleImageLoad  : handleImageLoad  // should be passed not exposed
-  };
+  }
   //------------------- END PUBLIC METHODS ---------------------
-}());
+};
+
+spa.shell = new classes.shell();

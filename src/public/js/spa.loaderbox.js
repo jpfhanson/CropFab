@@ -5,20 +5,17 @@
  * Ted Morin - fyodrpetrovichiv@gmail.com
 */
 
-/*jslint         browser : true, continue : true,
-  devel  : true, indent  : 2,    maxerr   : 50,
-  newcap : true, nomen   : true, plusplus : true,
-  regexp : true, sloppy  : true, vars     : false,
-  white  : true
+/*jshint           browser   : true, regexp   : true,
+  devel  : true,   indent    : 2,    maxerr   : 50,
+  newcap : true,   nomen     : true, plusplus : true,
+  white  : true,   esversion : 6,    laxbreak : true
 */
 
-/*global $, spa, getComputedStyle */
+/*global $, spa, classes, getComputedStyle */
 
-spa.loaderbox = (function () {
-
-  //---------------- BEGIN MODULE SCOPE VARIABLES --------------
-  var
-    configMap = {
+classes.loaderbox = class {
+  constructor() {
+    this.configMap = {
       settable_map : {
         image_width     : true,
         image_height    : true, 
@@ -51,50 +48,52 @@ spa.loaderbox = (function () {
         + '<h2>Load images here!</h2>',
       other_html : String()
         + '<h2>Load more images here!</h2>'
-    },
-    stateMap  = { 
+    };
+    this.stateMap  = { 
       $container : null,
 
       alone_height_px : 0,
       other_height_px : 0,
 
       alone : true,
-    },
-    jqueryMap = {},
+    };
+    this.jqueryMap = {};
 
-    getEmSize, setJqueryMap, configModule, initModule,
-    setPxSizes, handleLoad, 
-    handleResize;
-  //----------------- END MODULE SCOPE VARIABLES ---------------
+  }
+  //---------------- BEGIN MODULE SCOPE METHODS --------------
+    // getEmSize, setJqueryMap, configModule, initModule,
+    // setPxSizes, handleLoad, 
+    // handleResize;
+  //----------------- END MODULE SCOPE METHODS ---------------
 
   //------------------- BEGIN UTILITY METHODS ------------------
-  getEmSize = function ( elem ) {
+  getEmSize( elem ) {
     return Number(
       getComputedStyle( elem, '' ).fontSize.match(/\d*\.?\d*/)[0]
     );
-  };
+  }
   //-------------------- END UTILITY METHODS -------------------
 
   //--------------------- BEGIN DOM METHODS --------------------
   // Begin DOM method /setJqueryMap/
-  setJqueryMap = function () {
-    var $append_target = stateMap.$append_target;
+  setJqueryMap() {
+    var $append_target = this.stateMap.$append_target;
 
-    jqueryMap = { 
+    this.jqueryMap = { 
       $append_target : $append_target,
       $container     : $append_target.find('.spa-loaderbox')
     };
-  };
+  }
   // End DOM method /setJqueryMap/
 
   // Begin DOM method /setPxSizes/
-  setPxSizes = function () {
-    var px_per_em = getEmSize( jqueryMap.$container.get(0) );
+  setPxSizes() {
+    var px_per_em = this.getEmSize( this.jqueryMap.$container.get(0) );
 
-    stateMap.px_per_em         = px_per_em;
-    stateMap.alone_height_px = configMap.alone_height_em * px_per_em;
-    stateMap.other_height_px = configMap.other_height_em * px_per_em;
-  };
+    this.stateMap.px_per_em         = px_per_em;
+    this.stateMap.alone_height_px = this.configMap.alone_height_em * px_per_em;
+    this.stateMap.other_height_px = this.configMap.other_height_em * px_per_em;
+  }
   // End DOM method /setPxSizes/
   //---------------------- END DOM METHODS ---------------------
 
@@ -116,15 +115,14 @@ spa.loaderbox = (function () {
   // Returns    : Boolean
   //   * false - images loaded previously
   //   * true  - first images loaded (resized)
-  //
-  handleLoad = function () {
-    if (!stateMap.alone) { return false; }
+  handleLoad() {
+    if (!this.stateMap.alone) { return false; }
 
-    stateMap.alone = false;
-    handleResize();
+    this.stateMap.alone = false;
+    this.handleResize();
     console.log('Loaded!');
     return true;
-  };
+  }
   // End public method /handleLoad/
 
   // Begin public method /configModule/
@@ -136,14 +134,14 @@ spa.loaderbox = (function () {
   // Returns    : true
   // Throws     : none
   //
-  configModule = function ( input_map ) {
+  configModule( input_map ) {
     spa.util.setConfigMap({
       input_map    : input_map,
-      settable_map : configMap.settable_map,
-      config_map   : configMap
+      settable_map : this.configMap.settable_map,
+      config_map   : this.configMap
     });
     return true;
-  };
+  }
   // End public method /configModule/
 
   // Begin public method /initModule/
@@ -153,16 +151,16 @@ spa.loaderbox = (function () {
   // Returns    : true
   // Throws     : none
   //
-  initModule = function ( $append_target ) {
-    stateMap.$append_target = $append_target;
-    $append_target.append(configMap.main_html);
-    setJqueryMap();
+  initModule( $append_target ) {
+    this.stateMap.$append_target = $append_target;
+    $append_target.append(this.configMap.main_html);
+    this.setJqueryMap();
 
     // call the resize function to add correct-size content
-    handleResize();
+    this.handleResize();
 
     return true;
-  };
+  }
   // End public method /initModule/
 
   // Begin public method /handleResize/
@@ -174,32 +172,26 @@ spa.loaderbox = (function () {
   //   * true  - resize considered
   // Throws     : none
   //
-  handleResize = function () {
+  handleResize() {
     // don't do anything if we don't have a container
-    if ( ! jqueryMap.$container ) { return false; }
+    if ( ! this.jqueryMap.$container ) { return false; }
 
-    setPxSizes();
-    if ( stateMap.alone ){
-      jqueryMap.$container.css('height', stateMap.alone_height_px);
-      jqueryMap.$container.html(configMap.loadinput_html
-        + configMap.alone_html
+    this.setPxSizes();
+    if ( this.stateMap.alone ){
+      this.jqueryMap.$container.css('height', this.stateMap.alone_height_px);
+      this.jqueryMap.$container.html(this.configMap.loadinput_html
+        + this.configMap.alone_html
       );
     } else {
-      jqueryMap.$container.css('height', stateMap.other_height_px);
-      jqueryMap.$container.html(configMap.loadinput_html
-        + configMap.other_html
+      this.jqueryMap.$container.css('height', this.stateMap.other_height_px);
+      this.jqueryMap.$container.html(this.configMap.loadinput_html
+        + this.configMap.other_html
       );
     }
     return true;
-  };
+  }
   // End public method /handleResize/
-
-  // return public methods
-  return {
-    handleLoad   : handleLoad,
-    configModule : configModule,
-    initModule   : initModule,
-    handleResize : handleResize
-  };
   //------------------- END PUBLIC METHODS ---------------------
-}());
+};
+
+spa.loaderbox = new classes.loaderbox();

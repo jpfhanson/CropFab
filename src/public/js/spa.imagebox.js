@@ -5,20 +5,17 @@
  * Ted Morin - fyodrpetrovichiv@gmail.com
 */
 
-/*jslint         browser : true, continue : true,
-  devel  : true, indent  : 2,    maxerr   : 50,
-  newcap : true, nomen   : true, plusplus : true,
-  regexp : true, sloppy  : true, vars     : false,
-  white  : true
+/*jshint           browser   : true, regexp   : true,
+  devel  : true,   indent    : 2,    maxerr   : 50,
+  newcap : true,   nomen     : true, plusplus : true,
+  white  : true,   esversion : 6,    laxbreak : true
 */
 
-/*global $, spa, getComputedStyle */
+/*global $, spa, classes, getComputedStyle */
 
-spa.imagebox = (function () {
-
-  //---------------- BEGIN MODULE SCOPE VARIABLES --------------
-  var
-    configMap = {
+classes.imagebox = class {
+  constructor() {
+    this.configMap = {
       settable_map : {
         image_width     : true,
         image_height    : true,
@@ -42,31 +39,32 @@ spa.imagebox = (function () {
           + '</div>'
           + '<canvas class="spa-imagebox-maincanvas"></canvas>'
         + '</div>'
-    },
-    stateMap  = { 
+    };
+    this.stateMap  = { 
       $container : null,
 
       box_width_px  : 0,
       box_height_px : 0,
-    },
-    jqueryMap = {},
-
-    getEmSize, setPxSizes, 
-    // setJqueryMap, 
-    configModule, makeImagebox;
+    };
+    this.jqueryMap = {};
+  }
+  //---------------- BEGIN MODULE SCOPE VARIABLES --------------
+    // getEmSize, setPxSizes, 
+    // // setJqueryMap, 
+    // configModule, makeImagebox;
   //----------------- END MODULE SCOPE VARIABLES ---------------
 
   //------------------- BEGIN UTILITY METHODS ------------------
-  getEmSize = function ( elem ) {
+  getEmSize( elem ) {
     return Number(
       getComputedStyle( elem, '' ).fontSize.match(/\d*\.?\d*/)[0]
     );
-  };
+  }
   //-------------------- END UTILITY METHODS -------------------
 
   //--------------------- BEGIN DOM METHODS --------------------
   // Begin DOM method /setJqueryMap/
-  setJqueryMap = function () {
+  setJqueryMap() {
     var $imagelist = this.stateMap.$imagelist,
         $container = $('.spa-imagebox').last(this.stateMap.$imagelist);
 
@@ -78,17 +76,17 @@ spa.imagebox = (function () {
       $previewcanvas : $container.find('.spa-imagebox-previewcanvas'),
       $toolbox       : $container.find('.spa-imagebox-toolbox'),
     };
-  };
+  }
   // End DOM method /setJqueryMap/
 
   // Begin DOM method /setPxSizes/
-  setPxSizes = function () {
+  setPxSizes() {
     var px_per_em = getEmSize( jqueryMap.$container.get(0) );
 
     stateMap.px_per_em     = px_per_em;
     stateMap.box_height_px = configMap.box_height_em * px_per_em;
     stateMap.box_height_px = configMap.box_height_em * px_per_em;
-  };
+  }
   // End DOM method /setPxSizes/
   //---------------------- END DOM METHODS ---------------------
 
@@ -105,14 +103,14 @@ spa.imagebox = (function () {
   // Returns    : true
   // Throws     : none
   //
-  configModule = function ( input_map ) {
+  configModule( input_map ) {
     spa.util.setConfigMap({
       input_map    : input_map,
-      settable_map : configMap.settable_map,
-      config_map   : configMap
+      settable_map : this.configMap.settable_map,
+      config_map   : this.configMap
     });
     return true;
-  };
+  }
   // End public method /configModule/
 
   // Begin public method /makeImagebox/
@@ -124,15 +122,15 @@ spa.imagebox = (function () {
   // Returns    : the imagebox object
   // Throws     : none
   //
-  makeImagebox = function ( $imagelist, imagebox_back, settingMap ) {
+  makeImagebox( $imagelist, imagebox_back, settingMap ) {
     var imagebox = Object.create(this);
     imagebox.stateMap  = {
       $imagelist : $imagelist,
       backend    : imagebox_back,
     };
     imagebox.jqueryMap = {};
-    $imagelist.find(".spa-loaderbox").before(configMap.main_html);
-    imagebox.setJqueryMap = setJqueryMap;
+    $imagelist.find(".spa-loaderbox").before(this.configMap.main_html);
+    imagebox.setJqueryMap = this.setJqueryMap;
     imagebox.setJqueryMap();
 
     // apply settings
@@ -149,13 +147,11 @@ spa.imagebox = (function () {
     // spa.imagebox.backend.makeToolbox( imagebox.jqueryMap.$toolbox );
 
     return imagebox;
-  };
+  }
   // End public method /makeImagebox/
 
   // return public methods
-  return {
-    configModule : configModule,
-    makeImagebox : makeImagebox
-  };
   //------------------- END PUBLIC METHODS ---------------------
-}());
+};
+
+spa.imagebox = new classes.imagebox();

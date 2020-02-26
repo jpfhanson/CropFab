@@ -5,20 +5,17 @@
  * Ted Morin - fyodrpetrovichiv@gmail.com
 */
 
-/*jslint         browser : true, continue : true,
-  devel  : true, indent  : 2,    maxerr   : 50,
-  newcap : true, nomen   : true, plusplus : true,
-  regexp : true, sloppy  : true, vars     : false,
-  white  : true
+/*jshint           browser   : true, regexp   : true,
+  devel  : true,   indent    : 2,    maxerr   : 50,
+  newcap : true,   nomen     : true, plusplus : true,
+  white  : true,   esversion : 6,    laxbreak : true
 */
 
-/*global $, spa */
+/*global $, spa, classes, getComputedStyle */
 
-spa.menubar = (function () {
-
-  //---------------- BEGIN MODULE SCOPE VARIABLES --------------
-  var
-    configMap = {
+classes.menubar = class {
+  constructor() {
+    this.configMap = {
       settable_map : {
         menubar_height: true,
         menubar_width : true
@@ -55,53 +52,54 @@ spa.menubar = (function () {
         + 'Enjoy!',
       menubar_height : 73,
       menubar_width  : 780,
-    },
-    stateMap  = { $container : null },
-    jqueryMap = {},
-
-    getMarginLeft, setMenubarDimensions, setJqueryMap, 
-    handleResize, onAboutClick, onUsageClick,
-    configModule, initModule;
-  //----------------- END MODULE SCOPE VARIABLES ---------------
+    };
+    this.stateMap  = { $container : null };
+    this.jqueryMap = {};
+  }
+  //---------------- BEGIN MODULE SCOPE METHODS --------------
+    // getMarginLeft, setMenubarDimensions, setJqueryMap, 
+    // handleResize, onAboutClick, onUsageClick,
+    // configModule, initModule;
+  //----------------- END MODULE SCOPE METHODS ---------------
 
   //------------------- BEGIN UTILITY METHODS ------------------
   // Begin UTILITY method /setMenubarDimensions/
-  setMenubarDimensions = function() {
-    jqueryMap.$container.css('width', 
-                      configMap.menubar_width);
-    jqueryMap.$container.css('margin-left', spa.util.getMarginLeft(
-                      configMap.menubar_width));
-    jqueryMap.$container.css('height', 
-                      configMap.menubar_height);
-  };
+  setMenubarDimensions() {
+    this.jqueryMap.$container.css('width', 
+                      this.configMap.menubar_width);
+    this.jqueryMap.$container.css('margin-left', spa.util.getMarginLeft(
+                      this.configMap.menubar_width));
+    this.jqueryMap.$container.css('height', 
+                      this.configMap.menubar_height);
+  }
   // End UTILITY method /setMenubarDimensions/
 
   //-------------------- END UTILITY METHODS -------------------
 
   //--------------------- BEGIN DOM METHODS --------------------
   // Begin DOM method /setJqueryMap/
-  setJqueryMap = function () {
-    var $container = stateMap.$container;
+  setJqueryMap() {
+    var $container = this.stateMap.$container;
 
-    jqueryMap = { 
+    this.jqueryMap = { 
       $container : $container,
       $logo  : $container.find('.spa-menubar-logo'),
       $usage : $container.find('.spa-menubar-usagebutton'),
       $about : $container.find('.spa-menubar-aboutbutton'),
     };
-  };
+  }
   // End DOM method /setJqueryMap/
   //---------------------- END DOM METHODS ---------------------
 
   //------------------- BEGIN EVENT HANDLERS -------------------
 
-  onAboutClick = function() {
-    alert(configMap.about_text);
-  };
+  onAboutClick() {
+    alert(this.configMap.about_text);
+  }
 
-  onUsageClick = function() {
-    alert(configMap.usage_text);
-  };
+  onUsageClick() {
+    alert(this.configMap.usage_text);
+  }
 
   //-------------------- END EVENT HANDLERS --------------------
 
@@ -116,18 +114,18 @@ spa.menubar = (function () {
   // Returns    : true
   // Throws     : none
   //
-  initModule = function ( $container ) {
-    stateMap.$container = $container;
-    $container.html( configMap.main_html );
-    setJqueryMap();
-    setMenubarDimensions();
+  initModule( $container ) {
+    this.stateMap.$container = $container;
+    $container.html( this.configMap.main_html );
+    this.setJqueryMap();
+    this.setMenubarDimensions();
 
     // bind user input events
-    jqueryMap.$usage.bind('click', onUsageClick);
-    jqueryMap.$about.bind('click', onAboutClick);
+    this.jqueryMap.$usage.bind('click', () => {this.onUsageClick();});
+    this.jqueryMap.$about.bind('click', () => {this.onAboutClick();});
 
     return true;
-  };
+  }
   // End public method /initModule/
 
   // Begin public method /handleResize/
@@ -137,16 +135,11 @@ spa.menubar = (function () {
   // Returns    : false? TODO
   // Throws     : none
   //
-  handleResize = function ( event ) {
+  handleResize( event ) {
     return false;
-  };
+  }
   // End public method /handleResize/
-
-  // return public methods
-  return {
-    configModule : configModule,
-    initModule   : initModule,
-    handleResize : handleResize
-  };
   //------------------- END PUBLIC METHODS ---------------------
-}());
+};
+
+spa.menubar = new classes.menubar();
