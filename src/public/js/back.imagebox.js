@@ -65,6 +65,7 @@ classes.ImageBox = class {
       this.mainCanvas.removeEventListener('mouseDown',this.mouseDownListener);
       this.mainCanvas.removeEventListener('mousemove',this.mouseMoveListener);
     }
+    console.log("boom");
     this.mainCanvas = canvas;
     this.mainCanvas.addEventListener('mouseDown',this.mouseDownListener);
     this.mainCanvas.addEventListener('mousemove', this.mouseMoveListener);

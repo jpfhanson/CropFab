@@ -32,13 +32,17 @@ classes.imagelist = class {
     this.stateMap  = { 
       $container : null,
       columns    : 1,
-      next_id    : 0
+      next_id    : 0,
+      greatest_image_width : 0,
+      greatest_image_height : 0,
+      image_array : new Array(),
     };
     this.jqueryMap = {};
   }
   //---------------- BEGIN MODULE SCOPE METHODS --------------
     // setJqueryMap, configModule, initModule,
-    // handleResize, addImagebox;
+    // handleResize, addImagebox, imagesDoneLoading,
+    // changeCropWidth, changeCropHeight,
   //----------------- END MODULE SCOPE METHODS ---------------
 
   //------------------- BEGIN UTILITY METHODS ------------------
@@ -111,19 +115,84 @@ classes.imagelist = class {
   //     * imagebox   - the new imagebox
   // Throws     : none
   //
-  addImagebox( imagebox_back, settingMap ) {
+  addImagebox(name,lastModifiedDate,image) {
+    var backend = new classes.ImageBox(name,lastModifiedDate,image);
     var imagebox = spa.imagebox.makeImagebox( 
-      this.jqueryMap.$container, 
-      imagebox_back,
-      settingMap // configs
+      this.jqueryMap.$container, backend
     );
 
     imagebox.stateMap.id = this.stateMap.next_id;
+    this.stateMap.image_array.push(backend);
     this.stateMap.next_id += 1;
+    if(this.greatest_image_width < image.naturalWidth) {
+      this.greatest_image_width = image.naturalWidth;
+    }
+    if(this.greatest_image_height < image.naturalHeight) {
+      this.greatest_image_height = image.naturalHeight;
+    }
 
     return imagebox;
   }
   // End public method /addImagebox/
+
+  // Begin public method /doneLoadingImages/
+  // Purpose     : Called when a batch of images is finished loading
+  //               Currently it just adjusts the sizes of all the canvases
+  // Arguments   : none
+  // Returns     : none
+  // Throws      : none
+  doneLoadingImages() {
+    for(let image of this.stateMap.image_array) {
+      image.resizeCanvas(this.greatestImageWidth,this.greatestImageHeight);
+    }
+  }
+  // End public method /addImagebox/
+    
+  // Begin public method /changeCropWidth/
+  // Purpose    : Change the width of the cropping boxes
+  // Arguments  : width
+  // Returns    : none
+  // Throws     : none
+  changeCropWidth(width) {
+    //untested
+    for(let image of this.stateMap.image_array) {
+      image.changeCropWidth(width);
+    }
+  }
+  // End public method /changeCropWidth/
+
+  // Begin public method /changeCropHeight/
+  // Purpose    : Change the height of the cropping boxes
+  // Arguments  : height
+  // Returns    : none
+  // Throws     : none
+  changeCropHeight(height) {
+    //untested
+    for(let image of this.stateMap.image_array) {
+      image.changeCropWidth(height);
+    }
+  }
+  // End public method /changeCropHeight/
+
+  // Begin public async method saveImages()
+  // Purpose    : Save the processed images
+  // Arguments  : none
+  // Returns    : none
+  // Throws     : none
+  async saveImages() {
+    let zip = new JSZip();
+    for(let image of this.stateMap.image_array) {
+      let result = await image.getFinalImage();
+      zip.file(result.name,result.blob,{base64:true});
+    }
+    zip.generateAsync({type:"blob"}).then((content) => {
+        let fakeLink = document.createElement("a");
+        fakeLink.href = dataURL;
+        fakeLink.download = filename;
+        fakeLink.click();
+        setTimeout(() => {window.URL.revokeObjectURL(dataURL);});
+      });
+  }
 
   // Begin public method /handleResize/
   // Purpose    : handles resize events
@@ -133,6 +202,9 @@ classes.imagelist = class {
   // Throws     : none
   //
   handleResize() {
+    for(let image of this.stateMap.image_array) {
+      image.resizeExternal();
+    }
     return false;
   }
   // End public method /handleResize/
