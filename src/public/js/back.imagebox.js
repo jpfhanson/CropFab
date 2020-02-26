@@ -15,144 +15,10 @@
 */
 /* global spa */
 
-// Begin private helper class Box
-// Purpose : Wraps a rectangle used for image cropping
-class Box {
-  // Begin constructor
-  // Arguments :
-  //   * x, y - the position of the boxes upper left corner
-  //   * width, height - the demensions of the box
-  constructor(x,y,width,height) {
-    this.left = x;
-    this.top = y;
-    // when width and height are modified, x and y are moved
-    this.width = width;
-    this.height = height;
-  }
-  // Begin static public method fromCenter
-  // Purpose   : construct a Box from a given center point
-  // Arguments :
-  //    * centerX, centerY - the point at the center of the box
-  //    * width, height    - the demensions of the box
-  // Returns   : A new Box with the given specifications
-  // Actions   : none
-  static fromCenter(centerX,centerY,width,height) {
-    return new Box(centerX-width/2,centerY-height/2,width,height);
-  }
-  // Begin public method drawRectOn
-  // Purpose   : Make a line drawing of the Box on a canvas context.
-  // Arguments :
-  //     * canvasCtx        - the canvas context to draw on
-  //     * xOffset, yOffset - offset to add to the rects position
-  // Returns   : none
-  // Actions   : Changes the contexts lineWidth and draws a rectagle on the canvas
-  drawRectOn(canvasCtx,xOffset=0,yOffset=0) {
-    canvasCtx.lineWidth = 10;
-    canvasCtx.strokeRect(this.left+xOffset,this.top+yOffset,
-                this.width,this.height);
-  }
-  // Begin public method cropImageTo
-  // Purpose   : Draw a section of the image designated by this box on a canvas
-  // Arguments :
-  //     * canvas - The html canvas to draw on
-  //     * image  - The html image to draw on the canvas
-  // Returns   : none
-  // Actions   :
-  //     * Resize the canvas to mach this Box's size internally (rather
-  //             than change its css size)
-  //     * Draw the section of the image on the canvas       
-  cropImageTo(canvas,image) {
-    canvas.width = this.width;
-    canvas.height = this.height;
-    let ctx = canvas.getContext('2d');
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.drawImage(image,-this.left,-this.top);
-  }
-  // Begin public method moveToWithin
-  // Purpose   : Ensure the Box is fully in the specified area
-  // Arguments :
-  //     * left, top, right, bottom: specify the area the Box must be in
-  // Returns   : none
-  // Actions   : Moves the box to the edge of the specified area if it has gone out
-  moveToWithin(left,top,right,bottom) {
-    if(this.left < left) {
-      this.left = left;
-    } else if(this.right > right) {
-      this.right = right;
-    }
-    if(this.top < top) {
-      this.top = top;
-    } else if(this.bottom > bottom) {
-      this.bottom = bottom;
-    }
-  }
-  // Begin public method setWidth
-  // Purpose   : Set the Boxes width, not changing the center point
-  // Arugments :
-  //     * width - the new width
-  // Returns   : none
-  // Actions   : Set the Boxes width, not changing the center point
-  setWidth(width) {
-    this.left += (this.width-width)/2;
-    this.width = width;
-  }
-  // Begin public method setHeight
-  // Purpose   : Set the Boxes height, not changing the center point
-  // Arugments :
-  //     * height - the new height
-  // Returns   : none
-  // Actions   : Set the Boxes height, not changing the center point
-  setHeight(height) {
-    this.y += (this.height-height)/2;
-  }
-  // Begin public method contains
-  // Purpose   : Check if a point is in this Box
-  // Arguments :
-  //    * x,y - the point
-  // Returns   :
-  //    * true if the point is in this
-  //    * false if it is not
-  // Actions   : none
-  contains(x,y) {
-    if(this.left <= x && x <= this.right) {
-      if(this.top <= y && y <= this.bottom) {
-        return true;
-      }
-    }
-    return false;
-  }
-  // Begin public method move
-  // Purpose   : Move the box
-  // Arguments : vx,vy - How far to move it
-  // Returns   : none
-  // Actions   : Moves the position of the box
-  move(vx,vy) {
-    this.left += vx;
-    this.top += vy;
-  }
-
-  // Begin private getters and setters
-  // Returns the location of the right side of the box
-  get right() {
-    return this.left+this.width;
-  }
-  // Moves the box so its right side is at x
-  set right(x) {
-    this.left = x-this.width;
-  }
-  // Returns the location of the bottom of the box
-  get bottom() {
-    return this.top+this.height;
-  }
-  // Moves the box so its bottom is here
-  set bottom(y) {
-    this.top = y-this.height;
-  }
-}
 
 // Begin public class ImageBox
 // Purpose processes and draws an image
-class ImageBox {
+classes.ImageBox = class {
   // note: the main canvas may be larger than the image, but the co-ordinates
   // used in cropBox are relative to the image, not the canvas
   
@@ -175,7 +41,7 @@ class ImageBox {
     this.mainCanvas = null;
     this.previewCanvas = null;
 
-    this.cropBox = Box.fromCenter(this.originalImage.naturalWidth/2,
+    this.cropBox = this.Box.fromCenter(this.originalImage.naturalWidth/2,
                     this.originalImage.naturalHeight/2,
                     500,500);
 
@@ -410,6 +276,140 @@ class ImageBox {
       }
     } else {
       return 'png';
+    }
+  }
+  // Begin private helper class Box
+  // Purpose : Wraps a rectangle used for image cropping
+  Box = class {
+    // Begin constructor
+    // Arguments :
+    //   * x, y - the position of the boxes upper left corner
+    //   * width, height - the demensions of the box
+    constructor(x,y,width,height) {
+      this.left = x;
+      this.top = y;
+      // when width and height are modified, x and y are moved
+      this.width = width;
+      this.height = height;
+    }
+    // Begin static public method fromCenter
+    // Purpose   : construct a Box from a given center point
+    // Arguments :
+    //    * centerX, centerY - the point at the center of the box
+    //    * width, height    - the demensions of the box
+    // Returns   : A new Box with the given specifications
+    // Actions   : none
+    static fromCenter(centerX,centerY,width,height) {
+      return new this(centerX-width/2,centerY-height/2,width,height);
+    }
+    // Begin public method drawRectOn
+    // Purpose   : Make a line drawing of the Box on a canvas context.
+    // Arguments :
+    //     * canvasCtx        - the canvas context to draw on
+    //     * xOffset, yOffset - offset to add to the rects position
+    // Returns   : none
+    // Actions   : Changes the contexts lineWidth and draws a rectagle on the canvas
+    drawRectOn(canvasCtx,xOffset=0,yOffset=0) {
+      canvasCtx.lineWidth = 10;
+      canvasCtx.strokeRect(this.left+xOffset,this.top+yOffset,
+                  this.width,this.height);
+    }
+    // Begin public method cropImageTo
+    // Purpose   : Draw a section of the image designated by this box on a canvas
+    // Arguments :
+    //     * canvas - The html canvas to draw on
+    //     * image  - The html image to draw on the canvas
+    // Returns   : none
+    // Actions   :
+    //     * Resize the canvas to mach this Box's size internally (rather
+    //             than change its css size)
+    //     * Draw the section of the image on the canvas       
+    cropImageTo(canvas,image) {
+      canvas.width = this.width;
+      canvas.height = this.height;
+      let ctx = canvas.getContext('2d');
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.drawImage(image,-this.left,-this.top);
+    }
+    // Begin public method moveToWithin
+    // Purpose   : Ensure the Box is fully in the specified area
+    // Arguments :
+    //     * left, top, right, bottom: specify the area the Box must be in
+    // Returns   : none
+    // Actions   : Moves the box to the edge of the specified area if it has gone out
+    moveToWithin(left,top,right,bottom) {
+      if(this.left < left) {
+        this.left = left;
+      } else if(this.right > right) {
+        this.right = right;
+      }
+      if(this.top < top) {
+        this.top = top;
+      } else if(this.bottom > bottom) {
+        this.bottom = bottom;
+      }
+    }
+    // Begin public method setWidth
+    // Purpose   : Set the Boxes width, not changing the center point
+    // Arugments :
+    //     * width - the new width
+    // Returns   : none
+    // Actions   : Set the Boxes width, not changing the center point
+    setWidth(width) {
+      this.left += (this.width-width)/2;
+      this.width = width;
+    }
+    // Begin public method setHeight
+    // Purpose   : Set the Boxes height, not changing the center point
+    // Arugments :
+    //     * height - the new height
+    // Returns   : none
+    // Actions   : Set the Boxes height, not changing the center point
+    setHeight(height) {
+      this.y += (this.height-height)/2;
+    }
+    // Begin public method contains
+    // Purpose   : Check if a point is in this Box
+    // Arguments :
+    //    * x,y - the point
+    // Returns   :
+    //    * true if the point is in this
+    //    * false if it is not
+    // Actions   : none
+    contains(x,y) {
+      if(this.left <= x && x <= this.right) {
+        if(this.top <= y && y <= this.bottom) {
+          return true;
+        }
+      }
+      return false;
+    }
+    // Begin public method move
+    // Purpose   : Move the box
+    // Arguments : vx,vy - How far to move it
+    // Returns   : none
+    // Actions   : Moves the position of the box
+    move(vx,vy) {
+      this.left += vx;
+      this.top += vy;
+    }
+
+    // Begin private getters and setters
+    // Returns the location of the right side of the box
+    get right() {
+      return this.left+this.width;
+    }
+    // Moves the box so its right side is at x
+    set right(x) {
+      this.left = x-this.width;
+    }
+    // Returns the location of the bottom of the box
+    get bottom() {
+      return this.top+this.height;
+    }
+    // Moves the box so its bottom is here
+    set bottom(y) {
+      this.top = y-this.height;
     }
   }
 }

@@ -18,7 +18,7 @@ function saveFile(dataURL,filename) {
   setTimeout(() => {window.URL.revokeObjectURL(dataURL);});
 }
 
-class ImageColumn {
+classes.ImageColumn = class {
   constructor() {
     this.images = new Array();
     window.onresize = () => {this.resize()};
@@ -57,7 +57,7 @@ class ImageColumn {
   addImage(name,lastModifiedDate,image) {
     this.greatestImageWidth = Math.max(this.greatestImageWidth,image.naturalWidth);
     this.greatestImageHeight = Math.max(this.greatestImageHeight,image.naturalHeight);
-    let imageBox = new ImageBox(name,lastModifiedDate,image);
+    let imageBox = new classes.ImageBox(name,lastModifiedDate,image);
     this.images.push(imageBox);
     spa.shell.handleImageLoad(imageBox);
   }
@@ -109,4 +109,4 @@ class ImageColumn {
   }
 }
 
-spa.imagecolumn = new ImageColumn();
+spa.imagecolumn = new classes.ImageColumn();
