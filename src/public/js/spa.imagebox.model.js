@@ -347,12 +347,27 @@ classes.ImageModel = class {
     //             than change its css size)
     //     * Draw the section of the image on the canvas       
     cropImageTo(canvas,image) {
-      canvas.width = this.width;
-      canvas.height = this.height;
-      canvas.style.height = canvas.clientWidth*this.height/this.width;
+      let width,height,left,top
+      if(this.width == 0) {
+        width = image.naturalWidth;
+        left = 0;
+      } else {
+        width = this.width;
+        left = this.left;
+      }
+      if(this.height == 0) {
+        height = image.naturalHeight;
+        top = 0;
+      } else {
+        height = this.height;
+        top = this.top;
+      }
+      canvas.width = width;
+      canvas.height = height;
+      canvas.style.height = canvas.clientWidth*height/width;
       let ctx = canvas.getContext('2d');
       ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.drawImage(image,-this.left,-this.top);
+      ctx.drawImage(image,-left,-top);
     }
     // Begin public method moveToWithin
     // Purpose   : Ensure the Box is fully in the specified area
