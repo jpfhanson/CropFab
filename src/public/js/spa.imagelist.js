@@ -86,17 +86,16 @@ classes.imagelist = class {
     }
     if(this.stateMap.y_crop_resize_dir != 0) {
       let height = this.stateMap.crop_height+
-                  event.movementX*this.stateMap.y_crop_resize_dir*2;
+                  event.movementY*this.stateMap.y_crop_resize_dir*2;
       if(height < 1) {
         height = 1;
       } else if(height > this.stateMap.greatest_image_height) {
-        width = this.stateMap.greatest_image_height;
+        height = this.stateMap.greatest_image_height;
       }
       this.changeCropHeight(height);
       changed = true;
     }
     if(changed) {
-      console.log('bing');
       this.configMap.set_crop_size(this.stateMap.crop_width,
                                   this.stateMap.crop_height);
     }
