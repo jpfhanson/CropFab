@@ -29,6 +29,11 @@ class ImageColumn {
 
     this.imagesStillLoading = 0;
   }
+  // Begin public method loadImage
+  // Purpose   : Load specified image files
+  // Arguments : input - the event from a file input
+  // Returns   : none
+  // Actions   : Load the specified images
   loadImages(input) {
     this.imagesStillLoading += input.files.length;
     for (let file of input.files) {
@@ -49,10 +54,10 @@ class ImageColumn {
       reader.readAsDataURL(file);
     }
   }
-  addImage(name,lastModified,image) {
+  addImage(name,lastModifiedDate,image) {
     this.greatestImageWidth = Math.max(this.greatestImageWidth,image.naturalWidth);
     this.greatestImageHeight = Math.max(this.greatestImageHeight,image.naturalHeight);
-    let imageBox = new ImageBox(name,lastModified,image);
+    let imageBox = new ImageBox(name,lastModifiedDate,image);
     this.images.push(imageBox);
     spa.shell.handleImageLoad(imageBox);
   }
@@ -97,7 +102,8 @@ class ImageColumn {
   async saveImages() {
     let zip = new JSZip();
     for(let image of this.images) {
-      await image.addToZip(zip);
+      let result = await image.getFinalImage();
+      zip.file(result.name,result.blob,{base64:ture});
     }
     zip.generateAsync({type:"blob"}).then((content) => saveFile(URL.createObjectURL(content),"croped_images.zip"));
   }
