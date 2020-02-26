@@ -116,7 +116,7 @@ classes.imagelist = class {
   // Throws     : none
   //
   addImagebox(name,lastModifiedDate,image) {
-    var backend = new classes.ImageBox(name,lastModifiedDate,image);
+    var backend = new classes.ImageModel(name,lastModifiedDate,image);
     var imagebox = spa.imagebox.makeImagebox( 
       this.jqueryMap.$container, backend
     );
@@ -124,26 +124,28 @@ classes.imagelist = class {
     imagebox.stateMap.id = this.stateMap.next_id;
     this.stateMap.image_array.push(backend);
     this.stateMap.next_id += 1;
-    if(this.greatest_image_width < image.naturalWidth) {
-      this.greatest_image_width = image.naturalWidth;
+    if(this.stateMap.greatest_image_width < image.naturalWidth) {
+      this.stateMap.greatest_image_width = image.naturalWidth;
     }
-    if(this.greatest_image_height < image.naturalHeight) {
-      this.greatest_image_height = image.naturalHeight;
+    if(this.stateMap.greatest_image_height < image.naturalHeight) {
+      this.stateMap.greatest_image_height = image.naturalHeight;
     }
 
     return imagebox;
   }
   // End public method /addImagebox/
 
-  // Begin public method /doneLoadingImages/
+  // Begin public method /imagesDoneLoading/
   // Purpose     : Called when a batch of images is finished loading
   //               Currently it just adjusts the sizes of all the canvases
   // Arguments   : none
   // Returns     : none
   // Throws      : none
-  doneLoadingImages() {
+  imagesDoneLoading() {
+    console.log("w,h: "+this.stateMap.greatest_image_width+','+this.stateMap.greatest_image_height);
     for(let image of this.stateMap.image_array) {
-      image.resizeCanvas(this.greatestImageWidth,this.greatestImageHeight);
+      image.resizeCanvas(this.stateMap.greatest_image_width,
+                         this.stateMap.greatest_image_height);
     }
   }
   // End public method /addImagebox/

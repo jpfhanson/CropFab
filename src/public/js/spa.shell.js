@@ -206,7 +206,7 @@ classes.shell = class {
     // spa.footer.handleResize();
     this.stateMap.resize_idto = setTimeout(() => { 
       this.stateMap.resize_idto = undefined; },
-      configMap.resize_interval
+      this.configMap.resize_interval
     );
 
     return true;
@@ -244,7 +244,7 @@ classes.shell = class {
   // Throws     : none
   //
   loadImages(input) {
-    this.stateMap.imagesStillLoading += input.files.length;
+    this.stateMap.images_still_loading += input.files.length;
     for (let file of input.files) {
       const reader = new FileReader();
       reader.onload = () => {
@@ -276,11 +276,12 @@ classes.shell = class {
   // Throws     : none
   //
   imageLoadEnded() {
-    this.stateMap.imagesStillLoading--;
-    if(this.stateMap.imagesStillLoading < 0) {
+    this.stateMap.images_still_loading--;
+    if(this.stateMap.images_still_loading < 0) {
       console.log("There are a negative number of images loading.");
     }
-    if(this.stateMap.imagesStillLoading == 0) {
+    if(this.stateMap.images_still_loading == 0) {
+      console.log("shell: images done loading");
       spa.imagelist.imagesDoneLoading();
     }
   }

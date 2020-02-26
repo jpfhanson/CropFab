@@ -18,7 +18,7 @@
 
 // Begin public class ImageBox
 // Purpose processes and draws an image
-classes.ImageBox = class {
+classes.ImageModel = class {
   // note: the main canvas may be larger than the image, but the co-ordinates
   // used in cropBox are relative to the image, not the canvas
   
@@ -31,13 +31,13 @@ classes.ImageBox = class {
   //                        (must be >= the width of the image)
   //   * mainCanvasHeight - the internal height of the canvas
   //                        (must be >= the height of the image)
-  constructor(name,lastModifiedDate,originalImage,mainCanvasWidth,mainCanvasHeight) {
+  constructor(name,lastModifiedDate,originalImage) {
     // after construction, resizeExternal and resizeCanvas must be called to finish setting up
     this.name = name;
     this.lastModifiedDate = lastModifiedDate;
     this.originalImage = originalImage;
-    this.mainCanvasWidth = mainCanvasWidth;
-    this.mainCanvasHeight = mainCanvasHeight;
+    this.mainCanvasWidth = undefined;
+    this.mainCanvasHeight = undefined;
     this.mainCanvas = null;
     this.previewCanvas = null;
 
@@ -58,20 +58,19 @@ classes.ImageBox = class {
   // Actions   :
   //    * Removes any listeners to an old canvas if there is one
   //    * Puts listeners on the canvas to call this's methods
-  //    * Sets the canvases css height to get the correct aspect ratio
   //    * Holds on to the canvas so other methods can modify it
   setMainCanvas(canvas) {
     if(this.mainCanvas != null) {
       this.mainCanvas.removeEventListener('mouseDown',this.mouseDownListener);
       this.mainCanvas.removeEventListener('mousemove',this.mouseMoveListener);
     }
-    console.log("boom");
     this.mainCanvas = canvas;
     this.mainCanvas.addEventListener('mouseDown',this.mouseDownListener);
     this.mainCanvas.addEventListener('mousemove', this.mouseMoveListener);
     this.mainCanvas.onmousedown = this.mouseDownListener;
     this.mainCanvas.onmousemove = this.mouseUpListener;
-    this.resizeCanvas();
+    this.resizeExternal();
+    this.redraw();
   }
   // Begin public method setPreviewCanvas
   // Purpose   : Set and set up the preview canvas
@@ -79,11 +78,10 @@ classes.ImageBox = class {
   //    * canvas - the preview canvas
   // Returns   : none
   // Actions   :
-  //    * Sets the canvases css height ot get the correct aspect ratio
   //    * Hold on the the canvas for use in other methods
   setPreviewCanvas(canvas) {
     this.previewCanvas = canvas;
-    this.resizeCanvas(this.mainCanvasWidth,this.mainCanvasHeight);
+    this.redraw();
   }
 
   // Begin public method resizeExternal
@@ -105,6 +103,8 @@ classes.ImageBox = class {
   resizeCanvas(width,height) {
     // this is for setting the size if the main canvas is changed with
     // setMainCanvas
+    console.log(width+','+height);
+    console.trace();
     this.mainCanvasWidth = width;
     this.mainCanvasHeight = height;
     if(this.mainCanvas != null) {
@@ -153,7 +153,8 @@ classes.ImageBox = class {
       let ctx = this.mainCanvas.getContext('2d');
 
       // blank out the canvas
-      ctx.clearRect(0,0,this.mainCanvas.width,this.mainCanvas.height);
+      ctx.fillStyle = "rgb(255,255,255)";
+      ctx.fillRect(0,0,this.mainCanvas.width,this.mainCanvas.height);
 
       // draw the image
       ctx.drawImage(this.originalImage,this.xOffset,this.yOffset);
