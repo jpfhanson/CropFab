@@ -85,6 +85,7 @@ classes.imagelist = class {
       changed = true;
     }
     if(this.stateMap.y_crop_resize_dir != 0) {
+      console.log(this.stateMap.y_crop_resize_dir);
       let height = this.stateMap.crop_height+
                   event.movementY*this.stateMap.y_crop_resize_dir*2;
       if(height < 1) {
@@ -102,8 +103,8 @@ classes.imagelist = class {
   }
   onMouseUp(event) {
     // called by onMouseMove even if the mouse is already up
-    this.x_crop_resize_dir = 0;
-    this.y_crop_resize_dir = 0;
+    this.stateMap.x_crop_resize_dir = 0;
+    this.stateMap.y_crop_resize_dir = 0;
   }
     
   //-------------------- END EVENT HANDLERS --------------------
