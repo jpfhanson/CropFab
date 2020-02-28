@@ -126,7 +126,6 @@ classes.imagebox = class {
     var imagebox = Object.create(this);
     imagebox.stateMap  = {
       $imagelist : $imagelist,
-      backend    : backend,
     };
     imagebox.jqueryMap = {};
     $imagelist.find(".spa-loaderbox").before(this.configMap.main_html);
@@ -138,9 +137,9 @@ classes.imagebox = class {
 
     // initialize backend
     console.log(imagebox.jqueryMap.$maincanvas.get(0));
-    imagebox.stateMap.backend.setMainCanvas(
+    backend.setMainCanvas(
           imagebox.jqueryMap.$maincanvas.get(0));
-    imagebox.stateMap.backend.setPreviewCanvas(
+    backend.setPreviewCanvas(
           imagebox.jqueryMap.$previewcanvas.get(0));
 
     // // initialize toolbox

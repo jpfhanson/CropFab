@@ -228,7 +228,7 @@ classes.shell = class {
       reader.onload = () => {
         let image = new Image();
         image.onload = () => {
-          spa.imagelist.addImagebox(file.name,file.lastModified,image);
+          spa.imagelistmodel.addImagebox(file.name,file.lastModified,image);
           this.imageLoadEnded();
         }
         image.onerror = () => {
@@ -280,7 +280,7 @@ classes.shell = class {
 
   // Begin callback method /imageLoadEnded/
   // Purpose    : Called when an image finishs loading so it can tell
-  //              spa.imagelist when they are all finished
+  //              spa.imagelistmodel when they are all finished
   // Arguments  : none
   // Returns    : true
   // Throws     : none
@@ -292,7 +292,7 @@ classes.shell = class {
     }
     if(this.stateMap.images_still_loading == 0) {
       console.log("shell: images done loading");
-      spa.imagelist.imagesDoneLoading();
+      spa.imagelistmodel.imagesDoneLoading();
     }
   }
   // End callback method /imageLoadEnded/
@@ -338,9 +338,14 @@ classes.shell = class {
     spa.imagelist.configModule({
       cropper_model   : spa.model,
       on_load         : () => {this.beginLoadingImages();},
-      set_crop_size   : (w,h) => {spa.toolbox.setCropSize(w,h);},
     });
     spa.imagelist.initModule( this.jqueryMap.$imagelist );
+
+    spa.imagelistmodel.configModule({
+      show_crop_size   : (w,h) => {spa.toolbox.setCropSize(w,h);},
+      add_image_frontend : (backend) => {return spa.imagelist.addImagebox(backend);},
+    });
+    // imagelistmodel does not need init
 
     // configure and initialize feature modules
     spa.toolbox.configModule({
