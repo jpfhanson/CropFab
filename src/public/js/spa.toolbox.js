@@ -195,22 +195,14 @@ classes.toolbox = class {
   }
   // End EVENT HANDLER method /onSaveClick/
 
-  // Begin EVENT HANDLER method /onCropWidthChange/
-  onCropWidthChange() {
-    console.log("Changing crop width!");
-    this.configMap.cropper_model.changeCropWidth(
-            this.jqueryMap.$cropwidth.get(0).value);
+  // Begin EVENT HANDLER method /onCropSizeChange/
+  onCropSizeChange() {
+    this.configMap.cropper_model.changeCropSize(
+            this.jqueryMap.$cropwidth.get(0).value,
+            this.jqueryMap.$cropheight.get(0).value);
   }
   // End EVENT HANDLER method /onCropWidthChange/
 
-  // Begin EVENT HANDLER method /onCropHeightChange/
-  onCropHeightChange() {
-    console.log("Changing crop height!");
-    this.configMap.cropper_model.changeCropHeight(
-            this.jqueryMap.$cropheight.get(0).value);
-  }
-  // End EVENT HANDLER method /onCropHeightChange/
-    
   /*
   // Begin EVENT HANDLER method /onCropLimitChange/
   onCropLimitChange() {
@@ -389,9 +381,9 @@ classes.toolbox = class {
       () => {this.onCropLimitChange();});
     */
     this.jqueryMap.$cropwidth.bind('change',
-      () => {this.onCropWidthChange();});
+      () => {this.onCropSizeChange();});
     this.jqueryMap.$cropheight.bind('change',
-      () => {this.onCropHeightChange();});
+      () => {this.onCropSizeChange();});
     return true;
   }
   // End public method /initModule/

@@ -31,13 +31,11 @@ classes.ImageModel = class {
   //                        (must be >= the width of the image)
   //   * mainCanvasHeight - the internal height of the canvas
   //                        (must be >= the height of the image)
-  constructor(name,lastModifiedDate,originalImage,crop_width,crop_height,
-                startCropResizeCallback) {
+  constructor(name,lastModifiedDate,originalImage,crop_width,crop_height) {
     // after construction, resizeExternal and resizeCanvas must be called to finish setting up
     this.name = name;
     this.lastModifiedDate = lastModifiedDate;
     this.originalImage = originalImage;
-    this.startCropResizeCallback = startCropResizeCallback;
     this.mainCanvasWidth = undefined;
     this.mainCanvasHeight = undefined;
     this.mainCanvas = null;
@@ -48,6 +46,8 @@ classes.ImageModel = class {
                     crop_width,crop_height);
 
     this.mouseMode = "none";
+    this.xResizeVec = 0;
+    this.yResizeVec = 0;
     // these are needed so we can add and remove the listeners
     this.mouseDownListener = (event) => {this.onMouseDown(event)};
     this.mouseMoveListener = (event) => {this.onMouseMove(event)};
@@ -105,7 +105,6 @@ classes.ImageModel = class {
   resizeCanvas(width,height) {
     // this is for setting the size if the main canvas is changed with
     // setMainCanvas
-    console.log(width+','+height);
     console.trace();
     this.mainCanvasWidth = width;
     this.mainCanvasHeight = height;
@@ -122,27 +121,9 @@ classes.ImageModel = class {
   // Returns   : none
   // Actions   : Set the crop size
   changeCropSize(width,height) {
-    // this function is untested
-    this.cropBox.width = width;
-    this.cropBox.height = height;
-  }
-  // Begin public method changeCropWidth
-  // Purpose   : Set the croping width
-  // Arguments : width  - the new width
-  // Returns   : none
-  // Actions   : set the crop size
-  changeCropWidth(width) {
     this.cropBox.setWidth(width);
-    this.redraw();
-  }
-  // Begin public method changeCropHeight
-  // Purpose   : Set the croping height
-  // Arguments : height  - the new height
-  // Returns   : none
-  // Actions   : set the crop height
-  changeCropHeight(height) {
     this.cropBox.setHeight(height);
-    this.redraw();
+    this.redraw()
   }
 
   // Begin public method redraw
@@ -185,20 +166,18 @@ classes.ImageModel = class {
       // if user clicks an edge, tell shell to start resizing the crop box
       // x and y direction are multiplied by mouse movements to see how much
       // to resize
-      let xdirection = 0;
-      let ydirection = 0;
       if(this.cropBox.onLeftEdge(x,y)) {
-        xdirection = -1;
+        this.xResizeVec = -1;
       } else if(this.cropBox.onRightEdge(x,y)) {
-        xdirection = 1;
+        this.xResizeVec = 1;
       }
       if(this.cropBox.onTopEdge(x,y)) {
-        ydirection = -1;
+        this.yResizeVec = -1;
       } else if(this.cropBox.onBottomEdge(x,y)) {
-        ydirection = 1;
+        this.yResizeVec = 1;
       }
-      if(xdirection != 0 || ydirection != 0) {
-        this.startCropResizeCallback(xdirection,ydirection);
+      if(this.yResizeVec != 0 || this.xResizeVec != 0) {
+        this.mouseMode = "resize"
       } else if(this.cropBox.contains(x,y)) {
         this.mouseMode = "move";
       }
@@ -216,6 +195,8 @@ classes.ImageModel = class {
     // whether the button is still pressed is checked before taking action
     // in other methods. This is called if it is not still pressed.
     this.mouseMode = "none";
+    this.xResizeVec = 0;
+    this.yResizeVec = 0;
   }
   // Begin public method onMouseMove
   // Purpose   : Handle mouse movements
@@ -237,6 +218,10 @@ classes.ImageModel = class {
                       this.mainCanvas.width-this.xOffset,
                       this.mainCanvas.height-this.yOffset);
         this.redraw();
+      } else if(this.mouseMode == "resize") {
+        let vw = this.clientToCanvasX(event.movementX)*this.xResizeVec*2;
+        let vh = this.clientToCanvasY(event.movementY)*this.yResizeVec*2;
+        spa.imagelistmodel.addToCropSize(vw,vh);
       }
     }
   }
@@ -433,15 +418,8 @@ classes.ImageModel = class {
     //    * false otherwise
     // Actions   : none
     onLeftEdge(x,y) {
-      console.log("checking left endge");
-      console.log(this.left);
-      console.log(x);
-      console.log(Math.abs(this.left-x));
-      console.log(this.edgeClickWidth);
       if(Math.abs(this.left-x) <= this.edgeClickWidth) {
-        console.log("valid x");
         if(this.top-this.edgeClickWidth <= y <= this.bottom+this.edgeClickWidth) {
-          console.log("on left edge");
           return true;
         }
       }
