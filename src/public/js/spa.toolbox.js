@@ -31,6 +31,18 @@ classes.toolbox = class {
           + '<div class="spa-toolbox-advert">'
           + 'SHAMELESS ADVERT HERE</div>'
         + '</div>',
+      filename_html : String()
+        + '<div class="spa-toolbox-inputgroup">'
+          + '<div>'
+            + '<input type="text" value="%n_cropped" '
+              + 'class="spa-toolbox-filename" />'
+            + '<div> Filename</div>'
+          + '</div>'
+          + '<div>'
+            + '<div>(%n = source,</div>'
+            + '<div>   %d = id num)</div>'
+          + '</div>'
+        + '</div>',
       max_dimensions_html : String()
         + '<div class="spa-toolbox-inputgroup">'
           + '<div>'
@@ -68,12 +80,17 @@ classes.toolbox = class {
             + '<div> Locked Crop Y Offset</div>'
           + '</div>'
         + '</div>',
-      aspect_ratio_html : String()
+      aspect_prescale_html : String()
         + '<div class="spa-toolbox-inputgroup">'
           + '<div>'
             + '<input type="number" '
-              + 'class="spa-toolbox-orig-aspect" />'
+              + 'class="spa-toolbox-aspect" />'
             + '<div> Locked Aspect Ratio</div>'
+          + '</div>'
+          + '<div>'
+            + '<input type="number" '
+              + 'class="spa-toolbox-prescale" />'
+            + '<div> Locked Prescale</div>'
           + '</div>'
         + '</div>',
       settable_map : {
@@ -148,6 +165,7 @@ classes.toolbox = class {
       $savebutton    : $container.find('.spa-toolbox-savebutton'),
       $inputs        : $container.find('.spa-toolbox-inputs'),
 
+      $filename       : $container.find('.spa-toolbox-filename'),
       $max_width      : $container.find('.spa-toolbox-max-width'),
       $max_height     : $container.find('.spa-toolbox-max-height'),
       $crop_width     : $container.find('.spa-toolbox-crop-width'),
@@ -155,6 +173,7 @@ classes.toolbox = class {
       $x_offset       : $container.find('.spa-toolbox-x'),
       $y_offset       : $container.find('.spa-toolbox-y'),
       $aspect_ratio   : $container.find('.spa-toolbox-aspect'),
+      $prescale       : $container.find('.spa-toolbox-prescale'),
       $advert         : $container.find('.spa-toolbox-advert')};
   }
   // End DOM method /setJqueryMap/
@@ -330,7 +349,7 @@ classes.toolbox = class {
   // Returns    : true
   // Throws     : none
   setCropSize(width,height) {
-    this.jqueryMap.$crop_width.get(0).value = width;
+    this.jqueryMap.$crop_width.get(0).value  = width;
     this.jqueryMap.$crop_height.get(0).value = height;
   }
   // End public method /setCropSize/
@@ -346,10 +365,11 @@ classes.toolbox = class {
     this.stateMap.$append_target = $append_target;
     $append_target.append( this.configMap.main_html );
     $append_target.find('.spa-toolbox-inputs').html(
+      this.configMap.filename_html +
       this.configMap.max_dimensions_html +
       this.configMap.crop_dimensions_html +
       this.configMap.crop_offset_html +
-      this.configMap.aspect_ratio_html);
+      this.configMap.aspect_prescale_html);
     this.setJqueryMap();
     this.handleResize();
 
@@ -360,9 +380,7 @@ classes.toolbox = class {
       () => {this.onLoadClick();});
     this.jqueryMap.$savebutton.bind('click', 
       () => {this.onSaveClick();});
-   this.jqueryMap.$crop_width.bind('change',
-      () => {this.onCropSizeChange();});
-    this.jqueryMap.$crop_height.bind('change',
+   this.jqueryMap.$inputs.bind('change',
       () => {this.onCropSizeChange();});
     return true;
   }
