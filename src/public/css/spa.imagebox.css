@@ -4,7 +4,6 @@
 */
 
 .spa-imagebox {
-  /*position         : absolute;*/
   background-color : lightgray;
   bottom           : 0;
   right            : 0;
@@ -19,25 +18,37 @@
                      0 6px 20px 0 rgba(0, 0, 0, 0.19);
   margin-bottom    : 1em;
 }
+.spa-imagebox-toolbox{
+  display          : inline-block;
+  width            : 100%;
+}
 .spa-imagebox-panel{
   display          : inline-block;
-  width            : 290px;
+  width            : 100%;
+}
+.spa-imagebox-divider{
+  display           : inline-block;
+  vertical-align    : middle;
+  width             : .3em;
+  height            : 4em;
+  border-left-style : solid;
+  border-right-style: solid;
+  border-left-width : .1em;
+  border-right-width: .1em;
+  border-left-color : black;
+  border-style : solid;
+  border-width : 2px;
+  border-color: black;
 }
 .spa-imagebox-maincanvas{
-  /*padding          : .5em;*/
-  display : inline-block;
-  vertical-align: top;
+  display          : inline-block;
+  vertical-align   : middle;
   width            : 600px;
+  margin           : .3em;
 }
 .spa-imagebox-previewcanvas{
-  /*padding-bottom   : .2em;*/
   display : inline-block;
-  height           : 290px;
-  width            : 290px;
-}
-.spa-imagebox-toolbox{
-  /*padding          : .5em;*/
-  display : inline-block;
-  height           : 290px;
-  width            : 290px;
+  width            : 300px;
+  vertical-align   : middle;
+  margin           : .3em;
 }

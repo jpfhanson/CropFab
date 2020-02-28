@@ -34,10 +34,10 @@ classes.imagebox = class {
       main_html : String()
         + '<div class="spa-imagebox">'
           + '<div class="spa-imagebox-panel">'
+            + '<canvas class="spa-imagebox-maincanvas"></canvas>'
+            + '<div class="spa-imagebox-divider"></div>'
             + '<canvas class="spa-imagebox-previewcanvas"></canvas>'
-            + '<div class="spa-imagebox-toolbox"></div>'
           + '</div>'
-          + '<canvas class="spa-imagebox-maincanvas"></canvas>'
         + '</div>'
     };
     this.stateMap  = { 
@@ -47,6 +47,7 @@ classes.imagebox = class {
       box_height_px : 0,
     };
     this.jqueryMap = {};
+    this.toolbox   = null;
   }
   //---------------- BEGIN MODULE SCOPE VARIABLES --------------
     // getEmSize, setPxSizes, 
@@ -123,7 +124,8 @@ classes.imagebox = class {
   // Throws     : none
   //
   makeImagebox( $imagelist, backend, settingMap) {
-    var imagebox = Object.create(this);
+    var imagebox = Object.create(this),
+        toolbox;
     imagebox.stateMap  = {
       $imagelist : $imagelist,
       backend    : backend,
@@ -137,14 +139,15 @@ classes.imagebox = class {
     console.log("Implement settingMap usage, TODO: " + settingMap);
 
     // initialize backend
-    console.log(imagebox.jqueryMap.$maincanvas.get(0));
     imagebox.stateMap.backend.setMainCanvas(
           imagebox.jqueryMap.$maincanvas.get(0));
     imagebox.stateMap.backend.setPreviewCanvas(
           imagebox.jqueryMap.$previewcanvas.get(0));
 
-    // // initialize toolbox
-    // spa.imagebox.backend.makeToolbox( imagebox.jqueryMap.$toolbox );
+    // initialize toolbox
+    console.log(imagebox.stateMap.backend);
+    imagebox.stateMap.toolbox = new spa.imagebox.toolbox(
+      imagebox.jqueryMap.$container, imagebox.stateMap.backend, {} );
 
     return imagebox;
   }

@@ -1,0 +1,37 @@
+/*
+ * spa.imagebox.toolbox.css
+ * Imagebox toolbox styles
+*/
+
+.spa-imagebox-toolbox{
+  display          : inline-block;
+  text-align       : center;
+  width            : 100%;
+}
+.spa-imagebox-toolbox-bottom, .spa-imagebox-toolbox-remove{
+  display          : none;
+}
+.spa-imagebox-toolbox-filename,
+.spa-imagebox-toolbox-crop-filename,
+.spa-imagebox-toolbox-orig-filename{
+  display          : inline;
+  height           : 1em;
+}
+.spa-imagebox-toolbox-orig, .spa-imagebox-toolbox-crop{
+  width            : 30%;
+  display          : inline;
+}
+.spa-imagebox-toolbox-inputpair{
+  height           : 3em;
+  display          : inline;
+}
+.spa-imagebox-toolbox-inputpair>div{
+  height           : 1em;
+  width            : 4em;
+  display          : inline;
+}
+.spa-imagebox-toolbox-crop-widthinput, .spa-imagebox-toolbox-crop-heightinput,
+.spa-imagebox-toolbox-xinput, .spa-imagebox-toolbox-yinput{
+  height           : 2em;
+  display          : inline;
+}
