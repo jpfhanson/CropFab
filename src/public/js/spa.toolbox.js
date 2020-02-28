@@ -28,8 +28,7 @@ classes.toolbox = class {
           + 'Save</button>'
           + '<form class="spa-toolbox-inputs">'
           + '</form>'
-          + '<div class="spa-toolbox-advert">'
-          + 'SHAMELESS ADVERT HERE</div>'
+          + '<div class="spa-toolbox-advert"></div>'
         + '</div>',
       filename_html : String()
         + '<div class="spa-toolbox-inputgroup">'
@@ -93,6 +92,7 @@ classes.toolbox = class {
             + '<div> Locked Prescale</div>'
           + '</div>'
         + '</div>',
+      advert_text : 'YOUR AD HERE\nCONTACT\nads (at) TBD.com',
       settable_map : {
         toolbox_open_time    : true,
         toolbox_close_time   : true,
@@ -103,7 +103,9 @@ classes.toolbox = class {
         on_load              : true,
         on_crop              : true,
         on_save              : true,
-        cropper_model        : true
+        cropper_model        : true,
+
+        advert_text          : true
       },
 
       toolbox_open_time     : 250,
@@ -357,7 +359,7 @@ classes.toolbox = class {
   // Begin public method /initModule/
   // Purpose    : Initializes module
   // Arguments  :
-  //  * $container the jquery element used by this feature
+  //  * $append_target the jquery element to which toolbox will be added
   // Returns    : true
   // Throws     : none
   //
@@ -371,7 +373,10 @@ classes.toolbox = class {
       this.configMap.crop_offset_html +
       this.configMap.aspect_prescale_html);
     this.setJqueryMap();
+    this.jqueryMap.$advert.text(this.configMap.advert_text);
     this.handleResize();
+
+    // get the 
 
     // bind user input events
     this.jqueryMap.$togglebutton.bind('click', 
