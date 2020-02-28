@@ -122,11 +122,11 @@ classes.imagebox = class {
   // Returns    : the imagebox object
   // Throws     : none
   //
-  makeImagebox( $imagelist, imagebox_back, settingMap ) {
+  makeImagebox( $imagelist, backend, settingMap) {
     var imagebox = Object.create(this);
     imagebox.stateMap  = {
       $imagelist : $imagelist,
-      backend    : imagebox_back,
+      backend    : backend,
     };
     imagebox.jqueryMap = {};
     $imagelist.find(".spa-loaderbox").before(this.configMap.main_html);
@@ -138,9 +138,9 @@ classes.imagebox = class {
 
     // initialize backend
     console.log(imagebox.jqueryMap.$maincanvas.get(0));
-    imagebox_back.setMainCanvas(
+    imagebox.stateMap.backend.setMainCanvas(
           imagebox.jqueryMap.$maincanvas.get(0));
-    imagebox_back.setPreviewCanvas(
+    imagebox.stateMap.backend.setPreviewCanvas(
           imagebox.jqueryMap.$previewcanvas.get(0));
 
     // // initialize toolbox

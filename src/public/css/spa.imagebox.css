@@ -26,6 +26,7 @@
 .spa-imagebox-maincanvas{
   /*padding          : .5em;*/
   display : inline-block;
+  vertical-align: top;
   width            : 600px;
 }
 .spa-imagebox-previewcanvas{

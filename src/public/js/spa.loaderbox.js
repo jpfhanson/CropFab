@@ -38,12 +38,6 @@ classes.loaderbox = class {
       main_html : String()
         + '<div class="spa-loaderbox">'
         + '</div>',
-      loadinput_html : String()
-        + '<input type="file" '
-          + 'accept="image/*" '
-          + 'onchange="spa.shell.loadImages(this)" '
-          + 'multiple '
-        + '/>',
       alone_html : String()
         + '<h2>Load images here!</h2>',
       other_html : String()
@@ -155,6 +149,8 @@ classes.loaderbox = class {
     this.stateMap.$append_target = $append_target;
     $append_target.append(this.configMap.main_html);
     this.setJqueryMap();
+    this.jqueryMap.$container.get(0).addEventListener("click",
+                                        this.configMap.on_load);
 
     // call the resize function to add correct-size content
     this.handleResize();
@@ -179,14 +175,10 @@ classes.loaderbox = class {
     this.setPxSizes();
     if ( this.stateMap.alone ){
       this.jqueryMap.$container.css('height', this.stateMap.alone_height_px);
-      this.jqueryMap.$container.html(this.configMap.loadinput_html
-        + this.configMap.alone_html
-      );
+      this.jqueryMap.$container.html(this.configMap.alone_html);
     } else {
       this.jqueryMap.$container.css('height', this.stateMap.other_height_px);
-      this.jqueryMap.$container.html(this.configMap.loadinput_html
-        + this.configMap.other_html
-      );
+      this.jqueryMap.$container.html(this.configMap.other_html);
     }
     return true;
   }

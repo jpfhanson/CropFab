@@ -23,12 +23,14 @@ classes.shell = class {
       resize_interval : 200,
       main_html : String()
         + '<div class="spa-shell-menubar"></div>'
-        + '<div class="spa-shell-imagelist"></div>'
+        + '<div class="spa-shell-imagelist"></div>',
+      file_input : undefined,
     };
     this.stateMap = {
       $container  : undefined,
       anchor_map  : {},
-      resize_idto : undefined
+      resize_idto : undefined,
+      images_still_loading : 0
     };
     this.jqueryMap = {};
   }
@@ -36,7 +38,8 @@ classes.shell = class {
     // copyAnchorMap,    setJqueryMap,   changeAnchorPart,
     // onResize,         onHashchange,
     // // onTapAcct,        onLogin,        onLogout,
-    // setToolboxAnchor, loadImages,  handleImageLoad,  initModule;
+    // setToolboxAnchor, beginLoadingImages, loadImages,
+    // imageLoadEnded, initModule;
   //----------------- END MODULE SCOPE VARIABLES ---------------
 
   //------------------- BEGIN UTILITY METHODS ------------------
@@ -212,6 +215,40 @@ classes.shell = class {
   }
   // End Event handler /onResize/
 
+  // Begin event handler /loadImages/
+  // Purpose    : function called WHENEVER images should be loaded
+  // Arguments  : none
+  // Returns    : true
+  // Throws     : none
+  //
+  loadImages() {
+    let input = this.configMap.file_input;
+    this.stateMap.images_still_loading += input.files.length;
+    for (let file of input.files) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        let image = new Image();
+        image.onload = () => {
+          spa.imagelist.addImagebox(file.name,file.lastModified,image);
+          this.imageLoadEnded();
+        }
+        image.onerror = () => {
+          this.imageLoadEnded();
+        }
+        image.src = reader.result;
+      };
+      reader.onabort = () => {this.imageLoadEnded()};
+      reader.onerror = () => {this.imageLoadEnded()};
+      reader.readAsDataURL(file);
+    }
+
+    // tell loaderbox that images are being loaded
+    spa.loaderbox.handleLoad();
+    
+    return true;
+  }
+  // End event handler /loadImages/
+
   //-------------------- END EVENT HANDLERS --------------------
 
   // ---------------------- BEGIN CALLBACKS ---------------------
@@ -233,46 +270,35 @@ classes.shell = class {
   }
   // End callback method /setToolboxAnchor/
 
-  // Begin callback method /loadImages/
-  // Purpose    : function called WHENEVER images should be loaded
-  // Arguments  :
-  //   * input - whatever the file input gives on change
-  // Returns    : Boolean
-  //   * true  - image(s) were loaded
-  //   * false - image(s) were not loaded
+  //Begin callback method /beginLoadingImages/
+  // Purpose    : Called when the user wants to load images
+  // Arguments  : none
+  // Returns    : true
   // Throws     : none
-  //
-  loadImages(input) {
-    // load images via backend
-    // shellcallback on image load is spa.shell.onImageLoad
-    spa.imagecolumn.loadImages(input);
-
-    // tell loaderbox that images are being loaded
-    spa.loaderbox.handleLoad();
+  beginLoadingImages() {
+    this.configMap.file_input.click();
   }
-  // End callback method /loadImages/
 
-
-  // Begin callback method /handleImageLoad/
-  // Purpose    : function called WHENEVER image has been loaded
-  // Arguments  :
-  //  * $container the jquery element used by this feature
+  // Begin callback method /imageLoadEnded/
+  // Purpose    : Called when an image finishs loading so it can tell
+  //              spa.imagelist when they are all finished
+  // Arguments  : none
   // Returns    : true
   // Throws     : none
   //
-  handleImageLoad(imagebox_back) {
-    // pass the newly made made imagebox backend to a new imagebox
-    var imagebox = spa.imagelist.addImagebox(
-      imagebox_back,
-      {} // settingMap
-    );
-
-    // maybe do something with the new imagebox?
-    console.log("image added: id = " + imagebox.stateMap.id);
-
-    return true;
+  imageLoadEnded() {
+    this.stateMap.images_still_loading--;
+    if(this.stateMap.images_still_loading < 0) {
+      console.log("There are a negative number of images loading.");
+    }
+    if(this.stateMap.images_still_loading == 0) {
+      console.log("shell: images done loading");
+      spa.imagelist.imagesDoneLoading();
+    }
   }
-  // End callback method /handleImageLoad/
+  // End callback method /imageLoadEnded/
+
+
   // ----------------------- END CALLBACKS ----------------------
 
   //------------------- BEGIN PUBLIC METHODS -------------------
@@ -312,20 +338,18 @@ classes.shell = class {
 
     spa.imagelist.configModule({
       cropper_model   : spa.model,
-      on_load         : () => {this.loadImages();},
-      on_drop         : () => {this.handleImageLoad();} 
-                                        // ted: purely to shut up jslint
-                                        // ted: find a better solution!
+      on_load         : () => {this.beginLoadingImages();},
+      set_crop_size   : (w,h) => {spa.toolbox.setCropSize(w,h);},
     });
     spa.imagelist.initModule( this.jqueryMap.$imagelist );
 
     // configure and initialize feature modules
     spa.toolbox.configModule({
       set_toolbox_anchor   : (position) => {this.setToolboxAnchor(position);},
-      on_load              : () => {this.loadImages();}, // fix this
+      on_load              : () => {this.beginLoadingImages();},
       on_crop              : console.log,
-      on_save              : console.log,
-      cropper_model        : console.log
+      on_save              : () => {spa.imagelist.saveImages()},
+      cropper_model        : spa.imagelist,
     });
     spa.toolbox.initModule( this.jqueryMap.$container );
 
@@ -343,6 +367,16 @@ classes.shell = class {
       .bind( 'resize',     () => {this.onResize();} )
       .bind( 'hashchange', () => {this.onHashchange();} )
       .trigger( 'hashchange' );
+
+    // Set up the file loading mechanism
+    // The file_input is not in the html because it is never displayed.
+    // It is just a backend mechanism.
+    this.configMap.file_input = document.createElement("input");
+    this.configMap.file_input.type = "file";
+    this.configMap.file_input.accept = "image/*";
+    this.configMap.file_input.multiple = true;
+    this.configMap.file_input.addEventListener("change",
+                                              () => {this.loadImages()});
   }
   //------------------- END PUBLIC METHODS ---------------------
 };
