@@ -46,6 +46,9 @@
 .spa-toolbox-inputs>div{
   display          : inline-block;
 }
+.spa-toolbox-filename{
+  width            :10em;
+}
 .spa-toolbox-inputgroup{
   height           : 3em;
   width            : 100%;
@@ -58,8 +61,9 @@
   display          : inline-block;
   text-align       : left;
   white-space      : pre-wrap;
+  cursor           : pointer;
 }
-.spa-toolbox-inputgroup>div>input{
+.spa-toolbox-inputgroup>div>input[type=number]{
   width            : 4em;
   vertical-align   : middle;
   text-align       : center;
@@ -70,4 +74,5 @@
   border-style     : solid;
   border-width     : 1px;
   vertical-align   : middle;
+  white-space      : pre-wrap;
 }
