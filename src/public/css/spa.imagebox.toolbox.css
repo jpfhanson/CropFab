@@ -7,54 +7,60 @@
   display          : inline-block;
   width            : 100%;
 }
-.spa-imagebox-toolbox-bottom, .spa-imagebox-toolbox-remove{
-  display          : none;
-}
 .spa-imagebox-toolbox-top{
   text-align       : left;
   width            : 100%;
   display          : inline-block;
 }
-.spa-imagebox-toolbox-remove{
-  vertical-align   : top;
+.spa-imagebox-toolbox-top>span{
+  margin-left      : 1em;
 }
-.spa-imagebox-toolbox-orig-filename{
-  height           : 1em;
-  display          : inline;
-  margin-left      : 3em;
-  margin-right     : 3em;
+.spa-imagebox-toolbox-top>input[type=text]{
+  /*display          : inline;*/
+  margin-left      : 1em;
+  margin-right     : 2em;
+  width            : 20em;
 }
 .spa-imagebox-toolbox-crop-filename{
   display          : inline;
   vertical-align   : middle;
 }
-.spa-imagebox-toolbox-toggle{
+.spa-imagebox-toolbox-toggle, .spa-imagebox-toolbox-remove{
   float            : right;
+  width            : 10em;
+}
+.spa-imagebox-toolbox-remove{
+  background-color : red;
+  display          : none;
 }
 
 
 .spa-imagebox-toolbox-bottom{
+  display          : none;
   width            : 100%;
 }
 .spa-imagebox-toolbox-bottom>div{
   display          : inline-block;
 }
-.spa-imagebox-toolbox-inputpair{
+.spa-imagebox-toolbox-inputgroup{
   height           : 3em;
-  width            : 25%;
+  padding-left     : .5em;
+  padding-right    : .5em
+  /*width            : 15em;*/
 }
-.spa-imagebox-toolbox-inputpair>div{
+.spa-imagebox-toolbox-inputgroup>div{
   height           : 50%;
-  width            : 100%;
-  text-align       : right;
+  /*width            : 100%;*/
+  text-align       : left;
 }
-.spa-imagebox-toolbox-inputpair>div>div{
+.spa-imagebox-toolbox-inputgroup>div>div{
   display          : inline-block;
-  text-align       : right;
+  text-align       : left;
   white-space      : pre-wrap;
+  cursor           : pointer;
 }
-.spa-imagebox-toolbox-inputpair>div>input{
+.spa-imagebox-toolbox-inputgroup>div>input{
   width            : 4em;
   vertical-align   : middle;
-  text-align       : right;
+  text-align       : center;
 }

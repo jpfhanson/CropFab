@@ -23,7 +23,7 @@ spa.imagebox.toolbox = class {
   //  * settingMap - any additional settings for the imagebox
   // Returns    : the imagebox toolbox object
   // Throws     : none
-  constructor( $imagebox, backend, settingMap) {
+  constructor( $imagebox, backend, settingMap ) {
     this.configMap = {
       settable_map : {
         // TODO
@@ -33,67 +33,85 @@ spa.imagebox.toolbox = class {
       main_html : String()
         + '<div class="spa-imagebox-toolbox">'
           + '<div class="spa-imagebox-toolbox-top">'
-            + '<button class="spa-imagebox-toolbox-remove">'
-              + 'Remove</button>'
-            + '<div class="spa-imagebox-toolbox-orig-filename"></div>'
+            + '<span>Source: </span>'
             + '<input type="text" '
-              + 'class="spa-imagebox-toolbox-crop-filename" disabled/>'
-            + '<button class="spa-imagebox-toolbox-toggle">'
-              + 'Unlock</button>'
+              + 'class="spa-imagebox-toolbox-orig-filename" disabled />'
+            + '<span>Destination:</span>'
+            + '<input type="text" '
+              + 'class="spa-imagebox-toolbox-crop-filename" disabled />'
+            + '<input type="button" '
+              + 'class="spa-imagebox-toolbox-toggle" />'
+            + '<input type="button" value="Remove Image"'
+              + 'class="spa-imagebox-toolbox-remove" />'
           + '</div><br/>'
-          + '<div class="spa-imagebox-toolbox-bottom">'
+          + '<form class="spa-imagebox-toolbox-bottom">'
+          + '</form>'
+        + '</div>',
+      prescale_html : String()
+        + '<div class="spa-imagebox-toolbox-inputgroup">'
+          + '<div>'
+            + '<input type="number" '
+              + 'class="spa-imagebox-toolbox-prescale" disabled />'
+            + '<div> Prescale</div>'
+          + '</div>'
+          + '<div>'
+            + '<input type="button" value="Save"'
+              + 'class="spa-imagebox-toolbox-save" />'
+            + '<div> Save Image</div>'
           + '</div>'
         + '</div>',
       orig_dimensions_html : String()
-        + '<div class="spa-imagebox-toolbox-inputpair">'
+        + '<div class="spa-imagebox-toolbox-inputgroup">'
           + '<div>'
-            + '<div>Original Width: </div>'
             + '<input type="number" '
               + 'class="spa-imagebox-toolbox-orig-width" disabled />'
+            + '<div> Original Width</div>'
           + '</div>'
           + '<div>'
-            + '<div>Original Height: </div>'
             + '<input type="number" '
               + 'class="spa-imagebox-toolbox-orig-height" disabled />'
+            + '<div> Original Height</div>'
           + '</div>'
         + '</div>',
       crop_dimensions_html : String()
-        + '<div class="spa-imagebox-toolbox-inputpair">'
+        + '<div class="spa-imagebox-toolbox-inputgroup">'
           + '<div>'
-            + '<div>Crop Width: </div>'
             + '<input type="number" '
-              + ' class="spa-imagebox-toolbox-crop-width" /><br/>'
+              + ' class="spa-imagebox-toolbox-crop-width" disabled />'
+            + '<div> Crop Width</div>'
           + '</div>'
           + '<div>'
-            + '<div>Crop Height: </div>'
             + '<input type="number" '
-              + 'class="spa-imagebox-toolbox-crop-height" />'
+              + 'class="spa-imagebox-toolbox-crop-height" disabled />'
+            + '<div> Crop Height</div>'
           + '</div>'
         + '</div>',
       crop_offset_html : String()
-        + '<div class="spa-imagebox-toolbox-inputpair">'
+        + '<div class="spa-imagebox-toolbox-inputgroup">'
           + '<div>'
-            + '<div>Crop X Offset: </div>'
-            + '<input type="number" class="spa-imagebox-toolbox-x" /><br/>'
+            + '<input type="number" class="spa-imagebox-toolbox-x" disabled />'
+            + '<div> Crop X Offset</div>'
           + '</div>'
           + '<div>'
-            + '<div>Crop Y Offset: </div>'
-            + '<input type="number" class="spa-imagebox-toolbox-y" />'
+            + '<input type="number" class="spa-imagebox-toolbox-y" disabled />'
+            + '<div> Crop Y Offset</div>'
           + '</div>'
         + '</div>',
       aspect_ratio_html : String()
-        + '<div class="spa-imagebox-toolbox-inputpair">'
+        + '<div class="spa-imagebox-toolbox-inputgroup">'
           + '<div>'
-            + '<div>Original Aspect Ratio: </div>'
             + '<input type="number" '
               + 'class="spa-imagebox-toolbox-orig-aspect" disabled/>'
+            + '<div> Original Aspect Ratio</div>'
           + '</div>'
           + '<div>'
-            + '<div>Cropped Aspect Ratio: </div>'
             + '<input type="number" '
-              + 'class="spa-imagebox-toolbox-crop-aspect" />'
+              + 'class="spa-imagebox-toolbox-crop-aspect" disabled />'
+            + '<div> Cropped Aspect Ratio</div>'
           + '</div>'
-        + '</div>'
+        + '</div>',
+      toggle_text_visible : 'Hide Menu',
+      toggle_text_invisible : 'Show Menu',
     };
     this.stateMap  = {
       $imagebox : $imagebox,
@@ -106,6 +124,7 @@ spa.imagebox.toolbox = class {
     // create the html
     $imagebox.prepend(this.configMap.main_html);
     $imagebox.find('.spa-imagebox-toolbox-bottom').html(
+      this.configMap.prescale_html +
       this.configMap.orig_dimensions_html +
       this.configMap.crop_dimensions_html +
       this.configMap.crop_offset_html +
@@ -113,10 +132,11 @@ spa.imagebox.toolbox = class {
 
     this.setJqueryMap();
     console.log(this.jqueryMap);
-    console.log(this.jqueryMap.$bottom);
+    console.log(this.jqueryMap.$inputs);
 
     // apply settings
     console.log("Implement settingMap usage, TODO: " + settingMap);
+    this.jqueryMap.$toggle.val(this.configMap.toggle_text_invisible);
 
     // // initialize backend (backend must call this.initTop)
     // this.stateMap.backend.initToolbox(this);
@@ -124,25 +144,17 @@ spa.imagebox.toolbox = class {
     // set original filename
     // (is this kosher? needs a getter?)
     console.log(this.stateMap.backend);
-    this.jqueryMap.$orig_filename.text(this.stateMap.backend.name);
+    this.jqueryMap.$orig_filename.val(this.stateMap.backend.name);
       this.jqueryMap.$crop_filename.val("target filename.png");
 
     // bind callbacks
     this.jqueryMap.$toggle.bind('click', 
-      () => {this.toggleLocked();});
+      () => {this.toggleToolbox();});
     this.jqueryMap.$remove.bind('click',
       () => {this.remove();});
     this.jqueryMap.$crop_filename.bind('change',
       () => {this.onChange();});
-    this.jqueryMap.$crop_width.bind('change',
-      () => {this.onChange();});
-    this.jqueryMap.$crop_height.bind('change',
-      () => {this.onChange();});
-    this.jqueryMap.$crop_aspect.bind('change',
-      () => {this.onChange();});
-    this.jqueryMap.$x_offset.bind('change',
-      () => {this.onChange();});
-    this.jqueryMap.$y_offset.bind('change',
+    this.jqueryMap.$inputs.bind('change',
       () => {this.onChange();});
   }
   // End /constructor/
@@ -170,10 +182,12 @@ spa.imagebox.toolbox = class {
       $imagebox      : $imagebox,
       $container     : $imagebox.find('.spa-imagebox-toolbox'),
       $top           : $imagebox.find('.spa-imagebox-toolbox-top'),
-      $remove        : $imagebox.find('.spa-imagebox-toolbox-remove'),
       $toggle        : $imagebox.find('.spa-imagebox-toolbox-toggle'),
+      $remove        : $imagebox.find('.spa-imagebox-toolbox-remove'),
 
-      $bottom        : $imagebox.find('.spa-imagebox-toolbox-bottom'),
+      $inputs        : $imagebox.find('.spa-imagebox-toolbox-bottom'),
+      $prescale      : $imagebox.find('.spa-imagebox-toolbox-prescale'),
+      $save          : $imagebox.find('.spa-imagebox-toolbox-save'),
       $orig_filename : $imagebox.find('.spa-imagebox-toolbox-orig-filename'),
       $crop_filename : $imagebox.find('.spa-imagebox-toolbox-crop-filename'),
       $orig_width    : $imagebox.find('.spa-imagebox-toolbox-orig-width'),
@@ -198,12 +212,12 @@ spa.imagebox.toolbox = class {
   }
   // End DOM method /setPxSizes/
 
-  // Begin DOM/EVENT HANDLER method /toggleLocked/
-  // Example   : spa.imagebox.toolbox.toggleLocked();
+  // Begin DOM/EVENT HANDLER method /toggleToolbox/
+  // Example   : spa.imagebox.toolbox.toggleToolbox();
   // Purpose   : Lock or unlock imagebox
   // Returns   : false
   // Throws    : none
-  toggleLocked() {
+  toggleToolbox() {
     if (this.stateMap.locked) {
       // adjust setting
       this.stateMap.locked = false;
@@ -224,14 +238,13 @@ spa.imagebox.toolbox = class {
       });
 
       // display unlocked-mode features and relabel toggle
-      this.jqueryMap.$toggle.text('Lock');
-      this.jqueryMap.$toggle.css('background-color', 'red');
+      this.jqueryMap.$toggle.val(this.configMap.toggle_text_visible);
       this.jqueryMap.$crop_filename.prop('disabled', false);
+      this.jqueryMap.$inputs.css('display', 'inline');
       this.jqueryMap.$remove.css('display', 'inline');
-      this.jqueryMap.$bottom.css('display', 'inline');
       // this.jqueryMap.$remove.animate({'display': 'inline'}, 10,
       //   function () {console.log("it appears!");});
-      // this.jqueryMap.$bottom.animate({'display': 'inline'}, 10);
+      // this.jqueryMap.$inputs.animate({'display': 'inline'}, 10);
     } else {
       // adjust setting and notify model
       this.stateMap.locked = true;
@@ -240,17 +253,16 @@ spa.imagebox.toolbox = class {
       // this.stateMap.backend.handleImageboxLock(); // TODO
 
       // hide unlocked-mode features and relabel toggle
-      this.jqueryMap.$toggle.text('Unlock');
-      this.jqueryMap.$toggle.css('background-color', 'initial');
+      this.jqueryMap.$toggle.val(this.configMap.toggle_text_invisible);
       this.jqueryMap.$crop_filename.prop('disabled', true);
+      this.jqueryMap.$inputs.css('display', 'none');
       this.jqueryMap.$remove.css('display', 'none');
-      this.jqueryMap.$bottom.css('display', 'none');
       // this.jqueryMap.$remove.animate({'display': 'none'}, 10);
-      // this.jqueryMap.$bottom.animate({'display': 'none'}, 10);
+      // this.jqueryMap.$inputs.animate({'display': 'none'}, 10);
     }
     return false;
   }
-  // End DOM/EVENT HANDLER method /toggleLocked/
+  // End DOM/EVENT HANDLER method /toggleToolbox/
   //---------------------- END DOM METHODS ---------------------
 
   //------------------- BEGIN EVENT HANDLERS -------------------

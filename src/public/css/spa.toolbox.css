@@ -58,6 +58,7 @@
   display          : inline-block;
   text-align       : left;
   white-space      : pre-wrap;
+  cursor           : pointer;
 }
 .spa-toolbox-inputgroup>div>input{
   width            : 4em;
