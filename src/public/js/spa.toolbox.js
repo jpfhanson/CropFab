@@ -213,38 +213,15 @@ classes.toolbox = class {
     return false;
   }
   // End EVENT HANDLER method /onSaveClick/
-
-  // Begin EVENT HANDLER method /onCropWidthChange/
-  onCropWidthChange() {
-    console.log("Changing crop width!");
-    this.configMap.cropper_model.changeCropWidth(
-            this.jqueryMap.$crop_width.get(0).value);
-  }
-  // End EVENT HANDLER method /onCropWidthChange/
-
-  // Begin EVENT HANDLER method /onCropHeightChange/
-  onCropHeightChange() {
-    console.log("Changing crop height!");
-    this.configMap.cropper_model.changeCropHeight(
+   
+  // Begin EVENT HANDLER method /onCropSizeChange/
+  onCropSizeChange() {
+    console.log("Changing crop dimensions!");
+    this.configMap.cropper_model.changeCropSize(
+            this.jqueryMap.$crop_width.get(0).value,
             this.jqueryMap.$crop_height.get(0).value);
   }
-  // End EVENT HANDLER method /onCropHeightChange/
-    
-  /*
-  // Begin EVENT HANDLER method /onCropLimitChange/
-  onCropLimitChange() {
-    console.log("Changing crop limits!");
-    var croplimits = {
-      top    : jqueryMap.$croptop.val,
-      left   : jqueryMap.$cropleft.val,
-      right  : jqueryMap.$cropright.val,
-      bottom : jqueryMap.$cropbottom.val
-    };
-    this.configMap.cropper_model.updateCropLimits(croplimits);
-    return false;
-  }
-  // End EVENT HANDLER method /onCropLimitChange/
-  */
+  // End EVENT HANDLER method /onCropWidthChange/
 
   //-------------------- END EVENT HANDLERS --------------------
 
@@ -383,20 +360,10 @@ classes.toolbox = class {
       () => {this.onLoadClick();});
     this.jqueryMap.$savebutton.bind('click', 
       () => {this.onSaveClick();});
-    /*
-    this.jqueryMap.$cropleft.bind('change', 
-      () => {this.onCropLimitChange();});
-    this.jqueryMap.$cropright.bind('change', 
-      () => {this.onCropLimitChange();});
-    this.jqueryMap.$croptop.bind('change', 
-      () => {this.onCropLimitChange();});
-    this.jqueryMap.$cropbottom.bind('change', 
-      () => {this.onCropLimitChange();});
-    */
-    this.jqueryMap.$crop_width.bind('change',
-      () => {this.onCropWidthChange();});
+   this.jqueryMap.$crop_width.bind('change',
+      () => {this.onCropSizeChange();});
     this.jqueryMap.$crop_height.bind('change',
-      () => {this.onCropHeightChange();});
+      () => {this.onCropSizeChange();});
     return true;
   }
   // End public method /initModule/
