@@ -35,44 +35,63 @@ spa.imagebox.toolbox = class {
           + '<div class="spa-imagebox-toolbox-top">'
             + '<button class="spa-imagebox-toolbox-remove">'
               + 'Remove</button>'
-            + '<div class="spa-imagebox-toolbox-filename"></div>'
+            + '<div class="spa-imagebox-toolbox-orig-filename"></div>'
+            + '<input type="text" '
+              + 'class="spa-imagebox-toolbox-crop-filename" disabled/>'
             + '<button class="spa-imagebox-toolbox-toggle">'
               + 'Unlock</button>'
           + '</div><br/>'
           + '<div class="spa-imagebox-toolbox-bottom">'
           + '</div>'
         + '</div>',
-      bottom_html : String()
-        + '<div class="spa-imagebox-toolbox-crop>'
-          + '<div class="spa-imagebox-toolbox-crop-filename"></div>'
-          + '<div class="spa-imagebox-toolbox-inputpair">'
-            + '<div>Width:</div>'
-            + '<input type="number" class="spa-imagebox-toolbox-crop-widthinput" /><br/>'
-            + '<div>Height:</div>'
-            + '<input type="number" class="spa-imagebox-toolbox-crop-heightinput" />'
+      orig_dimensions_html : String()
+        + '<div class="spa-imagebox-toolbox-inputpair">'
+          + '<div>'
+            + '<div>Original Width: </div>'
+            + '<input type="number" '
+              + 'class="spa-imagebox-toolbox-orig-width" disabled />'
           + '</div>'
-          + '<div class="spa-imagebox-toolbox-crop-aspect">'
-            + '<div>Aspect Ratio:</div>'
-            + '<input type="number" class="spa-imagebox-toolbox-crop-aspectinput" />'
+          + '<div>'
+            + '<div>Original Height: </div>'
+            + '<input type="number" '
+              + 'class="spa-imagebox-toolbox-orig-height" disabled />'
           + '</div>'
-        + '</div>'
-        + '<div class="spa-imagebox-toolbox-orig>'
-          + '<div class="spa-imagebox-toolbox-orig-filename"></div>'
-          + '<div class="spa-imagebox-toolbox-inputpair">'
-            + '<div>Crop X Offset:</div>'
-            + '<input type="number" class="spa-imagebox-toolbox-xinput" /><br/>'
-            + '<div>Crop Y Offset:</div>'
-            + '<input type="number" class="spa-imagebox-toolbox-yinput" />'
+        + '</div>',
+      crop_dimensions_html : String()
+        + '<div class="spa-imagebox-toolbox-inputpair">'
+          + '<div>'
+            + '<div>Crop Width: </div>'
+            + '<input type="number" '
+              + ' class="spa-imagebox-toolbox-crop-width" /><br/>'
           + '</div>'
-          + '<div class="spa-imagebox-toolbox-inputpair">'
-            + '<div>Width:</div>'
-            + '<div class="spa-imagebox-toolbox-orig-width" /><br/>'
-            + '<div>Height:</div>'
-            + '<div class="spa-imagebox-toolbox-orig-height" />'
+          + '<div>'
+            + '<div>Crop Height: </div>'
+            + '<input type="number" '
+              + 'class="spa-imagebox-toolbox-crop-height" />'
           + '</div>'
-          + '<div class="spa-imagebox-toolbox-orig-aspect">'
-            + '<div>Aspect Ratio:</div>'
-            + '<input type="number" class="spa-imagebox-toolbox-orig-aspectvalue" />'
+        + '</div>',
+      crop_offset_html : String()
+        + '<div class="spa-imagebox-toolbox-inputpair">'
+          + '<div>'
+            + '<div>Crop X Offset: </div>'
+            + '<input type="number" class="spa-imagebox-toolbox-x" /><br/>'
+          + '</div>'
+          + '<div>'
+            + '<div>Crop Y Offset: </div>'
+            + '<input type="number" class="spa-imagebox-toolbox-y" />'
+          + '</div>'
+        + '</div>',
+      aspect_ratio_html : String()
+        + '<div class="spa-imagebox-toolbox-inputpair">'
+          + '<div>'
+            + '<div>Original Aspect Ratio: </div>'
+            + '<input type="number" '
+              + 'class="spa-imagebox-toolbox-orig-aspect" disabled/>'
+          + '</div>'
+          + '<div>'
+            + '<div>Cropped Aspect Ratio: </div>'
+            + '<input type="number" '
+              + 'class="spa-imagebox-toolbox-crop-aspect" />'
           + '</div>'
         + '</div>'
     };
@@ -87,7 +106,10 @@ spa.imagebox.toolbox = class {
     // create the html
     $imagebox.prepend(this.configMap.main_html);
     $imagebox.find('.spa-imagebox-toolbox-bottom').html(
-      this.configMap.bottom_html);
+      this.configMap.orig_dimensions_html +
+      this.configMap.crop_dimensions_html +
+      this.configMap.crop_offset_html +
+      this.configMap.aspect_ratio_html);
 
     this.setJqueryMap();
     console.log(this.jqueryMap);
@@ -102,7 +124,8 @@ spa.imagebox.toolbox = class {
     // set original filename
     // (is this kosher? needs a getter?)
     console.log(this.stateMap.backend);
-    this.jqueryMap.$filename.text(this.stateMap.backend.name);
+    this.jqueryMap.$orig_filename.text(this.stateMap.backend.name);
+      this.jqueryMap.$crop_filename.val("target filename.png");
 
     // bind callbacks
     this.jqueryMap.$toggle.bind('click', 
@@ -148,22 +171,19 @@ spa.imagebox.toolbox = class {
       $container     : $imagebox.find('.spa-imagebox-toolbox'),
       $top           : $imagebox.find('.spa-imagebox-toolbox-top'),
       $remove        : $imagebox.find('.spa-imagebox-toolbox-remove'),
-      $filename      : $imagebox.find('.spa-imagebox-toolbox-filename'),
       $toggle        : $imagebox.find('.spa-imagebox-toolbox-toggle'),
 
       $bottom        : $imagebox.find('.spa-imagebox-toolbox-bottom'),
-      $crop          : $imagebox.find('.spa-imagebox-toolbox-crop'),
-      $crop_filename : $imagebox.find('.spa-imagebox-toolbox-crop-filename'),
-      $crop_width    : $imagebox.find('.spa-imagebox-toolbox-crop-widthinput'),
-      $crop_height   : $imagebox.find('.spa-imagebox-toolbox-crop-heightinput'),
-      $crop_aspect   : $imagebox.find('.spa-imagebox-toolbox-crop-aspectinput'),
-      $orig          : $imagebox.find('.spa-imagebox-toolbox-orig'),
       $orig_filename : $imagebox.find('.spa-imagebox-toolbox-orig-filename'),
-      $x_offset      : $imagebox.find('.spa-imagebox-toolbox-xinput'),
-      $y_offset      : $imagebox.find('.spa-imagebox-toolbox-yinput'),
+      $crop_filename : $imagebox.find('.spa-imagebox-toolbox-crop-filename'),
       $orig_width    : $imagebox.find('.spa-imagebox-toolbox-orig-width'),
       $orig_height   : $imagebox.find('.spa-imagebox-toolbox-orig-height'),
-      $orig_aspect   : $imagebox.find('.spa-imagebox-toolbox-orig-aspectvalue'),
+      $crop_width    : $imagebox.find('.spa-imagebox-toolbox-crop-width'),
+      $crop_height   : $imagebox.find('.spa-imagebox-toolbox-crop-height'),
+      $x_offset      : $imagebox.find('.spa-imagebox-toolbox-x'),
+      $y_offset      : $imagebox.find('.spa-imagebox-toolbox-y'),
+      $orig_aspect   : $imagebox.find('.spa-imagebox-toolbox-orig-aspect'),
+      $crop_aspect   : $imagebox.find('.spa-imagebox-toolbox-crop-aspect'),
     };
   }
   // End DOM method /setJqueryMap/
@@ -191,7 +211,7 @@ spa.imagebox.toolbox = class {
       // // notify the model (backend must call this.initBottom)
       // this.stateMap.backend.handleImageboxUnlock(this); // TODO
       this.initBottom({
-        crop_filename : 1,
+        crop_filename : "hypothetical cropping",
         x_offset      : 1,
         y_offset      : 1,
         crop_width    : 1,
@@ -200,12 +220,13 @@ spa.imagebox.toolbox = class {
         orig_width    : 1,
         orig_height   : 1,
         orig_aspect   : 1,
-        filename      : 1
+        filename      : "hypothetical file.png"
       });
 
       // display unlocked-mode features and relabel toggle
       this.jqueryMap.$toggle.text('Lock');
       this.jqueryMap.$toggle.css('background-color', 'red');
+      this.jqueryMap.$crop_filename.prop('disabled', false);
       this.jqueryMap.$remove.css('display', 'inline');
       this.jqueryMap.$bottom.css('display', 'inline');
       // this.jqueryMap.$remove.animate({'display': 'inline'}, 10,
@@ -221,6 +242,7 @@ spa.imagebox.toolbox = class {
       // hide unlocked-mode features and relabel toggle
       this.jqueryMap.$toggle.text('Unlock');
       this.jqueryMap.$toggle.css('background-color', 'initial');
+      this.jqueryMap.$crop_filename.prop('disabled', true);
       this.jqueryMap.$remove.css('display', 'none');
       this.jqueryMap.$bottom.css('display', 'none');
       // this.jqueryMap.$remove.animate({'display': 'none'}, 10);
@@ -258,8 +280,8 @@ spa.imagebox.toolbox = class {
   remove() {
     console.log("Image removed!");
 
-    // first clean up the backend
-    this.stateMap.backend.remove();
+    // // first clean up the backend
+    // this.stateMap.backend.remove();
 
     // then clean up the frontend
     this.jqueryMap.$imagebox.remove();
@@ -292,18 +314,16 @@ spa.imagebox.toolbox = class {
   // Begin public method /initBottom/
   // Purpose    : Update all values in the bottom of the toolbox
   // Arguments  : A map of values to be set
-  //   * crop_filename, x_offset,    y_offset, 
+  //   * x_offset,    y_offset, 
   //     crop_width,    crop_height, crop_aspect,
   //     orig_width,    orig_height, orig_aspect,
-  //     orig_filename
   // Returns    : true
   // Throws     : none
   //
   initBottom( valueMap ) {
-      this.jqueryMap.$orig_filename.text(valueMap.filename);
-      this.jqueryMap.$orig_aspect.text(valueMap.orig_aspect);
-      this.jqueryMap.$orig_width.text(valueMap.orig_width);
-      this.jqueryMap.$orig_height.text(valueMap.orig_height);
+      this.jqueryMap.$orig_aspect.val(valueMap.orig_aspect);
+      this.jqueryMap.$orig_width.val(valueMap.orig_width);
+      this.jqueryMap.$orig_height.val(valueMap.orig_height);
       this.updateBottom( valueMap );
       return true;
   }
@@ -318,7 +338,6 @@ spa.imagebox.toolbox = class {
   // Throws     : none
   //
   updateBottom( valueMap ) {
-      this.jqueryMap.$crop_filename.val(valueMap.crop_filename);
       this.jqueryMap.$x_offset.val(valueMap.x_offset);
       this.jqueryMap.$y_offset.val(valueMap.y_offset);
       this.jqueryMap.$crop_width.val(valueMap.crop_width);
