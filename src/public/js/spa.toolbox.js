@@ -14,54 +14,67 @@
 /*global $, spa, classes, getComputedStyle */
 
 classes.toolbox = class {
-  // return public methods
+  // constructor method for the toolbox
   constructor () {
     this.configMap = {
       main_html : String()
         + '<div class="spa-toolbox">'
           + '<button class="spa-toolbox-togglebutton">'
           + '<b>-</b></button>'
-          /*+ '<input type="file" '
-            + 'class="spa-toolbox-loadbutton'
-            + 'accept="image/*" '
-            + 'onchange="spa.shell.loadImages(this)" '
-            + 'multiple >'
-          */
           + '<button class="spa-toolbox-loadbutton">'
             + 'Load</button>'
           + '</input>'
           + '<button class="spa-toolbox-savebutton">'
           + 'Save</button>'
-          + '<div class="spa-toolbox-croplimits">'
-/*            + '<div>'
-              + '<input type="number" class="spa-toolbox-croptop" />'
-              + 'Top'
-            + '</div>'
-            + '<br/>'
-            + '<div>'
-              + '<input type="number" class="spa-toolbox-cropleft" />'
-              + 'Left'
-            + '</div>'
-            + '<div>'
-              + '<input type="number" class="spa-toolbox-cropright" />'
-              + 'Right'
-            + '</div>'
-            + '<br/>'
-            + '<div>'
-              + '<input type="number" class="spa-toolbox-cropbottom" />'
-              + 'Bottom'
-            + '</div>'*/
-            + '<div>'
-              + 'Width'
-              + '<input type="number" class="spa-toolbox-cropwidth" />'
-            + '</div>'
-            + '<div>'
-              + 'Height'
-              + '<input type="number" class="spa-toolbox-cropheight" />'
-            + '</div>'
-          + '</div>'
+          + '<form class="spa-toolbox-inputs">'
+          + '</form>'
           + '<div class="spa-toolbox-advert">'
           + 'SHAMELESS ADVERT HERE</div>'
+        + '</div>',
+      max_dimensions_html : String()
+        + '<div class="spa-toolbox-inputgroup">'
+          + '<div>'
+            + '<input type="number" '
+              + 'class="spa-toolbox-orig-width" disabled />'
+            + '<div> Greatest Width</div>'
+          + '</div>'
+          + '<div>'
+            + '<input type="number" '
+              + 'class="spa-toolbox-orig-height" disabled />'
+            + '<div> Greatest Height</div>'
+          + '</div>'
+        + '</div>',
+      crop_dimensions_html : String()
+        + '<div class="spa-toolbox-inputgroup">'
+          + '<div>'
+            + '<input type="number" '
+              + ' class="spa-toolbox-crop-width" />'
+            + '<div> Locked Crop Width</div>'
+          + '</div>'
+          + '<div>'
+            + '<input type="number" '
+              + 'class="spa-toolbox-crop-height" />'
+            + '<div> Locked Crop Height</div>'
+          + '</div>'
+        + '</div>',
+      crop_offset_html : String()
+        + '<div class="spa-toolbox-inputgroup">'
+          + '<div>'
+            + '<input type="number" class="spa-toolbox-x" />'
+            + '<div> Locked Crop X Offset</div>'
+          + '</div>'
+          + '<div>'
+            + '<input type="number" class="spa-toolbox-y" />'
+            + '<div> Locked Crop Y Offset</div>'
+          + '</div>'
+        + '</div>',
+      aspect_ratio_html : String()
+        + '<div class="spa-toolbox-inputgroup">'
+          + '<div>'
+            + '<input type="number" '
+              + 'class="spa-toolbox-orig-aspect" />'
+            + '<div> Locked Aspect Ratio</div>'
+          + '</div>'
         + '</div>',
       settable_map : {
         toolbox_open_time    : true,
@@ -78,7 +91,7 @@ classes.toolbox = class {
 
       toolbox_open_time     : 250,
       toolbox_close_time    : 250,
-      toolbox_opened_em     : 16,
+      toolbox_opened_em     : 25,
       toolbox_closed_em     : 2,
       toolbox_opened_min_em : 10,
       window_height_min_em  : 20,
@@ -133,10 +146,16 @@ classes.toolbox = class {
       $togglebutton  : $container.find('.spa-toolbox-togglebutton'),
       $loadbutton    : $container.find('.spa-toolbox-loadbutton'),
       $savebutton    : $container.find('.spa-toolbox-savebutton'),
-      $croplimit     : $container.find('.spa-toolbox-croplimits'),
-      $cropwidth     : $container.find('.spa-toolbox-cropwidth'),
-      $cropheight    : $container.find('.spa-toolbox-cropheight'),
-      $advert        : $container.find('.spa-toolbox-advert')};
+      $inputs        : $container.find('.spa-toolbox-inputs'),
+
+      $max_width      : $container.find('.spa-toolbox-max-width'),
+      $max_height     : $container.find('.spa-toolbox-max-height'),
+      $crop_width     : $container.find('.spa-toolbox-crop-width'),
+      $crop_height    : $container.find('.spa-toolbox-crop-height'),
+      $x_offset       : $container.find('.spa-toolbox-x'),
+      $y_offset       : $container.find('.spa-toolbox-y'),
+      $aspect_ratio   : $container.find('.spa-toolbox-aspect'),
+      $advert         : $container.find('.spa-toolbox-advert')};
   }
   // End DOM method /setJqueryMap/
 
@@ -199,7 +218,7 @@ classes.toolbox = class {
   onCropWidthChange() {
     console.log("Changing crop width!");
     this.configMap.cropper_model.changeCropWidth(
-            this.jqueryMap.$cropwidth.get(0).value);
+            this.jqueryMap.$crop_width.get(0).value);
   }
   // End EVENT HANDLER method /onCropWidthChange/
 
@@ -207,7 +226,7 @@ classes.toolbox = class {
   onCropHeightChange() {
     console.log("Changing crop height!");
     this.configMap.cropper_model.changeCropHeight(
-            this.jqueryMap.$cropheight.get(0).value);
+            this.jqueryMap.$crop_height.get(0).value);
   }
   // End EVENT HANDLER method /onCropHeightChange/
     
@@ -334,29 +353,10 @@ classes.toolbox = class {
   // Returns    : true
   // Throws     : none
   setCropSize(width,height) {
-    this.jqueryMap.$cropwidth.get(0).value = width;
-    this.jqueryMap.$cropheight.get(0).value = height;
+    this.jqueryMap.$crop_width.get(0).value = width;
+    this.jqueryMap.$crop_height.get(0).value = height;
   }
   // End public method /setCropSize/
-
- /*
-  // Begin public method /handleCropLimitChange/
-  // Purpose    : Updates inputs to reflect new crop limits
-  // Arguments  :
-  //  * croplimits - a map to the new top, bottom, left, right limits
-  // Returns    : true
-  // Throws     : none
-  //
-  handleCropLimitChange( croplimits ) {
-    console.log("Updating Crop Limits!");
-    this.jqueryMap.$cropleft.value   = croplimits.left;
-    this.jqueryMap.$cropright.value  = croplimits.right; 
-    this.jqueryMap.$croptop.value    = croplimits.top;
-    this.jqueryMap.$cropbottom.value = croplimits.bottom;
-    return true;
-  }
-  // End public method /handleCropLimitChange/
-  */
 
   // Begin public method /initModule/
   // Purpose    : Initializes module
@@ -368,6 +368,11 @@ classes.toolbox = class {
   initModule( $append_target ) {
     this.stateMap.$append_target = $append_target;
     $append_target.append( this.configMap.main_html );
+    $append_target.find('.spa-toolbox-inputs').html(
+      this.configMap.max_dimensions_html +
+      this.configMap.crop_dimensions_html +
+      this.configMap.crop_offset_html +
+      this.configMap.aspect_ratio_html);
     this.setJqueryMap();
     this.handleResize();
 
@@ -388,9 +393,9 @@ classes.toolbox = class {
     this.jqueryMap.$cropbottom.bind('change', 
       () => {this.onCropLimitChange();});
     */
-    this.jqueryMap.$cropwidth.bind('change',
+    this.jqueryMap.$crop_width.bind('change',
       () => {this.onCropWidthChange();});
-    this.jqueryMap.$cropheight.bind('change',
+    this.jqueryMap.$crop_height.bind('change',
       () => {this.onCropHeightChange();});
     return true;
   }

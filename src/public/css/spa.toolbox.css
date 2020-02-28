@@ -10,7 +10,7 @@
   right            : 0;
   z-index          : 2;
   text-align       : center;
-  width            : 10em;
+  width            : 15em;
   border-style     : solid;
   border-width     : .2em;
   border-color     : black;
@@ -23,7 +23,7 @@
   border-bottom-right-radius: 0;
 }
 .spa-toolbox-togglebutton {
-  font-weight     : 20;
+  font-weight     : 2em;
   padding-left    : 5px;
   text-align      : left;
   height          : 20px;
@@ -31,33 +31,43 @@
   background-color: gray;
 }
 .spa-toolbox-loadbutton {
-  height : 20px;
-  width  : 100%;
-}
-.spa-toolbox-cropbutton {
-  height : 20px;
+  height : 2em;
   width  : 100%;
 }
 .spa-toolbox-savebutton {
-  height : 20px;
+  height : 2em;
   width  : 100%;
 }
-.spa-toolbox-croplimits {
-  text-align  :center ;
+
+.spa-toolbox-inputs{
+  text-align       : left;
+  padding          : .5em;
 }
-.spa-toolbox-croplimits>div {
-  display : inline-block;
-  margin  : 2px;
-  height  : 40px;
-  width   : 40%;
+.spa-toolbox-inputs>div{
+  display          : inline-block;
 }
-.spa-toolbox-croplimits>div>input {
-  height : 20px;
-  width  : 100%;
+.spa-toolbox-inputgroup{
+  height           : 3em;
+  width            : 100%;
 }
-.spa-toolbox-advert {
-  height        : 45px;
-  width         : 100%;
-  border-style  : solid;
-  border-width  : 1px;
+.spa-toolbox-inputgroup>div{
+  width            : 100%;
+  text-align       : left;
+}
+.spa-toolbox-inputgroup>div>div{
+  display          : inline-block;
+  text-align       : left;
+  white-space      : pre-wrap;
+}
+.spa-toolbox-inputgroup>div>input{
+  width            : 4em;
+  vertical-align   : middle;
+  text-align       : center;
+}
+.spa-toolbox-advert{
+  width            : 100%;
+  height           : 6em;
+  border-style     : solid;
+  border-width     : 1px;
+  vertical-align   : middle;
 }

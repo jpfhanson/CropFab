@@ -353,7 +353,7 @@ classes.shell = class {
     });
     spa.toolbox.initModule( this.jqueryMap.$container );
 
-    spa.footer.initModule( this.jqueryMap.$container );
+    // spa.footer.initModule( this.jqueryMap.$container );
 
     spa.announcement.initModule( this.jqueryMap.$container );
 

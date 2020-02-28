@@ -29,9 +29,10 @@
   top    : 0px;
   left   : 50%;
   /*width  : 900px;*/
-  margin-left : -450px;
+  margin-left : -500px;
   padding-top    : 100px;
   padding-bottom : 50px;
+  display: inline;
   text-align: center;
 }
 .spa-shell-popup {
