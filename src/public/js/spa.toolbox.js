@@ -35,7 +35,8 @@ classes.toolbox = class {
           + '<div>'
             + '<input type="text" value="%n_cropped" '
               + 'class="spa-toolbox-filename" />'
-            + '<div> Filename</div>'
+            + '<div class="spa-toolbox-filename-title">'
+              + ' Filename</div>'
           + '</div>'
           + '<div>'
             + '<div>(%n = source,</div>'
@@ -46,13 +47,15 @@ classes.toolbox = class {
         + '<div class="spa-toolbox-inputgroup">'
           + '<div>'
             + '<input type="number" '
-              + 'class="spa-toolbox-orig-width" disabled />'
-            + '<div> Greatest Width</div>'
+              + 'class="spa-toolbox-max-width" disabled />'
+            + '<div class="spa-toolbox-max-width-title">'
+              + ' Greatest Width</div>'
           + '</div>'
           + '<div>'
             + '<input type="number" '
-              + 'class="spa-toolbox-orig-height" disabled />'
-            + '<div> Greatest Height</div>'
+              + 'class="spa-toolbox-max-height" disabled />'
+            + '<div class="spa-toolbox-max-height-title">'
+              + ' Greatest Height</div>'
           + '</div>'
         + '</div>',
       crop_dimensions_html : String()
@@ -60,23 +63,27 @@ classes.toolbox = class {
           + '<div>'
             + '<input type="number" '
               + ' class="spa-toolbox-crop-width" />'
-            + '<div> Locked Crop Width</div>'
+            + '<div class="spa-toolbox-crop-width-title">'
+              + ' Locked Crop Width</div>'
           + '</div>'
           + '<div>'
             + '<input type="number" '
               + 'class="spa-toolbox-crop-height" />'
-            + '<div> Locked Crop Height</div>'
+            + '<div class="spa-toolbox-crop-height-title">'
+              + ' Locked Crop Height</div>'
           + '</div>'
         + '</div>',
       crop_offset_html : String()
         + '<div class="spa-toolbox-inputgroup">'
           + '<div>'
             + '<input type="number" class="spa-toolbox-x" />'
-            + '<div> Locked Crop X Offset</div>'
+            + '<div class="spa-toolbox-x-title">'
+              + ' Locked Crop X Offset</div>'
           + '</div>'
           + '<div>'
             + '<input type="number" class="spa-toolbox-y" />'
-            + '<div> Locked Crop Y Offset</div>'
+            + '<div class="spa-toolbox-y-title">'
+              + ' Locked Crop Y Offset</div>'
           + '</div>'
         + '</div>',
       aspect_prescale_html : String()
@@ -84,12 +91,14 @@ classes.toolbox = class {
           + '<div>'
             + '<input type="number" '
               + 'class="spa-toolbox-aspect" />'
-            + '<div> Locked Aspect Ratio</div>'
+            + '<div class="spa-toolbox-aspect-title">'
+              + ' Locked Aspect Ratio</div>'
           + '</div>'
           + '<div>'
             + '<input type="number" '
               + 'class="spa-toolbox-prescale" />'
-            + '<div> Locked Prescale</div>'
+            + '<div class="spa-toolbox-prescale-title">'
+              + ' Locked Prescale</div>'
           + '</div>'
         + '</div>',
       advert_text : 'YOUR AD HERE\nCONTACT\nads (at) TBD.com',
@@ -101,8 +110,9 @@ classes.toolbox = class {
 
         set_toolbox_anchor   : true,
         on_load              : true,
-        on_crop              : true,
         on_save              : true,
+        on_input_change      : null,
+        lock_all             : null,
         cropper_model        : true,
 
         advert_text          : true
@@ -117,8 +127,9 @@ classes.toolbox = class {
 
       set_toolbox_anchor   : null,
       on_load              : null,
-      on_crop              : null,
       on_save              : null,
+      on_input_change      : null,
+      lock_all             : null,
       cropper_model        : null
     };
     this.stateMap  = {
@@ -161,12 +172,14 @@ classes.toolbox = class {
       $container     = $append_target.find( '.spa-toolbox' );
 
     this.jqueryMap = { 
+      // controls
       $container     : $container,
       $togglebutton  : $container.find('.spa-toolbox-togglebutton'),
       $loadbutton    : $container.find('.spa-toolbox-loadbutton'),
       $savebutton    : $container.find('.spa-toolbox-savebutton'),
       $inputs        : $container.find('.spa-toolbox-inputs'),
 
+      // inputs
       $filename       : $container.find('.spa-toolbox-filename'),
       $max_width      : $container.find('.spa-toolbox-max-width'),
       $max_height     : $container.find('.spa-toolbox-max-height'),
@@ -176,6 +189,18 @@ classes.toolbox = class {
       $y_offset       : $container.find('.spa-toolbox-y'),
       $aspect_ratio   : $container.find('.spa-toolbox-aspect'),
       $prescale       : $container.find('.spa-toolbox-prescale'),
+
+      // titles
+      $filename_title       : $container.find('.spa-toolbox-filename-title'),
+      $max_width_title      : $container.find('.spa-toolbox-max-width-title'),
+      $max_height_title     : $container.find('.spa-toolbox-max-height-title'),
+      $crop_width_title     : $container.find('.spa-toolbox-crop-width-title'),
+      $crop_height_title    : $container.find('.spa-toolbox-crop-height-title'),
+      $x_offset_title       : $container.find('.spa-toolbox-x-title'),
+      $y_offset_title       : $container.find('.spa-toolbox-y-title'),
+      $aspect_ratio_title   : $container.find('.spa-toolbox-aspect-title'),
+      $prescale_title       : $container.find('.spa-toolbox-prescale-title'),
+
       $advert         : $container.find('.spa-toolbox-advert')};
   }
   // End DOM method /setJqueryMap/
@@ -234,6 +259,14 @@ classes.toolbox = class {
     return false;
   }
   // End EVENT HANDLER method /onSaveClick/
+
+  // Begin EVENT HANDLER method /onTitleClick/input
+  onTitleClick(input_type) {
+    console.log("Locking all " +input_type+ " inputs!");
+    this.configMap.lock_all(input_type);
+    return false;
+  }
+  // End EVENT HANDLER method /onTitleClick/input
    
   // Begin EVENT HANDLER method /onCropSizeChange/
   onCropSizeChange() {
@@ -241,8 +274,25 @@ classes.toolbox = class {
     this.configMap.cropper_model.changeCropSize(
             this.jqueryMap.$crop_width.get(0).value,
             this.jqueryMap.$crop_height.get(0).value);
+    return false;
   }
-  // End EVENT HANDLER method /onCropWidthChange/
+  // End EVENT HANDLER method /onCropSizeChange/
+   
+  // Begin EVENT HANDLER method /onInputChange/
+  onInputChange() {
+    console.log("Changing inputs!");
+    this.configMap.on_input_change({
+      filename     : this.jqueryMap.$filename.val(),
+      crop_width   : this.jqueryMap.$crop_width.val(),
+      crop_height  : this.jqueryMap.$crop_height.val(),
+      x_offset     : this.jqueryMap.$x_offset.val(),
+      y_offset     : this.jqueryMap.$y_offset.val(),
+      aspect_ratio : this.jqueryMap.$aspect_ratio.val(),
+      prescale     : this.jqueryMap.$prescale.val()
+    });
+    return false;
+  }
+  // End EVENT HANDLER method /onInputChange/
 
   //-------------------- END EVENT HANDLERS --------------------
 
@@ -356,6 +406,39 @@ classes.toolbox = class {
   }
   // End public method /setCropSize/
 
+  // Begin public method /updateInputs/
+  // Purpose    : Sets the inputs to reflect the model state
+  // Arguments  : valueMap - map of the values for the form
+  //   * useable keys:
+  //         max_width      max_height
+  //         crop_width     crop_height
+  //         x_offset       y_offset
+  //         aspect_ratio   prescale     filename
+  // Returns    : true
+  // Throws     : none
+  updateInputs( valueMap ) {
+    if ( 'max_width' in valueMap ){
+      this.jqueryMap.$max_width.val(valueMap.max_width);}
+    if ( 'max_height' in valueMap ){
+      this.jqueryMap.$max_height.val(valueMap.max_height);}
+    if ( 'crop_width' in valueMap ){
+      this.jqueryMap.$crop_width.val(valueMap.crop_width);}
+    if ( 'crop_height' in valueMap ){
+      this.jqueryMap.$crop_height.val(valueMap.crop_height);}
+    if ( 'x_offset' in valueMap ){
+      this.jqueryMap.$x_offset.val(valueMap.x_offset);}
+    if ( 'y_offset' in valueMap ){
+      this.jqueryMap.$y_offset.val(valueMap.y_offset);}
+    if ( 'aspect_ratio' in valueMap ){
+      this.jqueryMap.$aspect_ratio.val(valueMap.aspect_ratio);}
+    if ( 'prescale' in valueMap ){
+      this.jqueryMap.$prescale.val(valueMap.prescale);}
+    if ( 'filename' in valueMap ){
+      this.jqueryMap.$filename.val(valueMap.filename);}
+    return true;
+  }
+  // End public method /updateInputs/
+
   // Begin public method /initModule/
   // Purpose    : Initializes module
   // Arguments  :
@@ -376,8 +459,6 @@ classes.toolbox = class {
     this.jqueryMap.$advert.text(this.configMap.advert_text);
     this.handleResize();
 
-    // get the 
-
     // bind user input events
     this.jqueryMap.$togglebutton.bind('click', 
       () => {this.onToggleClick();});
@@ -385,8 +466,24 @@ classes.toolbox = class {
       () => {this.onLoadClick();});
     this.jqueryMap.$savebutton.bind('click', 
       () => {this.onSaveClick();});
-   this.jqueryMap.$inputs.bind('change',
-      () => {this.onCropSizeChange();});
+
+    this.jqueryMap.$filename_title.bind('click',
+      () => {this.onTitleClick('filename');});
+    this.jqueryMap.$crop_width_title.bind('click',
+      () => {this.onTitleClick('crop_width');});
+    this.jqueryMap.$crop_height_title.bind('click',
+      () => {this.onTitleClick('crop_height');});
+    this.jqueryMap.$x_offset_title.bind('click',
+      () => {this.onTitleClick('x_offset');});
+    this.jqueryMap.$y_offset_title.bind('click',
+      () => {this.onTitleClick('y_offset');});
+    this.jqueryMap.$aspect_ratio_title.bind('click',
+      () => {this.onTitleClick('aspect_ratio');});
+    this.jqueryMap.$prescale_title.bind('click',
+      () => {this.onTitleClick('prescale');});
+
+    this.jqueryMap.$inputs.bind('change',
+      () => {this.onInputChange();});
     return true;
   }
   // End public method /initModule/

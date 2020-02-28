@@ -352,8 +352,11 @@ classes.shell = class {
     spa.toolbox.configModule({
       set_toolbox_anchor   : (position) => {this.setToolboxAnchor(position);},
       on_load              : () => {this.beginLoadingImages();},
-      on_crop              : console.log,
       on_save              : () => {spa.imagelist.saveImages()},
+      lock_all             : (input_type) => {
+                spa.imagelist.lockAll(input_type)}, // TODO
+      on_input_change      : (valueMap) => {
+                spa.imagelist.onInputChange(valueMap)}, // TODO
       cropper_model        : spa.imagelistmodel,
     });
     spa.toolbox.initModule( this.jqueryMap.$container );
