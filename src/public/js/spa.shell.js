@@ -198,13 +198,14 @@ classes.shell = class {
   onResize() {
     if ( this.stateMap.resize_idto ) { return true; }
 
-    // spa.menubar.handleResize();
-    // spa.imagelist.handleResize();
-    // spa.toolbox.handleResize();
-    // spa.footer.handleResize();
+    spa.menubar.handleResize();
+    spa.imagelist.handleResize();
+    spa.toolbox.handleResize();
+    spa.footer.handleResize();
+    spa.announcement.handleResize();
     this.stateMap.resize_idto = setTimeout(() => { 
       this.stateMap.resize_idto = undefined; },
-      configMap.resize_interval
+      this.configMap.resize_interval
     );
 
     return true;
@@ -329,6 +330,8 @@ classes.shell = class {
     spa.toolbox.initModule( this.jqueryMap.$container );
 
     spa.footer.initModule( this.jqueryMap.$container );
+
+    spa.announcement.initModule( this.jqueryMap.$container );
 
     // Handle URI anchor change events.
     // This is done /after/ all feature modules are configured

@@ -94,11 +94,11 @@ classes.menubar = class {
   //------------------- BEGIN EVENT HANDLERS -------------------
 
   onAboutClick() {
-    alert(this.configMap.about_text);
+    spa.announcement.announce('About', this.configMap.about_text);
   }
 
   onUsageClick() {
-    alert(this.configMap.usage_text);
+    spa.announcement.announce('Usage', this.configMap.usage_text);
   }
 
   //-------------------- END EVENT HANDLERS --------------------

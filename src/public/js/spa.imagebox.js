@@ -81,11 +81,11 @@ classes.imagebox = class {
 
   // Begin DOM method /setPxSizes/
   setPxSizes() {
-    var px_per_em = getEmSize( jqueryMap.$container.get(0) );
+    var px_per_em = this.getEmSize( this.jqueryMap.$container.get(0) );
 
-    stateMap.px_per_em     = px_per_em;
-    stateMap.box_height_px = configMap.box_height_em * px_per_em;
-    stateMap.box_height_px = configMap.box_height_em * px_per_em;
+    this.stateMap.px_per_em     = px_per_em;
+    this.stateMap.box_height_px = this.configMap.box_height_em * px_per_em;
+    this.stateMap.box_height_px = this.configMap.box_height_em * px_per_em;
   }
   // End DOM method /setPxSizes/
   //---------------------- END DOM METHODS ---------------------
