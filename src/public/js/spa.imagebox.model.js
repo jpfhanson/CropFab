@@ -19,8 +19,8 @@
 // Begin public class ImageBox
 // Purpose processes and draws an image
 classes.ImageModel = class {
-  // note: the main canvas may be larger than the image, but the co-ordinates
-  // used in cropBox are relative to the image, not the canvas
+  // note: the main canvas may be larger than the image, so the co-ordinates
+  // used in cropBox are relative to the canvas, not the image
   
   // Begin constructor
   // Arguments
@@ -31,19 +31,18 @@ classes.ImageModel = class {
   //                        (must be >= the width of the image)
   //   * mainCanvasHeight - the internal height of the canvas
   //                        (must be >= the height of the image)
-  constructor(name,lastModifiedDate,originalImage,crop_width,crop_height) {
-    // after construction, resizeExternal and resizeCanvas must be called to finish setting up
+  constructor(name,lastModifiedDate,originalImage,cropWidth,cropHeight) {
     this.name = name;
     this.lastModifiedDate = lastModifiedDate;
     this.originalImage = originalImage;
-    this.mainCanvasWidth = undefined;
-    this.mainCanvasHeight = undefined;
+    this.mainCanvasWidth = this.originalImage.naturalWidth;
+    this.mainCanvasHeight = this.originalImage.naturalHeight;
     this.mainCanvas = null;
     this.previewCanvas = null;
 
     this.cropBox = this.Box.fromCenter(this.originalImage.naturalWidth/2,
                     this.originalImage.naturalHeight/2,
-                    crop_width,crop_height);
+                    cropWidth,cropHeight);
 
     this.mouseMode = "none";
     this.xResizeVec = 0;
@@ -54,6 +53,8 @@ classes.ImageModel = class {
   }
   // Begin public method setMainCanvas
   // Purpose   : Set and set up the main canvas
+  //             resizeCanvs must be called at some point after this
+  //             to finish the process
   // Arguments :
   //    * canvas - The main canvas
   // Returns   : none
@@ -103,9 +104,9 @@ classes.ImageModel = class {
   // Returns   : none
   // Actions   : Set the canvases size internally and externally and redraw
   resizeCanvas(width,height) {
-    // this is for setting the size if the main canvas is changed with
-    // setMainCanvas
-    console.trace();
+    // move the crop box so it stays in the same place relative to the image
+    this.cropBox.move((width-this.mainCanvasWidth)/2,
+                      (height-this.mainCanvasHeight)/2);
     this.mainCanvasWidth = width;
     this.mainCanvasHeight = height;
     if(this.mainCanvas != null) {
@@ -115,12 +116,12 @@ classes.ImageModel = class {
     this.resizeExternal();
     this.redraw();
   }
-  // Begin public method changeCropSize
+  // Begin public method setCropSize
   // Purpose   : Set the crop width and height
   // Arguments : width, height - the width and height
   // Returns   : none
   // Actions   : Set the crop size
-  changeCropSize(width,height) {
+  setCropSize(width,height) {
     this.cropBox.setWidth(width);
     this.cropBox.setHeight(height);
     this.redraw()
@@ -143,11 +144,11 @@ classes.ImageModel = class {
       ctx.drawImage(this.originalImage,this.xOffset,this.yOffset);
 
       // draw the croping rectangle
-      this.cropBox.drawRectOn(ctx,this.xOffset,this.yOffset);
+      this.cropBox.drawRectOn(ctx);
     }
     if(this.previewCanvas != null) {
       // draw the preview
-      this.cropBox.cropImageTo(this.previewCanvas,this.originalImage);
+      this.cropBox.cropImageTo(this.previewCanvas,this.mainCanvas);
     }
   }
   
@@ -161,8 +162,8 @@ classes.ImageModel = class {
   onMouseDown(event) {
     if(this.mainCanvas != null && event.which == 1) {
       // calculate the mouse posision in the canvases coordinate system
-      const x = this.clientToCanvasX(event.offsetX)-this.xOffset;
-      const y = this.clientToCanvasY(event.offsetY)-this.yOffset;
+      const x = this.clientToCanvasX(event.offsetX);
+      const y = this.clientToCanvasY(event.offsetY);
       // if user clicks an edge, tell shell to start resizing the crop box
       // x and y direction are multiplied by mouse movements to see how much
       // to resize
@@ -214,9 +215,9 @@ classes.ImageModel = class {
         let vx = this.clientToCanvasX(event.movementX);
         let vy = this.clientToCanvasY(event.movementY);
         this.cropBox.move(vx,vy);
-        this.cropBox.moveToWithin(-this.xOffset,-this.yOffset,
-                      this.mainCanvas.width-this.xOffset,
-                      this.mainCanvas.height-this.yOffset);
+        this.cropBox.moveToWithin(0,0,
+                                  this.mainCanvas.width,
+                                  this.mainCanvas.height);
         this.redraw();
       } else if(this.mouseMode == "resize") {
         let vw = this.clientToCanvasX(event.movementX)*this.xResizeVec*2;
@@ -313,46 +314,45 @@ classes.ImageModel = class {
     // Purpose   : Make a line drawing of the Box on a canvas context.
     // Arguments :
     //     * canvasCtx        - the canvas context to draw on
-    //     * xOffset, yOffset - offset to add to the rects position
     // Returns   : none
     // Actions   : Changes the contexts lineWidth and draws a rectagle on the canvas
-    drawRectOn(canvasCtx,xOffset=0,yOffset=0) {
+    drawRectOn(canvasCtx) {
       canvasCtx.lineWidth = 10;
-      canvasCtx.strokeRect(this.left+xOffset,this.top+yOffset,
-                  this.width,this.height);
+      canvasCtx.strokeRect(this.left,this.top,
+                            this.width,this.height);
     }
     // Begin public method cropImageTo
     // Purpose   : Draw a section of the image designated by this box on a canvas
     // Arguments :
-    //     * canvas - The html canvas to draw on
-    //     * image  - The html image to draw on the canvas
+    //     * toCanvas    - The html canvas to draw on
+    //     * fromCanvas  - The html canvas to draw on the canvas
     // Returns   : none
     // Actions   :
     //     * Resize the canvas to mach this Box's size internally (rather
     //             than change its css size)
     //     * Draw the section of the image on the canvas       
-    cropImageTo(canvas,image) {
+    cropImageTo(toCanvas,fromCanvas) {
       let width,height,left,top
       if(this.width == 0) {
-        width = image.naturalWidth;
+        width = fromCanvas.width;
         left = 0;
       } else {
         width = this.width;
         left = this.left;
       }
       if(this.height == 0) {
-        height = image.naturalHeight;
+        height = fromCanvas.height;
         top = 0;
       } else {
         height = this.height;
         top = this.top;
       }
-      canvas.width = width;
-      canvas.height = height;
-      canvas.style.height = canvas.clientWidth*height/width;
-      let ctx = canvas.getContext('2d');
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.drawImage(image,-left,-top);
+      toCanvas.width = width;
+      toCanvas.height = height;
+      toCanvas.style.height = toCanvas.clientWidth*height/width;
+      let ctx = toCanvas.getContext('2d');
+      ctx.clearRect(0,0,toCanvas.width,toCanvas.height);
+      ctx.drawImage(fromCanvas,-left,-top);
     }
     // Begin public method moveToWithin
     // Purpose   : Ensure the Box is fully in the specified area
