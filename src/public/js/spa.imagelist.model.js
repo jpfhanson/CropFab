@@ -124,11 +124,18 @@ classes.imagelistmodel = class {
   // Returns    : none
   // Throws     : none
   changeCropSize(width,height) {
-    this.cropWidth = width;
-    this.cropHeight = height;
-    for(let image of this.images) {
-      image.changeCropSize(width,height);
+    if(width <= 0 || height >= this.mainCanvasWidth) {
+      return;
     }
+    if(height <= 0 || height >= this.mainCanvasHeight) {
+      return;
+    }
+    this.cropWidth = Math.floor(width);
+    this.cropHeight = Math.floor(height);
+    for(let image of this.images) {
+      image.changeCropSize(this.cropWidth,this.cropHeight);
+    }
+    this.configMap.show_crop_size(this.cropWidth,this.cropHeight);
   }
   // End public method /addToCropSize/
 

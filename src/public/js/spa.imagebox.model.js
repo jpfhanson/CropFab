@@ -121,28 +121,9 @@ classes.ImageModel = class {
   // Returns   : none
   // Actions   : Set the crop size
   changeCropSize(width,height) {
-    // this function is untested
     this.cropBox.setWidth(width);
     this.cropBox.setHeight(height);
     this.redraw()
-  }
-  // Begin public method changeCropWidth
-  // Purpose   : Set the croping width
-  // Arguments : width  - the new width
-  // Returns   : none
-  // Actions   : set the crop size
-  changeCropWidth(width) {
-    this.cropBox.setWidth(width);
-    this.redraw();
-  }
-  // Begin public method changeCropHeight
-  // Purpose   : Set the croping height
-  // Arguments : height  - the new height
-  // Returns   : none
-  // Actions   : set the crop height
-  changeCropHeight(height) {
-    this.cropBox.setHeight(height);
-    this.redraw();
   }
 
   // Begin public method redraw
@@ -238,8 +219,8 @@ classes.ImageModel = class {
                       this.mainCanvas.height-this.yOffset);
         this.redraw();
       } else if(this.mouseMode == "resize") {
-        let vw = this.clientToCanvasX(event.movementX)*this.xResizeVec;
-        let vh = this.clientToCanvasY(event.movementY)*this.yResizeVec;
+        let vw = this.clientToCanvasX(event.movementX)*this.xResizeVec*2;
+        let vh = this.clientToCanvasY(event.movementY)*this.yResizeVec*2;
         spa.imagelistmodel.addToCropSize(vw,vh);
       }
     }
