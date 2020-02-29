@@ -36,6 +36,7 @@ classes.ImageModel = class {
     this.config = null;
     this.mainCanvas = null;
     this.previewCanvas = null;
+    this.toolbox = null;
 
     this.mouseMode = "none";
     this.xResizeVec = 0;
@@ -77,6 +78,18 @@ classes.ImageModel = class {
     this.previewCanvas = canvas;
   }
 
+  // Begin public method setToolbox
+  // Purpose   : Set and set up the preview toolbox
+  // Arguments :
+  //    * toolbox - the image toolbox
+  // Returns   : none
+  // Actions   :
+  //    * Hold on the the toolbox for use in other methods
+  setToolbox(toolbox) {
+    this.toolbox = toolbox;
+    this.toolbox.setConfig( this );
+  }
+
   // Begin public method resizeExternal
   // Purpose   : Keep the main canvas aspect ratio when it is resized
   // Arguments : none
@@ -92,14 +105,14 @@ classes.ImageModel = class {
   // Arguemnts : config
   // Returns   : none
   setConfig(config) {
-    this.confg = config
+    this.config = config;
   }
   // Begin public method updateConfig
   // Purpose   : Update this objects config to match a global one
   // Arguments : config
   // Returns   : none
   updateConfig(config) {
-    if(this.config == null) {
+    if(this.config === null) {
       this.config = config.clone();
     } else {
       this.config.update(config);
@@ -107,6 +120,9 @@ classes.ImageModel = class {
     if(this.mainCanvas != null) {
       this.mainCanvas.width = this.config.mainCanvasWidth;
       this.mainCanvas.height = this.config.mainCanvasHeight;
+    }
+    if(this.toolbox !== null) {
+      this.toolbox.updateConfig(this.config);
     }
     this.resizeExternal();
     this.redraw();

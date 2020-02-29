@@ -332,7 +332,7 @@ classes.shell = class {
     spa.imagelist.initModule( this.jqueryMap.$imagelist );
 
     spa.imagelistmodel.configModule({
-      show_config   : (config) => {spa.toolbox.updateConfig(config);},
+      show_config        : (config) => {spa.toolbox.updateConfig(config);},
       add_image_frontend : (backend) => {return spa.imagelist.addImagebox(backend);},
     });
     // imagelistmodel does not need init

@@ -67,6 +67,7 @@ classes.imagelistmodel = class {
     this.config.increaseMainCanvasSize(image.naturalWidth,image.naturalHeight);
       
     var backend = new classes.ImageModel(name,lastModifiedDate,image);
+    backend.updateConfig(this.config);
     this.configMap.add_image_frontend(backend);
     this.images.push(backend);
   }

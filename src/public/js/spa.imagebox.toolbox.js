@@ -144,28 +144,8 @@ spa.imagebox.toolbox = class {
     console.log("Implement settingMap usage, TODO: " + settingMap);
     this.jqueryMap.$toggle.val(this.configMap.toggle_text_invisible);
 
-    // set initial input values
-    // let valueMap = backend.getInitialValues(); // TODO
-    let valueMap = {
-      orig_filename : backend.name,
-      orig_width    : 100,
-      orig_height   : 100,
-      orig_aspect   : 1,
-      crop_filename : 'target.png',
-      crop_width    : 50,
-      crop_height   : 50,
-      x_offset      : 10,
-      y_offset      : 10,
-      crop_aspect   : 1,
-      prescale      : 1.2
-    };
-    this.jqueryMap.$orig_filename.val(valueMap.orig_filename);
-    this.jqueryMap.$orig_width.val(valueMap.orig_width);
-    this.jqueryMap.$orig_height.val(valueMap.orig_height);
-    this.jqueryMap.$orig_aspect.val(valueMap.orig_aspect);
-    this.updateInputs( valueMap );
-
-    // set original filename
+    // initial values from backend
+    this.setConfig(backend);
 
     // bind callbacks
     this.jqueryMap.$toggle.on('click',
@@ -173,9 +153,9 @@ spa.imagebox.toolbox = class {
     this.jqueryMap.$remove.on('click',
       () => {this.remove();});
     this.jqueryMap.$crop_filename.on('change',
-      () => {this.onChange();});
+      () => {this.onInputChange();});
     this.jqueryMap.$inputs.on('change',
-      () => {this.onChange();});
+      () => {this.onInputChange();});
 
     this.jqueryMap.$prescale_title.on('click',
       () => {this.onTitleClick("prescale");});
@@ -289,24 +269,27 @@ spa.imagebox.toolbox = class {
   //---------------------- END DOM METHODS ---------------------
 
   //------------------- BEGIN EVENT HANDLERS -------------------
-  // Begin EVENT HANLDER method /onChange/
+  // Begin EVENT HANLDER method /onInputChange/
   // Purpose    : Respond to change event on the local inputs
   // Returns    : false
   // Throws     : none
-  onChange() {
-    console.log("Something changed!");
-    this.stateMap.backend.update({ // TODO
-      crop_filename : this.jqueryMap.$crop_filename.val(),
-      x_offset      : this.jqueryMap.$x_offset.val(),
-      y_offset      : this.jqueryMap.$y_offset.val(),
-      crop_width    : this.jqueryMap.$crop_width.val(),
-      crop_height   : this.jqueryMap.$crop_height.val(),
-      crop_aspect   : this.jqueryMap.$crop_aspect.val(),
-      prescale      : this.jqueryMap.$prescale.val()
-    });
+  onInputChange() {
+    console.log("Changing inputs!");
+    let config = new classes.OpConfig(
+      this.jqueryMap.$orig_width.val(),
+      this.jqueryMap.$orig_height.val(),
+      this.jqueryMap.$x_offset.val(),
+      this.jqueryMap.$y_offset.val(),
+      this.jqueryMap.$crop_width.val(),
+      this.jqueryMap.$crop_height.val(),
+      // this.jqueryMap.$filename.val(),
+      // this.jqueryMap.$crop_aspect.val(),
+      // this.jqueryMap.$prescale.val(),
+    );
+    this.stateMap.backend.updateConfig(config);
     return false;
   }
-  // End EVENT HANLDER method /onChange/
+  // End EVENT HANLDER method /onInputChange/
 
   // Begin EVENT HANLDER method /onTitleClick/
   // Purpose    : Adjust configuration of allowed keys
@@ -379,7 +362,25 @@ spa.imagebox.toolbox = class {
   }
   // End public method /configModule/
 
-  // Begin public method /updateBottom/
+  // Begin public method /setConfig/
+  // Purpose    : Set up and configure the toolbox values
+  // Arguments  : 
+  //   * backend - the backend that should supply the values
+  // Returns    : true
+  // Throws     : none
+  //
+  setConfig( backend ) {
+    // set initial input values
+    this.jqueryMap.$orig_filename.val(backend.name);
+    this.jqueryMap.$orig_width.val(backend.originalImage.naturalWidth);
+    this.jqueryMap.$orig_height.val(backend.originalImage.naturalHeight);
+    // this.jqueryMap.$orig_aspect.val(valueMap.orig_aspect);
+    this.updateConfig( backend.config );
+    return true;
+  }
+  // End public method /setConfig/
+
+  // Begin public method /updateConfig/
   // Purpose    : Update changeable values in the bottom of the toolbox
   // Arguments  : A map of values for the bottom of the toolbox
   //   * crop_filename, x_offset,    y_offset, 
@@ -387,14 +388,16 @@ spa.imagebox.toolbox = class {
   // Returns    : true
   // Throws     : none
   //
-  updateInputs( valueMap ) {
-    this.jqueryMap.$crop_filename.val(valueMap.crop_filename);
-    this.jqueryMap.$x_offset.val(valueMap.x_offset);
-    this.jqueryMap.$y_offset.val(valueMap.y_offset);
-    this.jqueryMap.$crop_width.val(valueMap.crop_width);
-    this.jqueryMap.$crop_height.val(valueMap.crop_height);
-    this.jqueryMap.$crop_aspect.val(valueMap.crop_aspect);
-    this.jqueryMap.$prescale.val(valueMap.prescale);
+  updateConfig( config ) {
+    // this.jqueryMap.$crop_filename.val(valueMap.crop_filename);
+    this.jqueryMap.$x_offset.val(config.cropLeft);
+    this.jqueryMap.$y_offset.val(config.cropTop);
+    this.jqueryMap.$x_offset.val(config.cropLeft);
+    this.jqueryMap.$y_offset.val(config.cropTop);
+    this.jqueryMap.$crop_width.val(config.cropWidth);
+    this.jqueryMap.$crop_height.val(config.cropHeight);
+    // this.jqueryMap.$crop_aspect.val(valueMap.crop_aspect);
+    // this.jqueryMap.$prescale.val(valueMap.prescale);
     return true;
   }
   //------------------- END PUBLIC METHODS ---------------------
