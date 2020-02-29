@@ -112,9 +112,9 @@ classes.toolbox = class {
         set_toolbox_anchor   : true,
         on_load              : true,
         on_save              : true,
-        on_input_change      : null,
-        lock_all             : null,
-        cropper_model        : true,
+        on_input_change      : true,
+        lock_all             : true,
+        update_config        : true,
 
         advert_text          : true
       },
@@ -131,7 +131,7 @@ classes.toolbox = class {
       on_save              : null,
       on_input_change      : null,
       lock_all             : null,
-      cropper_model        : null
+      update_config        : null
     };
     this.stateMap  = {
       $append_target    : null,
@@ -291,15 +291,18 @@ classes.toolbox = class {
   // Begin EVENT HANDLER method /onInputChange/
   onInputChange() {
     console.log("Changing inputs!");
-    this.configMap.on_input_change({
-      filename     : this.jqueryMap.$filename.val(),
-      crop_width   : this.jqueryMap.$crop_width.val(),
-      crop_height  : this.jqueryMap.$crop_height.val(),
-      x_offset     : this.jqueryMap.$x_offset.val(),
-      y_offset     : this.jqueryMap.$y_offset.val(),
-      aspect_ratio : this.jqueryMap.$aspect_ratio.val(),
-      prescale     : this.jqueryMap.$prescale.val()
-    });
+    let config = new classes.OpConfig(
+      this.jqueryMap.$max_width.val(),
+      this.jqueryMap.$max_height.val(),
+      this.jqueryMap.$x_offset.val(),
+      this.jqueryMap.$y_offset.val(),
+      this.jqueryMap.$crop_width.val(),
+      this.jqueryMap.$crop_height.val(),
+      // this.jqueryMap.$filename.val(),
+      // this.jqueryMap.$aspect_ratio.val(),
+      // this.jqueryMap.$prescale.val(),
+    );
+    this.configMap.on_input_change(config);
     return false;
   }
   // End EVENT HANDLER method /onInputChange/
@@ -405,14 +408,18 @@ classes.toolbox = class {
   }
   // End public method /configModule/
 
-  // Begin public method /setCropSize/
-  // Purpose    : Sets the inputs to reflect the crop size
-  // Arguments  : width,height - the crop size
-  // Returns    : true
+  // Begin public method /updateConfig/
+  // Purpose    : Sets the inputs to reflect the model
+  // Arguments  : config
+  // Returns    : none
   // Throws     : none
-  setCropSize(width,height) {
-    this.jqueryMap.$crop_width.get(0).value  = width;
-    this.jqueryMap.$crop_height.get(0).value = height;
+  updateConfig(config) {
+    this.jqueryMap.$max_width.val(config.mainCanvasWidth);
+    this.jqueryMap.$max_height.val(config.mainCanvasHeight);
+    this.jqueryMap.$crop_width.val(config.cropWidth);
+    this.jqueryMap.$crop_height.val(config.cropHeight);
+    this.jqueryMap.$x_offset.val(config.cropLeft);
+    this.jqueryMap.$y_offset.val(config.cropTop);
   }
   // End public method /setCropSize/
 

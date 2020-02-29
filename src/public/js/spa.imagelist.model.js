@@ -15,18 +15,15 @@
 
 classes.imagelistmodel = class {
   constructor() {
-    this.mainCanvasWidth = 0;
-    this.mainCanvasHeight = 0;
-    this.cropWidth = null;
-    this.cropHeight = null;
+    this.config = new classes.OpConfig(null,null,null,null,null,null);
     this.images = Array();
 
     this.configMap = {
       settable_map : {
-        show_crop_size : true,
+        show_config : true,
         add_image_frontend : true,
       },
-      show_crop_size : null,
+      show_config : null,
       add_image_frontend : null,
     }
   }
@@ -66,86 +63,61 @@ classes.imagelistmodel = class {
   // Throws     : none
   //
   addImagebox(name,lastModifiedDate,image) {
-
-    // set the crop size if it is not set
-    if(this.cropWidth == null) {
-      if(this.cropHeight != null) {throw new Error();}
-      this.cropWidth  = image.naturalWidth/3;
-      this.cropHeight = image.naturalHeight/3;
-      this.configMap.show_crop_size(this.cropWidth,
-                                   this.cropHeight);
-    } else if(this.cropHeight == null) {throw new Error();}
+    this.config.setDefaultIfNull(image.naturalWidth,image.naturalHeight);
+    this.config.increaseMainCanvasSize(image.naturalWidth,image.naturalHeight);
       
-    var backend = new classes.ImageModel(name,lastModifiedDate,image,
-                          this.cropWidth,this.cropHeight);
-    let frontend = this.configMap.add_image_frontend(backend);
+    var backend = new classes.ImageModel(name,lastModifiedDate,image);
+    this.configMap.add_image_frontend(backend);
     this.images.push(backend);
-
-    // make sure the main canvas width is the maximum size of any image
-    if(this.mainCanvasWidth < image.naturalWidth) {
-      this.mainCanvasWidth = image.naturalWidth;
-    }
-    if(this.mainCanvasHeight < image.naturalHeight) {
-      this.mainCanvasHeight = image.naturalHeight;
-    }
   }
   // End public method /addImagebox/
 
-  // Begin public method /imagesDoneLoading/
-  // Purpose     : Called when a batch of images is finished loading
-  //               Currently it just adjusts the sizes of all the canvases
+  // Begin public method /deployConfig/
+  // Purpose     : Tell images and frontend about the config
   // Arguments   : none
   // Returns     : none
   // Throws      : none
-  imagesDoneLoading() {
-    this.resizeCanvas(this.mainCanvasWidth,this.mainCanvasHeight);
+  deployConfig() {
+    this.configMap.show_config(this.config);
+    for(let image of this.images) {
+      image.updateConfig(this.config);
+    }
   }
-  // End public method /addImagebox/
+  // End public method /deployConfig/
 
-  // Begin public method /resizeCanvas/
-  // Purpose     : Change the size of the main image canvas
-  // Arguments   :
-  //    * width,height   - the new width and height
+  // Begin public method /updateConfig/
+  // Purpose     : Change the op config and tell the images and toolbox about
+  //                the change.
+  // Arguments   : config
   // Returns     : none
   // Throws      : none
-  resizeCanvas(width,height) {
-    this.mainCanvasWidth = width;
-    this.mainCanvasHeight = height;
-    for(let image of this.images) {
-      image.resizeCanvas(this.mainCanvasWidth,
-                         this.mainCanvasHeight);
-    }
+  updateConfig(config) {
+    this.config.update(config);
+    deployConfig();
   }
   // End public method /resizeCanvas/
     
-  // Begin public method /changeCropSize/
-  // Purpose    : Change the size of the cropping boxes
-  // Arguments  : width,height
-  // Returns    : none
-  // Throws     : none
-  changeCropSize(width,height) {
-    if(width <= 0 || height >= this.mainCanvasWidth) {
-      return;
-    }
-    if(height <= 0 || height >= this.mainCanvasHeight) {
-      return;
-    }
-    this.cropWidth = Math.floor(width);
-    this.cropHeight = Math.floor(height);
-    for(let image of this.images) {
-      image.changeCropSize(this.cropWidth,this.cropHeight);
-    }
-    this.configMap.show_crop_size(this.cropWidth,this.cropHeight);
-  }
-  // End public method /addToCropSize/
-
   // Begin public method /addToCropSize/
   // Purpose    : Add a vector to the crop box size
   // Arguments  : vw,vh
   // Returns    : none
   // Throws     : none
   addToCropSize(vw,vh) {
-    this.changeCropSize(vw+this.cropWidth,vh+this.cropHeight);
+    this.config.setCropSize(this.config.cropWidth+vw,this.config.cropHeight+vh);
+    this.config.moveCropWithinMainCanvas();
+    this.deployConfig();
+  }
+
+  // Begin public method /moveCropBox/
+  // Purpose    : Add a vector to the crop box position
+  // Arguments  : vx,vy
+  // Returns    : none
+  // Throws     : none
+  moveCropBox(vx,vy) {
+    this.config.cropLeft += vx;
+    this.config.cropTop += vy;
+    this.config.moveCropWithinMainCanvas();
+    this.deployConfig();
   }
 
   // Begin public async method saveImages()
