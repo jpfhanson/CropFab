@@ -30,13 +30,12 @@
   width           : 100%;
   background-color: gray;
 }
-.spa-toolbox-loadbutton {
+.spa-toolbox-loadbutton, .spa-toolbox-savebutton {
   height : 2em;
   width  : 100%;
 }
-.spa-toolbox-savebutton {
-  height : 2em;
-  width  : 100%;
+.spa-toolbox-load{
+  display: none;
 }
 
 .spa-toolbox-inputs{

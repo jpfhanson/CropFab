@@ -144,7 +144,6 @@ classes.imagebox = class {
           imagebox.jqueryMap.$previewcanvas.get(0));
 
     // initialize toolbox
-    console.log(backend);
     imagebox.stateMap.toolbox = new spa.imagebox.toolbox(
       imagebox.jqueryMap.$container, backend, {} );
 

@@ -24,7 +24,6 @@ classes.loaderbox = class {
 
         cropper_model   : true,
         on_load         : true,
-        on_drop         : true,
       },
       image_width : 560,
       image_height: 420,
@@ -33,21 +32,31 @@ classes.loaderbox = class {
 
       cropper_model : null,
       on_load       : null,
-      on_drop       : null,
 
       main_html : String()
         + '<div class="spa-loaderbox">'
+          + '<h2 class="spa-loaderbox-text"></h2>'
+          + '<input type="file" class="spa-loaderbox-load" '
+            + 'accept="image/*" multiple />'
         + '</div>',
-      alone_html : String()
-        + '<h2>Load images here!</h2>',
-      other_html : String()
-        + '<h2>Load more images here!</h2>'
+      alone_html_nodrag : String()
+        + 'Click here to load images!',
+      other_html_nodrag : String()
+        + 'Click here to load images!',
+
+      alone_html_drag : String()
+        + 'Click or drag here to load images!',
+      other_html_drag : String()
+        + 'Click or drag here to load more images!'
     };
     this.stateMap  = { 
       $container : null,
 
       alone_height_px : 0,
       other_height_px : 0,
+
+      alone_html : null,
+      other_html : null,
 
       alone : true,
     };
@@ -75,7 +84,9 @@ classes.loaderbox = class {
 
     this.jqueryMap = { 
       $append_target : $append_target,
-      $container     : $append_target.find('.spa-loaderbox')
+      $container     : $append_target.find('.spa-loaderbox'),
+      $text          : $append_target.find('.spa-loaderbox-text'),
+      $load          : $append_target.find('.spa-loaderbox-load')
     };
   }
   // End DOM method /setJqueryMap/
@@ -92,12 +103,29 @@ classes.loaderbox = class {
   //---------------------- END DOM METHODS ---------------------
 
   //------------------- BEGIN EVENT HANDLERS -------------------
-  // // Begin event handler /onLoadClick/
-  // onLoadClick = function () {
-  //   console.log("Load fired by loaderbox!");
-  //   configMap.on_load();
-  // };
-  // // End event handler /onLoadClick/
+  // Begin EVENT HANDLER method /onLoadButtonClick/
+  onLoadButtonClick() {
+    console.log("Loaderbox Clicked!");
+    this.jqueryMap.$load.click();
+    return false;
+  }
+  // End EVENT HANDLER method /onLoadButtonClick/
+
+  // Begin EVENT HANDLER method /onLoadClick/
+  onLoadInputClick(e) {
+    console.log("Load input Clicked!");
+    e.stopPropagation();
+    return false;
+  }
+  // End EVENT HANDLER method /onLoadClick/
+
+  // Begin EVENT HANDLER method /onLoadChange/
+  onLoadChange(e) {
+    console.log("Images loading!");
+    this.configMap.on_load(this.jqueryMap.$load.get(0).files);
+    return false;
+  }
+  // End EVENT HANDLER method /onLoadChange/
   //-------------------- END EVENT HANDLERS --------------------
 
 
@@ -149,8 +177,43 @@ classes.loaderbox = class {
     this.stateMap.$append_target = $append_target;
     $append_target.append(this.configMap.main_html);
     this.setJqueryMap();
-    this.jqueryMap.$container.get(0).addEventListener("click",
-                                        this.configMap.on_load);
+
+    // bind fixed user events
+    this.jqueryMap.$container.on('click', () => {this.onLoadButtonClick();});
+    this.jqueryMap.$load.on('click', (e) => {this.onLoadInputClick(e);});
+    this.jqueryMap.$load.on('change', () => {this.onLoadChange();});
+
+    // set up draggable uploading
+    // credit to Osvaldas Valutis 2019-08-19
+    // https://css-tricks.com/drag-and-drop-file-uploading/
+    let isAdvancedUpload = (() => {
+      let div = this.jqueryMap.$container.get(0);
+      return (('draggable' in div) || ('ondragstart' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;
+    })();
+
+    if (isAdvancedUpload) {
+      let $draggable = this.jqueryMap.$container
+      $draggable.on('drag dragstart dragend dragover dragenter dragleave drop', 
+        (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      })
+      .on('dragover dragenter', () => {
+        $draggable.addClass('spa-loaderbox-dragover');
+      })
+      .on('dragleave dragend drop', () => {
+        $draggable.removeClass('spa-loaderbox-dragover');
+      })
+      .on('drop', (e) => {
+        this.configMap.on_load(e.originalEvent.dataTransfer.files);
+      });
+
+      this.stateMap.alone_html = this.configMap.alone_html_drag;
+      this.stateMap.other_html = this.configMap.other_html_drag;
+    } else {
+      this.stateMap.alone_html = this.configMap.alone_html_nodrag;
+      this.stateMap.other_html = this.configMap.other_html_nodrag;
+    }
 
     // call the resize function to add correct-size content
     this.handleResize();
@@ -175,10 +238,10 @@ classes.loaderbox = class {
     this.setPxSizes();
     if ( this.stateMap.alone ){
       this.jqueryMap.$container.css('height', this.stateMap.alone_height_px);
-      this.jqueryMap.$container.html(this.configMap.alone_html);
+      this.jqueryMap.$text.text(this.stateMap.alone_html);
     } else {
       this.jqueryMap.$container.css('height', this.stateMap.other_height_px);
-      this.jqueryMap.$container.html(this.configMap.other_html);
+      this.jqueryMap.$text.text(this.stateMap.other_html);
     }
     return true;
   }

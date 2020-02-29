@@ -23,7 +23,8 @@ classes.toolbox = class {
           + '<b>-</b></button>'
           + '<button class="spa-toolbox-loadbutton">'
             + 'Load</button>'
-          + '</input>'
+          + '<input type="file" class="spa-toolbox-load" '
+            + 'accept="image/*" multiple />'
           + '<button class="spa-toolbox-savebutton">'
           + 'Save</button>'
           + '<form class="spa-toolbox-inputs">'
@@ -176,6 +177,7 @@ classes.toolbox = class {
       $container     : $container,
       $togglebutton  : $container.find('.spa-toolbox-togglebutton'),
       $loadbutton    : $container.find('.spa-toolbox-loadbutton'),
+      $load          : $container.find('.spa-toolbox-load'),
       $savebutton    : $container.find('.spa-toolbox-savebutton'),
       $inputs        : $container.find('.spa-toolbox-inputs'),
 
@@ -246,11 +248,19 @@ classes.toolbox = class {
 
   // Begin EVENT HANDLER method /onLoadClick/
   onLoadClick() {
-    console.log("Toolbox loading!");
-    this.configMap.on_load();
+    console.log("Toolbox Load Button Clicked!");
+    this.jqueryMap.$load.click();
     return false;
   }
   // End EVENT HANDLER method /onLoadClick/
+
+  // Begin EVENT HANDLER method /onLoadChange/
+  onLoadChange() {
+    console.log("Images loading!");
+    this.configMap.on_load(this.jqueryMap.$load.get(0).files);
+    return false;
+  }
+  // End EVENT HANDLER method /onLoadChange/
 
   // Begin EVENT HANDLER method /onSaveClick/
   onSaveClick() {
@@ -464,6 +474,8 @@ classes.toolbox = class {
       () => {this.onToggleClick();});
     this.jqueryMap.$loadbutton.bind('click', 
       () => {this.onLoadClick();});
+    this.jqueryMap.$load.bind('change', 
+      () => {this.onLoadChange();});
     this.jqueryMap.$savebutton.bind('click', 
       () => {this.onSaveClick();});
 

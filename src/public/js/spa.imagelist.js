@@ -21,13 +21,11 @@ classes.imagelist = class {
 
         cropper_model : true,
         on_load       : true,
-        on_drop       : true,
       },
       columns   : 1,
 
       cropper_model : null,
       on_load       : null,
-      on_drop       : null,
     };
     this.stateMap  = { 
       $container : null,
@@ -93,7 +91,6 @@ classes.imagelist = class {
     spa.loaderbox.configModule({
       cropper_model   : spa.model,
       on_load         : this.configMap.on_load,
-      on_drop         : this.configMap.on_drop
     });
     spa.loaderbox.initModule($container);
     return true;

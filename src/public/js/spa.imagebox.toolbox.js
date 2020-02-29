@@ -139,8 +139,6 @@ spa.imagebox.toolbox = class {
       this.configMap.aspect_ratio_html);
 
     this.setJqueryMap();
-    console.log(this.jqueryMap);
-    console.log(this.jqueryMap.$inputs);
 
     // apply settings
     console.log("Implement settingMap usage, TODO: " + settingMap);
@@ -170,28 +168,28 @@ spa.imagebox.toolbox = class {
     // set original filename
 
     // bind callbacks
-    this.jqueryMap.$toggle.bind('click',
+    this.jqueryMap.$toggle.on('click',
       () => {this.toggleToolbox();});
-    this.jqueryMap.$remove.bind('click',
+    this.jqueryMap.$remove.on('click',
       () => {this.remove();});
-    this.jqueryMap.$crop_filename.bind('change',
+    this.jqueryMap.$crop_filename.on('change',
       () => {this.onChange();});
-    this.jqueryMap.$inputs.bind('change',
+    this.jqueryMap.$inputs.on('change',
       () => {this.onChange();});
 
-    this.jqueryMap.$prescale_title.bind('click',
+    this.jqueryMap.$prescale_title.on('click',
       () => {this.onTitleClick("prescale");});
-    this.jqueryMap.$crop_filename_title.bind('click',
+    this.jqueryMap.$crop_filename_title.on('click',
       () => {this.onTitleClick("crop_filename");});
-    this.jqueryMap.$crop_width_title.bind('click',
+    this.jqueryMap.$crop_width_title.on('click',
       () => {this.onTitleClick("crop_width");});
-    this.jqueryMap.$crop_height_title.bind('click',
+    this.jqueryMap.$crop_height_title.on('click',
       () => {this.onTitleClick("crop_height");});
-    this.jqueryMap.$x_offset_title.bind('click',
+    this.jqueryMap.$x_offset_title.on('click',
       () => {this.onTitleClick("x_offset");});
-    this.jqueryMap.$y_offset_title.bind('click',
+    this.jqueryMap.$y_offset_title.on('click',
       () => {this.onTitleClick("y_offset");});
-    this.jqueryMap.$crop_aspect_title.bind('click',
+    this.jqueryMap.$crop_aspect_title.on('click',
       () => {this.onTitleClick("crop_aspect");});
   }
   // End /constructor/

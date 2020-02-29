@@ -2,7 +2,7 @@
  * spa.loaderbox.css
  * Loaderbox styles
 */
-.spa-loaderbox {
+.spa-loaderbox{
   width            : 1000px;
   text-align       : center;
   /*background-color : #eaedef;*/
@@ -17,4 +17,10 @@
   cursor           : pointer;
   display          : table-cell;
   vertical-align   : middle;
+}
+.spa-loaderbox-load{
+  display: none;
+}
+.spa-loaderbox-dragover{
+  background-color : white;
 }

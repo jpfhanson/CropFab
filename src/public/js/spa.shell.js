@@ -24,7 +24,6 @@ classes.shell = class {
       main_html : String()
         + '<div class="spa-shell-menubar"></div>'
         + '<div class="spa-shell-imagelist"></div>',
-      file_input : undefined,
     };
     this.stateMap = {
       $container  : undefined,
@@ -38,7 +37,7 @@ classes.shell = class {
     // copyAnchorMap,    setJqueryMap,   changeAnchorPart,
     // onResize,         onHashchange,
     // // onTapAcct,        onLogin,        onLogout,
-    // setToolboxAnchor, beginLoadingImages, loadImages,
+    // setToolboxAnchor, loadImages,
     // imageLoadEnded, initModule;
   //----------------- END MODULE SCOPE VARIABLES ---------------
 
@@ -221,24 +220,23 @@ classes.shell = class {
   // Returns    : true
   // Throws     : none
   //
-  loadImages() {
-    let input = this.configMap.file_input;
-    this.stateMap.images_still_loading += input.files.length;
-    for (let file of input.files) {
+  loadImages(input_files) {
+    this.stateMap.images_still_loading += input_files.length;
+    for (let file of input_files) {
       const reader = new FileReader();
       reader.onload = () => {
         let image = new Image();
         image.onload = () => {
           spa.imagelistmodel.addImagebox(file.name,file.lastModified,image);
           this.imageLoadEnded();
-        }
+        };
         image.onerror = () => {
           this.imageLoadEnded();
-        }
+        };
         image.src = reader.result;
       };
-      reader.onabort = () => {this.imageLoadEnded()};
-      reader.onerror = () => {this.imageLoadEnded()};
+      reader.onabort = () => {this.imageLoadEnded();};
+      reader.onerror = () => {this.imageLoadEnded();};
       reader.readAsDataURL(file);
     }
 
@@ -270,15 +268,6 @@ classes.shell = class {
   }
   // End callback method /setToolboxAnchor/
 
-  //Begin callback method /beginLoadingImages/
-  // Purpose    : Called when the user wants to load images
-  // Arguments  : none
-  // Returns    : true
-  // Throws     : none
-  beginLoadingImages() {
-    this.configMap.file_input.click();
-  }
-
   // Begin callback method /imageLoadEnded/
   // Purpose    : Called when an image finishs loading so it can tell
   //              spa.imagelistmodel when they are all finished
@@ -287,7 +276,7 @@ classes.shell = class {
   // Throws     : none
   //
   imageLoadEnded() {
-    this.stateMap.images_still_loading--;
+    this.stateMap.images_still_loading -= 1;
     if(this.stateMap.images_still_loading < 0) {
       console.log("There are a negative number of images loading.");
     }
@@ -338,7 +327,7 @@ classes.shell = class {
 
     spa.imagelist.configModule({
       cropper_model   : spa.model,
-      on_load         : () => {this.beginLoadingImages();},
+      on_load         : (input_files) => {this.loadImages(input_files);},
     });
     spa.imagelist.initModule( this.jqueryMap.$imagelist );
 
@@ -351,7 +340,7 @@ classes.shell = class {
     // configure and initialize feature modules
     spa.toolbox.configModule({
       set_toolbox_anchor   : (position) => {this.setToolboxAnchor(position);},
-      on_load              : () => {this.beginLoadingImages();},
+      on_load              : (input_files) => {this.loadImages(input_files);},
       on_save              : () => {spa.imagelist.saveImages()},
       lock_all             : (input_type) => {
                 spa.imagelist.lockAll(input_type)}, // TODO
@@ -375,16 +364,6 @@ classes.shell = class {
       .bind( 'resize',     () => {this.onResize();} )
       .bind( 'hashchange', () => {this.onHashchange();} )
       .trigger( 'hashchange' );
-
-    // Set up the file loading mechanism
-    // The file_input is not in the html because it is never displayed.
-    // It is just a backend mechanism.
-    this.configMap.file_input = document.createElement("input");
-    this.configMap.file_input.type = "file";
-    this.configMap.file_input.accept = "image/*";
-    this.configMap.file_input.multiple = true;
-    this.configMap.file_input.addEventListener("change",
-                                              () => {this.loadImages()});
   }
   //------------------- END PUBLIC METHODS ---------------------
 };
