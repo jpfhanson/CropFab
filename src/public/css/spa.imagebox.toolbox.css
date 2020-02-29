@@ -14,6 +14,7 @@
 }
 .spa-imagebox-toolbox-top>span{
   margin-left      : 1em;
+  cursor           : pointer;
 }
 .spa-imagebox-toolbox-top>input[type=text]{
   /*display          : inline;*/
