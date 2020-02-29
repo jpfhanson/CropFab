@@ -293,7 +293,7 @@ classes.shell = class {
     }
     if(this.stateMap.images_still_loading == 0) {
       console.log("shell: images done loading");
-      spa.imagelistmodel.imagesDoneLoading();
+      spa.imagelistmodel.deployConfig();
     }
   }
   // End callback method /imageLoadEnded/
@@ -343,7 +343,7 @@ classes.shell = class {
     spa.imagelist.initModule( this.jqueryMap.$imagelist );
 
     spa.imagelistmodel.configModule({
-      show_crop_size   : (w,h) => {spa.toolbox.setCropSize(w,h);},
+      show_config   : (config) => {spa.toolbox.updateConfig(config);},
       add_image_frontend : (backend) => {return spa.imagelist.addImagebox(backend);},
     });
     // imagelistmodel does not need init
@@ -354,7 +354,7 @@ classes.shell = class {
       on_load              : () => {this.beginLoadingImages();},
       on_crop              : console.log,
       on_save              : () => {spa.imagelist.saveImages()},
-      cropper_model        : spa.imagelistmodel,
+      update_config        : () => {spa.imagelistmodel.updateConfig},
     });
     spa.toolbox.initModule( this.jqueryMap.$container );
 

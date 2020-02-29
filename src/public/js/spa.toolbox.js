@@ -46,12 +46,12 @@ classes.toolbox = class {
         + '<div class="spa-toolbox-inputgroup">'
           + '<div>'
             + '<input type="number" '
-              + 'class="spa-toolbox-orig-width" disabled />'
+              + 'class="spa-toolbox-max-width" disabled />'
             + '<div> Greatest Width</div>'
           + '</div>'
           + '<div>'
             + '<input type="number" '
-              + 'class="spa-toolbox-orig-height" disabled />'
+              + 'class="spa-toolbox-max-height" disabled />'
             + '<div> Greatest Height</div>'
           + '</div>'
         + '</div>',
@@ -103,7 +103,7 @@ classes.toolbox = class {
         on_load              : true,
         on_crop              : true,
         on_save              : true,
-        cropper_model        : true,
+        update_config        : true,
 
         advert_text          : true
       },
@@ -119,7 +119,7 @@ classes.toolbox = class {
       on_load              : null,
       on_crop              : null,
       on_save              : null,
-      cropper_model        : null
+      update_config        : null
     };
     this.stateMap  = {
       $append_target    : null,
@@ -235,14 +235,19 @@ classes.toolbox = class {
   }
   // End EVENT HANDLER method /onSaveClick/
    
-  // Begin EVENT HANDLER method /onCropSizeChange/
-  onCropSizeChange() {
-    console.log("Changing crop dimensions!");
-    this.configMap.cropper_model.changeCropSize(
-            this.jqueryMap.$crop_width.get(0).value,
-            this.jqueryMap.$crop_height.get(0).value);
+  // Begin EVENT HANDLER method /onInputChange/
+  onInputChange() {
+    console.log("TODO: set up onCropInputChange");
+    let config = classes.OpConfig(
+      this.jqueryMap.$max_width.get(0).value,
+      this.jqueryMap.$max_height.get(0).value,
+      this.jqueryMap.$x_offset.get(0).value,
+      this.jqueryMap.$y_offset.get(0).value,
+      this.jqueryMap.$crop_width.get(0).value,
+      this.jqueryMap.$crop_height.get(0).value);
+    this.configMap.update_config(config);
   }
-  // End EVENT HANDLER method /onCropWidthChange/
+  // End EVENT HANDLER method /onInputChange/
 
   //-------------------- END EVENT HANDLERS --------------------
 
@@ -345,14 +350,18 @@ classes.toolbox = class {
   }
   // End public method /configModule/
 
-  // Begin public method /setCropSize/
-  // Purpose    : Sets the inputs to reflect the crop size
-  // Arguments  : width,height - the crop size
-  // Returns    : true
+  // Begin public method /updateConfig/
+  // Purpose    : Sets the inputs to reflect the model
+  // Arguments  : config
+  // Returns    : none
   // Throws     : none
-  setCropSize(width,height) {
-    this.jqueryMap.$crop_width.get(0).value  = width;
-    this.jqueryMap.$crop_height.get(0).value = height;
+  updateConfig(config) {
+    this.jqueryMap.$max_width.get(0).value = config.mainCanvasWidth;
+    this.jqueryMap.$max_height.get(0).value = config.mainCanvasHeight;
+    this.jqueryMap.$crop_width.get(0).value  = config.cropWidth;
+    this.jqueryMap.$crop_height.get(0).value = config.cropHeight;
+    this.jqueryMap.$x_offset.get(0).value = config.cropLeft;
+    this.jqueryMap.$y_offset.get(0).value = config.cropTop;
   }
   // End public method /setCropSize/
 
@@ -386,7 +395,7 @@ classes.toolbox = class {
     this.jqueryMap.$savebutton.bind('click', 
       () => {this.onSaveClick();});
    this.jqueryMap.$inputs.bind('change',
-      () => {this.onCropSizeChange();});
+      () => {this.onInputChange();});
     return true;
   }
   // End public method /initModule/
