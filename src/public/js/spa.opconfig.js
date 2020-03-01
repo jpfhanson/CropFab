@@ -123,8 +123,8 @@ classes.OpConfig = class {
     console.log(this.scaledCropLeft)
   }
   setMainCanvasSize(width,height) {
-    this.cropLeft -= (width-this.mainCanvasWidth)/2;
-    this.cropTop -= (height-this.mainCanvasHeight)/2;
+    this.scaledCropLeft += (width-this.mainCanvasWidth)/2;
+    this.scaledCropTop += (height-this.mainCanvasHeight)/2;
     this.mainCanvasWidth = width;
     this.mainCanvasHeight = height;
     this.moveCropWithinMainCanvas();
