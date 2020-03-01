@@ -15,14 +15,16 @@
 /*global spa, classes */
 
 classes.OpConfig = class {
-  constructor(mainCanvasWidth,mainCanvasHeight,
-              cropLeft,cropTop,cropWidth,cropHeight) {
+  constructor(saveName,mainCanvasWidth,mainCanvasHeight,
+              cropLeft,cropTop,cropWidth,cropHeight,scale) {
+    this.saveName = saveName;
     this.mainCanvasWidth = mainCanvasWidth;
     this.mainCanvasHeight = mainCanvasHeight;
     this.cropLeft = cropLeft;
     this.cropTop = cropTop;
     this.cropWidth = cropWidth;
     this.cropHeight = cropHeight;
+    this.scale = scale;
   }
   setDefaultIfNull(mainCanvasWidth,mainCanvasHeight) {
     if(this.mainCanvasWidth == null) {
@@ -32,51 +34,93 @@ classes.OpConfig = class {
       this.mainCanvasHeight = mainCanvasHeight;
     }
     if(this.cropWidth == null) {
-      this.cropWidth = this.mainCanvasWidth/3;
+      this.cropWidth = Math.floor(this.mainCanvasWidth/3);
     }
     if(this.cropHeight == null) {
-      this.cropHeight = this.mainCanvasHeight/3;
+      this.cropHeight = Math.floor(this.mainCanvasHeight/3);
     }
     if(this.cropLeft == null) {
-      this.cropLeft = this.mainCanvasWidth/2-this.cropWidth/2;
+      this.cropLeft = Math.floor(this.mainCanvasWidth/2-this.cropWidth/2);
     }
     if(this.cropTop == null) {
-      this.cropTop = this.mainCanvasHeight/2-this.cropHeight/2;
+      this.cropTop = Math.floor(this.mainCanvasHeight/2-this.cropHeight/2);
+    }
+    if(this.scale == null) {
+      this.scale = 1;
     }
   }
   clone() {
-    return new classes.OpConfig(this.mainCanvasWidth,this.mainCanvasHeight,
+    return new classes.OpConfig(this.saveName,
+                            this.mainCanvasWidth,this.mainCanvasHeight,
                             this.cropLeft,this.cropTop,
-                            this.cropWidth,this.cropHeight);
+                            this.cropWidth,this.cropHeight,
+                            this.scale);
   }
   update(config) {
     // the order is important
     // each method modifies the things set before it, so, if only
     // one thing has changed in config, that will affect the other values
     // correctly
+    this.saveName = config.saveName;
     this.cropLeft = config.cropLeft;
     this.cropTop = config.cropTop;
     this.setCropSize(config.cropWidth,config.cropHeight);
     this.setMainCanvasSize(config.mainCanvasWidth,config.mainCanvasHeight);
+    this.setScale(config.scale);
     this.moveCropWithinMainCanvas();
   }
-  get cropRight() {
-    return this.cropLeft+this.cropWidth;
+  get scaledCropLeft() {
+    return this.cropLeft/this.scale;
   }
-  get cropBottom() {
-    return this.cropTop+this.cropHeight;
+  set scaledCropLeft(x) {
+    this.cropLeft = Math.floor(x*this.scale);
   }
-  set cropRight(x) {
-    this.cropLeft = x-this.cropWidth;
+  get scaledCropRight() {
+    return (this.cropLeft+this.cropWidth)/this.scale;
   }
-  set cropBottom(y) {
-    this.cropTop = y-this.cropHeight;
+  set scaledCropRight(x) {
+    this.cropLeft = Math.floor(x*this.scale)-this.cropWidth;
+  }
+  get scaledCropTop() {
+    return this.cropTop/this.scale;
+  }
+  set scaledCropTop(y) {
+    this.cropTop = Math.floor(y*this.scale);
+  }
+  get scaledCropBottom() {
+    return (this.cropTop+this.cropHeight)/this.scale;
+  }
+  set scaledCropBottom(y) {
+    this.cropTop = Math.floor(y*this.scale)-this.cropHeight;
+  }
+  get scaledCropWidth() {
+    return this.cropWidth/this.scale;
+  }
+  set scaledCropWidth(w) {
+    this.cropWidth = Math.floor(w*this.scale);
+  }
+  get scaledCropHeight() {
+    return this.cropHeight/this.scale;
+  }
+  set scaledCropHeight(h) {
+    this.cropHeight = Math.floor(h*this.scale);
   }
   setCropSize(width,height) {
-    this.cropLeft -= (width-this.cropWidth)/2;
+    this.cropLeft -= Math.floor((width-this.cropWidth)/2);
     this.cropWidth = width;
-    this.cropTop -= (height-this.cropHeight)/2;
+    this.cropTop -= Math.floor((height-this.cropHeight)/2);
     this.cropHeight = height;
+  }
+  setScale(scale) {
+    //this.cropLeft *= Math.floor(scale/this.scale);
+    //this.cropTop *= Math.floor(scale/this.scale);
+    console.log(this.scaledCropLeft);
+    this.cropLeft = Math.floor((this.cropLeft+this.cropWidth/2)
+                              *scale/this.scale-this.cropWidth/2);
+    this.cropTop = Math.floor((this.cropTop+this.cropHeight/2)
+                              *scale/this.scale-this.cropHeight/2);
+    this.scale = scale;
+    console.log(this.scaledCropLeft)
   }
   setMainCanvasSize(width,height) {
     this.cropLeft -= (width-this.mainCanvasWidth)/2;
@@ -97,59 +141,64 @@ classes.OpConfig = class {
   get cropEdgeColisionWidth() {
     // the denominator is just a magic number that feels good
     // for detecting when the user has clicked the edge of the crop box
-    return Math.max(this.mainCanvasWidth,this.mainCanvasHeight)/100;
+    return Math.max(this.mainCanvasWidth,this.mainCanvasHeight)/100*this.scale;
   }
 
   onCropTopEdge(x,y) {
-    if(Math.abs(this.cropTop-y) <= this.cropEdgeColisionWidth) {
-      if(this.cropLeft-this.cropEdgeColisionWidth <= x &&
-          x <= this.cropRight+this.cropEdgeColisionWidth) {
+    if(Math.abs(this.scaledCropTop-y) <= this.cropEdgeColisionWidth) {
+      if(this.scaledCropLeft-this.cropEdgeColisionWidth <= x &&
+          x <= this.scaledCropRight+this.cropEdgeColisionWidth) {
         return true;
       }
     }
     return false;
   }
   onCropBottomEdge(x,y) {
-    return this.onCropTopEdge(x,y-this.cropHeight);
+    return this.onCropTopEdge(x,y-this.scaledCropHeight);
   }
   onCropLeftEdge(x,y) {
-    if(Math.abs(this.cropLeft-x) <= this.cropEdgeColisionWidth) {
-      if(this.cropTop-this.cropEdgeColisionWidth <= y &&
-          x <= this.cropBottom+this.cropEdgeColisionWidth) {
+    if(Math.abs(this.scaledCropLeft-x) <= this.cropEdgeColisionWidth) {
+      if(this.scaledCropTop-this.cropEdgeColisionWidth <= y &&
+          x <= this.scaledCropBottom+this.cropEdgeColisionWidth) {
         return true;
       }
     }
     return false;
   }
   onCropRightEdge(x,y) {
-    return this.onCropLeftEdge(x-this.cropWidth,y);
+    return this.onCropLeftEdge(x-this.scaledCropWidth,y);
   }
   onCropBox(x,y) {
-    if(this.cropLeft < x < this.cropRight) {
-      if(this.cropTop < y < this.cropBottom) {
+    if(this.scaledCropLeft < x && x < this.scaledCropRight) {
+      if(this.scaledCropTop < y && y < this.scaledCropBottom) {
         return true;
       }
     }
     return false;
   }
+  dragCropSize(vw,vh) {
+    this.setCropSize(this.cropWidth+vw*this.scale,
+                     this.cropHeight+vh*this.scale);
+    this.moveCropWithinMainCanvas();
+  }
   moveCropWithinMainCanvas() {
-    if(this.cropWidth < 1) {
+    if(this.scaledCropWidth < 1) {
       this.cropWidth = 1;
-    } else if(this.cropWidth > this.mainCanvasWidth) {
-      this.cropWidth = this.mainCanvasWidth;
+    } else if(this.scaledCropWidth > this.mainCanvasWidth) {
+      this.scaledCropWidth = this.mainCanvasWidth;
     }
-    if(this.cropHeight < 1) {
+    if(this.scaledCropHeight < 1) {
       this.cropHeight = 1;
-    } else if(this.cropHeight > this.mainCanvasHeight) {
-      this.cropHeight = this.mainCanvasHeight;
+    } else if(this.scaledCropHeight > this.mainCanvasHeight) {
+      this.scaledCropHeight = this.mainCanvasHeight;
     }
-    if(this.cropTop < 0) {this.cropTop = 0;}
-    if(this.cropLeft < 0) {this.cropLeft = 0;}
-    if(this.cropRight > this.mainCanvasWidth) {
-      this.cropRight = this.mainCanvasWidth;
+    if(this.scaledCropTop < 0) {this.cropTop = 0;}
+    if(this.scaledCropLeft < 0) {this.cropLeft = 0;}
+    if(this.scaledCropRight > this.mainCanvasWidth) {
+      this.scaledCropRight = this.mainCanvasWidth;
     }
-    if(this.cropBottom > this.mainCanvasHeight) {
-      this.cropBottom = this.mainCanvasHeight;
+    if(this.scaledCropBottom > this.mainCanvasHeight) {
+      this.scaledCropBottom = this.mainCanvasHeight;
     }
   }
 }

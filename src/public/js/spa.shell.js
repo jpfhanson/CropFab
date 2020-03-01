@@ -341,10 +341,10 @@ classes.shell = class {
     spa.toolbox.configModule({
       set_toolbox_anchor   : (position) => {this.setToolboxAnchor(position);},
       on_load              : (input_files) => {this.loadImages(input_files);},
-      on_save              : () => {spa.imagelist.saveImages()},
+      on_save              : () => {spa.imagelistmodel.saveImages()},
       lock_all             : (input_type) => {
-                spa.imagelist.lockAll(input_type)}, // TODO
-      on_input_change      : () => {spa.imagelistmodel.updateConfig},
+                spa.imagelistmodel.lockAll(input_type)}, // TODO
+      on_input_change      : (config) => {spa.imagelistmodel.updateConfig(config)},
     });
     spa.toolbox.initModule( this.jqueryMap.$container );
 

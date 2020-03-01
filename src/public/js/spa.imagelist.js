@@ -108,6 +108,7 @@ classes.imagelist = class {
     var imagebox = spa.imagebox.makeImagebox(this.jqueryMap.$container,backend);
 
     imagebox.stateMap.id = this.stateMap.next_id;
+    backend.setId(this.stateMap.next_id);
     this.stateMap.next_id += 1;
 
     return imagebox;

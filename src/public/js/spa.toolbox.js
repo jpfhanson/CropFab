@@ -34,7 +34,7 @@ classes.toolbox = class {
       filename_html : String()
         + '<div class="spa-toolbox-inputgroup">'
           + '<div>'
-            + '<input type="text" value="%n_cropped" '
+            + '<input type="text" value="%n_cropped.jpeg" '
               + 'class="spa-toolbox-filename" />'
             + '<div class="spa-toolbox-filename-title">'
               + ' Filename</div>'
@@ -292,15 +292,15 @@ classes.toolbox = class {
   onInputChange() {
     console.log("Changing inputs!");
     let config = new classes.OpConfig(
-      this.jqueryMap.$max_width.val(),
-      this.jqueryMap.$max_height.val(),
-      this.jqueryMap.$x_offset.val(),
-      this.jqueryMap.$y_offset.val(),
-      this.jqueryMap.$crop_width.val(),
-      this.jqueryMap.$crop_height.val(),
-      // this.jqueryMap.$filename.val(),
+      this.jqueryMap.$filename.val(),
+      Math.floor(this.jqueryMap.$max_width.val()),
+      Math.floor(this.jqueryMap.$max_height.val()),
+      Math.floor(this.jqueryMap.$x_offset.val()),
+      Math.floor(this.jqueryMap.$y_offset.val()),
+      Math.floor(this.jqueryMap.$crop_width.val()),
+      Math.floor(this.jqueryMap.$crop_height.val()),
+      Number(this.jqueryMap.$prescale.val())/100,
       // this.jqueryMap.$aspect_ratio.val(),
-      // this.jqueryMap.$prescale.val(),
     );
     this.configMap.on_input_change(config);
     return false;
@@ -420,6 +420,7 @@ classes.toolbox = class {
     this.jqueryMap.$crop_height.val(config.cropHeight);
     this.jqueryMap.$x_offset.val(config.cropLeft);
     this.jqueryMap.$y_offset.val(config.cropTop);
+    this.jqueryMap.$prescale.val(config.scale*100);
   }
   // End public method /setCropSize/
 
@@ -448,8 +449,8 @@ classes.toolbox = class {
       this.jqueryMap.$y_offset.val(valueMap.y_offset);}
     if ( 'aspect_ratio' in valueMap ){
       this.jqueryMap.$aspect_ratio.val(valueMap.aspect_ratio);}
-    if ( 'prescale' in valueMap ){
-      this.jqueryMap.$prescale.val(valueMap.prescale);}
+    if ( 'scale' in valueMap ){
+      this.jqueryMap.$prescale.val(100*valueMap.scale);}
     if ( 'filename' in valueMap ){
       this.jqueryMap.$filename.val(valueMap.filename);}
     return true;
@@ -502,6 +503,8 @@ classes.toolbox = class {
       () => {this.onTitleClick('prescale');});
 
     this.jqueryMap.$inputs.bind('change',
+      () => {this.onInputChange();});
+    this.jqueryMap.$filename.bind('change',
       () => {this.onInputChange();});
     return true;
   }

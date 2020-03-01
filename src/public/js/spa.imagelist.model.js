@@ -15,7 +15,7 @@
 
 classes.imagelistmodel = class {
   constructor() {
-    this.config = new classes.OpConfig(null,null,null,null,null,null);
+    this.config = new classes.OpConfig("%n_cropped.jpeg",null,null,null,null,null,null,null);
     this.images = Array();
 
     this.configMap = {
@@ -80,7 +80,7 @@ classes.imagelistmodel = class {
   deployConfig() {
     this.configMap.show_config(this.config);
     for(let image of this.images) {
-      image.updateConfig(this.config);
+      image.setConfig(this.config);
     }
   }
   // End public method /deployConfig/
@@ -93,7 +93,7 @@ classes.imagelistmodel = class {
   // Throws      : none
   updateConfig(config) {
     this.config.update(config);
-    deployConfig();
+    this.deployConfig();
   }
   // End public method /resizeCanvas/
     
@@ -103,8 +103,7 @@ classes.imagelistmodel = class {
   // Returns    : none
   // Throws     : none
   addToCropSize(vw,vh) {
-    this.config.setCropSize(this.config.cropWidth+vw,this.config.cropHeight+vh);
-    this.config.moveCropWithinMainCanvas();
+    this.config.dragCropSize(vw,vh);
     this.deployConfig();
   }
 
@@ -114,8 +113,8 @@ classes.imagelistmodel = class {
   // Returns    : none
   // Throws     : none
   moveCropBox(vx,vy) {
-    this.config.cropLeft += vx;
-    this.config.cropTop += vy;
+    this.config.scaledCropLeft += vx;
+    this.config.scaledCropTop += vy;
     this.config.moveCropWithinMainCanvas();
     this.deployConfig();
   }
@@ -139,6 +138,15 @@ classes.imagelistmodel = class {
         fakeLink.click();
         setTimeout(() => {window.URL.revokeObjectURL(dataURL);});
       });
+  }
+
+  // Begin public methdo /lockAll/
+  // Purpose    : Locks all images to the global settings
+  // Arguments  : none
+  // Returns    : none
+  // Throws     : none
+  lockAll() {
+    console.log("TODO: implement lockAll");
   }
 
   // Begin public method /handleResize/
