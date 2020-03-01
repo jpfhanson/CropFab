@@ -59,11 +59,9 @@ classes.ImageModel = class {
   setMainCanvas(canvas) {
     if(this.mainCanvas != null) {
       this.mainCanvas.removeEventListener('mouseDown',this.mouseDownListener);
-      this.mainCanvas.removeEventListener('mousemove',this.mouseMoveListener);
     }
     this.mainCanvas = canvas;
     this.mainCanvas.addEventListener('mouseDown',this.mouseDownListener);
-    this.mainCanvas.addEventListener('mousemove', this.mouseMoveListener);
     this.mainCanvas.onmousedown = this.mouseDownListener;
     this.mainCanvas.onmousemove = this.mouseUpListener;
   }
@@ -189,8 +187,10 @@ classes.ImageModel = class {
         this.yResizeVec = 1;
       }
       if(this.yResizeVec != 0 || this.xResizeVec != 0) {
+        window.addEventListener('mousemove',this.mouseMoveListener)
         this.mouseMode = "resize"
       } else if(this.config.onCropBox(x,y)) {
+        window.addEventListener('mousemove',this.mouseMoveListener)
         this.mouseMode = "move";
       }
     }
@@ -206,6 +206,7 @@ classes.ImageModel = class {
     // For some reason, mouseup events don't always get here, so
     // whether the button is still pressed is checked before taking action
     // in other methods. This is called if it is not still pressed.
+    window.removeEventListener("mousemove",this.mouseMoveListener);
     this.mouseMode = "none";
     this.xResizeVec = 0;
     this.yResizeVec = 0;
