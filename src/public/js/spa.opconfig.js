@@ -56,6 +56,7 @@ classes.OpConfig = class {
                             this.cropWidth,this.cropHeight,
                             this.scale);
   }
+  /*
   update(config) {
     // the order is important
     // each method modifies the things set before it, so, if only
@@ -68,7 +69,7 @@ classes.OpConfig = class {
     this.setMainCanvasSize(config.mainCanvasWidth,config.mainCanvasHeight);
     this.setScale(config.scale);
     this.moveCropWithinMainCanvas();
-  }
+  }*/
   get scaledCropLeft() {
     return this.cropLeft/this.scale;
   }
@@ -105,11 +106,17 @@ classes.OpConfig = class {
   set scaledCropHeight(h) {
     this.cropHeight = Math.floor(h*this.scale);
   }
+  setCropPosition(x,y) {
+    this.cropLeft = x;
+    this.cropTop = y;
+    this.moveCropWithinMainCanvas();
+  }
   setCropSize(width,height) {
     this.cropLeft -= Math.floor((width-this.cropWidth)/2);
     this.cropWidth = width;
     this.cropTop -= Math.floor((height-this.cropHeight)/2);
     this.cropHeight = height;
+    this.moveCropWithinMainCanvas();
   }
   setScale(scale) {
     //this.cropLeft *= Math.floor(scale/this.scale);
@@ -120,7 +127,7 @@ classes.OpConfig = class {
     this.cropTop = Math.floor((this.cropTop+this.cropHeight/2)
                               *scale/this.scale-this.cropHeight/2);
     this.scale = scale;
-    console.log(this.scaledCropLeft)
+    this.moveCropWithinMainCanvas();
   }
   setMainCanvasSize(width,height) {
     this.scaledCropLeft += (width-this.mainCanvasWidth)/2;
@@ -179,6 +186,11 @@ classes.OpConfig = class {
   dragCropSize(vw,vh) {
     this.setCropSize(this.cropWidth+vw*this.scale,
                      this.cropHeight+vh*this.scale);
+    this.moveCropWithinMainCanvas();
+  }
+  dragCropPosition(vx,vy) {
+    this.setCropPosition(this.cropLeft+vx*this.scale,
+                         this.cropTop+vy*this.scale);
     this.moveCropWithinMainCanvas();
   }
   moveCropWithinMainCanvas() {

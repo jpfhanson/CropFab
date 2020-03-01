@@ -276,17 +276,17 @@ spa.imagebox.toolbox = class {
   onInputChange() {
     console.log("Changing inputs!");
     let config = new classes.OpConfig(
-      this.jqueryMap.$orig_width.val(),
-      this.jqueryMap.$orig_height.val(),
-      this.jqueryMap.$x_offset.val(),
-      this.jqueryMap.$y_offset.val(),
-      this.jqueryMap.$crop_width.val(),
-      this.jqueryMap.$crop_height.val(),
-      // this.jqueryMap.$filename.val(),
+      this.jqueryMap.$crop_filename.val(),
+      Math.floor(this.jqueryMap.$orig_width.val()),
+      Math.floor(this.jqueryMap.$orig_height.val()),
+      Math.floor(this.jqueryMap.$x_offset.val()),
+      Math.floor(this.jqueryMap.$y_offset.val()),
+      Math.floor(this.jqueryMap.$crop_width.val()),
+      Math.floor(this.jqueryMap.$crop_height.val()),
+      Number(this.jqueryMap.$prescale.val()/100),
       // this.jqueryMap.$crop_aspect.val(),
-      // this.jqueryMap.$prescale.val(),
     );
-    this.stateMap.backend.updateConfig(config);
+    this.stateMap.backend.inputUpdateConfig(config);
     return false;
   }
   // End EVENT HANLDER method /onInputChange/
@@ -390,14 +390,13 @@ spa.imagebox.toolbox = class {
   //
   updateConfig( config ) {
     // this.jqueryMap.$crop_filename.val(valueMap.crop_filename);
-    this.jqueryMap.$x_offset.val(config.cropLeft);
-    this.jqueryMap.$y_offset.val(config.cropTop);
+    this.jqueryMap.$crop_filename.val(config.saveName);
     this.jqueryMap.$x_offset.val(config.cropLeft);
     this.jqueryMap.$y_offset.val(config.cropTop);
     this.jqueryMap.$crop_width.val(config.cropWidth);
     this.jqueryMap.$crop_height.val(config.cropHeight);
+    this.jqueryMap.$prescale.val(100*config.scale);
     // this.jqueryMap.$crop_aspect.val(valueMap.crop_aspect);
-    // this.jqueryMap.$prescale.val(valueMap.prescale);
     return true;
   }
   //------------------- END PUBLIC METHODS ---------------------

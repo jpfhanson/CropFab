@@ -29,12 +29,13 @@ classes.ImageModel = class {
   //   * name             - the file name of the image
   //   * lastModifiedDate - the date from the file the image came from
   //   * originalImage    - an html image
-  constructor(name,lastModifiedDate,originalImage) {
+  constructor(name,lastModifiedDate,originalImage,config) {
     this.name = name;
     this.id = 0
     this.lastModifiedDate = lastModifiedDate;
     this.originalImage = originalImage;
-    this.config = null;
+    this.config = config;
+    this.formatSaveName();
     this.mainCanvas = null;
     this.previewCanvas = null;
     this.toolbox = null;
@@ -87,6 +88,7 @@ classes.ImageModel = class {
   setToolbox(toolbox) {
     this.toolbox = toolbox;
     this.toolbox.setConfig( this );
+  }
   // Begin public method setId
   // Puprose   : set the id
   // Arguemnts : id  - the id
@@ -105,6 +107,7 @@ classes.ImageModel = class {
       this.mainCanvas.style.height = Math.ceil(this.mainCanvas.clientWidth*this.mainCanvas.height/this.mainCanvas.width);
     }
   }
+  /*
   // Begin public method setConfig
   // Purpose   : Set the config
   // Arguemnts : config
@@ -134,7 +137,55 @@ classes.ImageModel = class {
     }
     this.resizeExternal();
     this.redraw();
+  }*/
+
+  inputUpdateConfig(config) {
+    // The order is important
+    // each change affects the change after it
+    this.config.saveName = config.saveName;
+    this.config.setCropPosition(config.cropLeft,config.cropTop);
+    this.config.setScale(config.scale);
+    this.config.setCropSize(config.cropWidth,config.cropHeight);
+    this.toolbox.setConfig(this);
+    this.resizeExternal();
+    this.redraw();
   }
+  setSaveName(name) {
+    this.config.saveName = name;
+    this.formatSaveName();
+    this.toolbox.setConfig(this);
+  }
+  trySetSaveName(name) {this.setSaveName(name);}
+
+  setMainCanvasSize(w,h) {
+    this.config.setMainCanvasSize(w,h);
+    this.mainCanvas.width = w;
+    this.mainCanvas.height = h;
+    this.toolbox.setConfig(this);
+    this.resizeExternal();
+    this.redraw();
+  }
+
+  setCropPosition(x,y) {
+    this.config.setCropPosition(x,y);
+    this.toolbox.setConfig(this);
+    this.redraw();
+  }
+  trySetCropPosition(x,y) {this.setCropPosition(x,y);}
+
+  setCropSize(w,h) {
+    this.config.setCropSize(w,h);
+    this.toolbox.setConfig(this);
+    this.redraw();
+  }
+  trySetCropSize(w,h) {this.setCropSize(w,h);}
+
+  setScale(scale) {
+    this.config.setScale(scale);
+    this.toolbox.setConfig(this);
+    this.redraw();
+  }
+  trySetScale(scale) {this.setScale(scale);}
 
   // Begin public method redraw
   // Purpose   : Redraw the images in the main canvas and the preview
@@ -248,12 +299,11 @@ classes.ImageModel = class {
       }
     }
   }
-  /*
-  saveImage() {
-    let resultURL = this.preview.toDataURL("image/"+this.imageType).replace("image/"+this.imageType,"image/octet-stream").replace("image/png","image/octet-stream");
-    saveFile(resultURL,this.name);
+  async saveImage() {
+    let result = await this.getFinalImage();
+    spa.util.saveFile(result.blob,result.name);
   }
-  */
+  
   // Begin public method getFinalImage
   // Purpose   : Return the fully modified image
   // Arguments : none

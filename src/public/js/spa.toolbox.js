@@ -112,7 +112,10 @@ classes.toolbox = class {
         set_toolbox_anchor   : true,
         on_load              : true,
         on_save              : true,
-        on_input_change      : true,
+        on_size_change       : true,
+        on_offset_change     : true,
+        on_scale_change      : true,
+        on_filename_change   : true,
         lock_all             : true,
         update_config        : true,
 
@@ -129,7 +132,10 @@ classes.toolbox = class {
       set_toolbox_anchor   : null,
       on_load              : null,
       on_save              : null,
-      on_input_change      : null,
+      on_size_change       : null,
+      on_offset_change     : null,
+      on_scale_change      : null,
+      on_filename_change   : null,
       lock_all             : null,
       update_config        : null
     };
@@ -281,13 +287,39 @@ classes.toolbox = class {
   // Begin EVENT HANDLER method /onCropSizeChange/
   onCropSizeChange() {
     console.log("Changing crop dimensions!");
-    this.configMap.cropper_model.changeCropSize(
-            this.jqueryMap.$crop_width.get(0).value,
-            this.jqueryMap.$crop_height.get(0).value);
+    this.configMap.on_size_change(
+            this.jqueryMap.$crop_width.val(),
+            this.jqueryMap.$crop_height.val());
     return false;
   }
   // End EVENT HANDLER method /onCropSizeChange/
-   
+
+  // Begin EVENT HANDLER method /onCropOffsetChange/
+  onCropOffsetChange() {
+    console.log("Changing crop position!");
+    this.configMap.on_offset_change(
+            this.jqueryMap.$x_offset.val(),
+            this.jqueryMap.$y_offset.val());
+    return false;
+  }
+  // End EVENT HANDLER method /onCropOffsetChange/
+
+  // Begin EVENT HANDLER method /onScaleChange/
+  onScaleChange() {
+    console.log("Changing scale!");
+    this.configMap.on_scale_change(this.jqueryMap.$prescale.val());
+    return false;
+  }
+  // End EVENT HANDLER method /onScaleChange/
+
+  // Begin EVENT HANDLER method /onFilenameChange/
+  onFilenameChange() {
+    console.log("Changing filename!");
+    this.configMap.on_size_change(this.jqueryMap.$filename.val());
+    return false;
+  }
+  // End EVENT HANDLER method /onFilenameChange/
+  /*
   // Begin EVENT HANDLER method /onInputChange/
   onInputChange() {
     console.log("Changing inputs!");
@@ -306,6 +338,7 @@ classes.toolbox = class {
     return false;
   }
   // End EVENT HANDLER method /onInputChange/
+  */
 
   //-------------------- END EVENT HANDLERS --------------------
 
@@ -502,10 +535,18 @@ classes.toolbox = class {
     this.jqueryMap.$prescale_title.bind('click',
       () => {this.onTitleClick('prescale');});
 
-    this.jqueryMap.$inputs.bind('change',
-      () => {this.onInputChange();});
     this.jqueryMap.$filename.bind('change',
-      () => {this.onInputChange();});
+      () => {this.onFilenameChange();});
+    this.jqueryMap.$crop_width.bind('change',
+      () => {this.onCropSizeChange();});
+    this.jqueryMap.$crop_height.bind('change',
+      () => {this.onCropSizeChange();});
+    this.jqueryMap.$x_offset.bind('change',
+      () => {this.onOffsetChange();});
+    this.jqueryMap.$y_offset.bind('change',
+      () => {this.onOffsetChange();});
+    this.jqueryMap.$prescale.bind('change',
+      () => {this.onScaleChange();});
     return true;
   }
   // End public method /initModule/

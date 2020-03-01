@@ -282,7 +282,7 @@ classes.shell = class {
     }
     if(this.stateMap.images_still_loading == 0) {
       console.log("shell: images done loading");
-      spa.imagelistmodel.deployConfig();
+      spa.imagelistmodel.deployMainCanvasSize();
     }
   }
   // End callback method /imageLoadEnded/
@@ -339,12 +339,16 @@ classes.shell = class {
 
     // configure and initialize feature modules
     spa.toolbox.configModule({
-      set_toolbox_anchor   : (position) => {this.setToolboxAnchor(position);},
-      on_load              : (input_files) => {this.loadImages(input_files);},
-      on_save              : () => {spa.imagelistmodel.saveImages()},
-      lock_all             : (input_type) => {
+      set_toolbox_anchor : (position) => {this.setToolboxAnchor(position);},
+      on_load            : (input_files) => {this.loadImages(input_files);},
+      on_save            : () => {spa.imagelistmodel.saveImages()},
+      lock_all           : (input_type) => {
                 spa.imagelistmodel.lockAll(input_type)}, // TODO
-      on_input_change      : (config) => {spa.imagelistmodel.updateConfig(config)},
+      on_size_change     : (w,h) => {spa.imagelistmodel.setCropSize(w,h);},
+      on_offset_change   : (x,y) => {spa.imagelistmodel.setCropPosition(x,y);},
+      on_scale_change    : (scale) => {spa.imagelistmodel.setScale(scale);},
+      on_filename_change : (name) => {spa.imagelistmodel.setSaveName(name);},
+
     });
     spa.toolbox.initModule( this.jqueryMap.$container );
 
