@@ -49,16 +49,17 @@ spa.imagebox.toolbox = class {
       prescale_html : String()
         + '<div class="spa-imagebox-toolbox-inputgroup">'
           + '<div>'
-            + '<input type="number" '
-              + 'class="spa-imagebox-toolbox-prescale" disabled />'
+            + '<span class="spa-toolbox-percent">'
+              + '<input type="number" class="spa-imagebox-toolbox-prescale" disabled />%</span>'
             + '<div '
-              + 'class="spa-imagebox-toolbox-prescale-title"> Prescale</div>'
+              + 'class="spa-imagebox-toolbox-prescale-title"> Prescale </div>'
+              + '<div class="hovertext">Click Title to Toggle!"></div>'
           + '</div>'
           + '<div>'
             + '<input type="button" value="Save"'
               + 'class="spa-imagebox-toolbox-save" />'
             + '<div '
-              + 'class="spa-imagebox-toolbox-save-title"> Save Image</div>'
+              + 'class="spa-imagebox-toolbox-save-title"> Save Image </div>'
           + '</div>'
         + '</div>',
       orig_dimensions_html : String()
@@ -67,13 +68,13 @@ spa.imagebox.toolbox = class {
             + '<input type="number" '
               + 'class="spa-imagebox-toolbox-orig-width" disabled />'
             + '<div '
-              + 'class="spa-imagebox-toolbox-orig-width-title"> Original Width</div>'
+              + 'class="spa-imagebox-toolbox-orig-width-title"> Original Width </div>'
           + '</div>'
           + '<div>'
             + '<input type="number" '
               + 'class="spa-imagebox-toolbox-orig-height" disabled />'
             + '<div '
-              + 'class="spa-imagebox-toolbox-orig-height-title"> Original Height</div>'
+              + 'class="spa-imagebox-toolbox-orig-height-title"> Original Height </div>'
           + '</div>'
         + '</div>',
       crop_dimensions_html : String()
@@ -82,13 +83,15 @@ spa.imagebox.toolbox = class {
             + '<input type="number" '
               + ' class="spa-imagebox-toolbox-crop-width" disabled />'
             + '<div '
-              + 'class="spa-imagebox-toolbox-crop-width-title"> Crop Width</div>'
+              + 'class="spa-imagebox-toolbox-crop-width-title"> Crop Width </div>'
+            + '<div class="hovertext">Click Title to Toggle!</div>'
           + '</div>'
           + '<div>'
             + '<input type="number" '
               + 'class="spa-imagebox-toolbox-crop-height" disabled />'
             + '<div '
-              + 'class="spa-imagebox-toolbox-crop-height-title"> Crop Height</div>'
+              + 'class="spa-imagebox-toolbox-crop-height-title"> Crop Height </div>'
+            + '<div class="hovertext">Click Title to Toggle!</div>'
           + '</div>'
         + '</div>',
       crop_offset_html : String()
@@ -96,12 +99,14 @@ spa.imagebox.toolbox = class {
           + '<div>'
             + '<input type="number" class="spa-imagebox-toolbox-x" disabled />'
             + '<div '
-              + 'class="spa-imagebox-toolbox-x-title"> Crop X Offset</div>'
+              + 'class="spa-imagebox-toolbox-x-title"> Crop X Offset </div>'
+            + '<div class="hovertext">Click Title to Toggle!</div>'
           + '</div>'
           + '<div>'
             + '<input type="number" class="spa-imagebox-toolbox-y" disabled />'
             + '<div '
-              + 'class="spa-imagebox-toolbox-y-title"> Crop Y Offset</div>'
+              + 'class="spa-imagebox-toolbox-y-title"> Crop Y Offset </div>'
+            + '<div class="hovertext">Click Title to Toggle!</div>'
           + '</div>'
         + '</div>',
       aspect_ratio_html : String()
@@ -111,12 +116,14 @@ spa.imagebox.toolbox = class {
               + 'class="spa-imagebox-toolbox-orig-aspect" disabled/>'
             + '<div '
               + 'class="spa-imagebox-toolbox-orig-aspect-title"> Original Aspect Ratio</div>'
+            + '<div class="hovertext">Click Title to Toggle!</div>'
           + '</div>'
           + '<div>'
-            + '<input type="number" '
+            + '<input type="checkbox" '
               + 'class="spa-imagebox-toolbox-crop-aspect" disabled />'
             + '<div '
               + 'class="spa-imagebox-toolbox-crop-aspect-title"> Cropped Aspect Ratio</div>'
+            + '<div class="hovertext">Click Title to Toggle!</div>'
           + '</div>'
         + '</div>',
       toggle_text_visible : 'Hide Menu',
@@ -152,6 +159,8 @@ spa.imagebox.toolbox = class {
       () => {this.toggleToolbox();});
     this.jqueryMap.$remove.on('click',
       () => {this.remove();});
+    this.jqueryMap.$save.on('click',
+      () => {this.save();});
     this.jqueryMap.$crop_filename.on('change',
       () => {this.onInputChange();});
     this.jqueryMap.$inputs.on('change',
@@ -324,15 +333,30 @@ spa.imagebox.toolbox = class {
   }
   // End EVENT HANLDER method /onTitleClick/
 
+  // Begin EVENT HANLDER method /save/
+  // Purpose    : save the cropped image
+  // Arguments  : none
+  // Action     : triggers the save function in imagebox.model
+  // Returns    : true (should return false if there is a fail case?)
+  // Throws     : none
+  save() {
+    console.log("Saving image!");
+
+    // // first clean up the backend
+    this.stateMap.backend.saveSingle();
+
+    return true;
+  }
+
   // Begin EVENT HANLDER method /remove/
-  // Purpose    : remove
+  // Purpose    : remove this image from the imagelist
   // Returns    : true (should return false if there is a fail case?)
   // Throws     : none
   remove() {
-    console.log("Image removed!");
+    console.log("Removing image!");
 
     // // first clean up the backend
-    // this.stateMap.backend.remove();
+    this.stateMap.backend.remove();
 
     // then clean up the frontend
     this.jqueryMap.$imagebox.remove();

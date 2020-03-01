@@ -51,17 +51,42 @@
 }
 .spa-imagebox-toolbox-inputgroup>div{
   height           : 50%;
-  /*width            : 100%;*/
   text-align       : left;
+}
+.spa-imagebox-toolbox-inputgroup>div .hovertext {
+  background-color : darkgray;
+  color            : black;
+  padding          : 2px 3px;
+  z-index          : 3;
+
+  position         : absolute;
+  visibility       : hidden;
+}
+.spa-imagebox-toolbox-inputgroup>div:hover .hovertext {
+  visibility       : visible;
 }
 .spa-imagebox-toolbox-inputgroup>div>div{
   display          : inline-block;
   text-align       : left;
   white-space      : pre-wrap;
   cursor           : pointer;
+  border           : 1px outset #ccc;
 }
 .spa-imagebox-toolbox-inputgroup>div>input{
   width            : 4em;
   vertical-align   : middle;
   text-align       : center;
+}
+.spa-imagebox-toolbox-percent {
+  width            : 4em;
+  vertical-align   : middle;
+  text-align       : center;
+  /*border           : 1px inset #ccc;*/
+  /*background       : white;*/
+}
+.spa-imagebox-toolbox-percent input {
+  width            : 3em;
+  border           : none;
+  padding          : 0px;
+  outline          : none;
 }

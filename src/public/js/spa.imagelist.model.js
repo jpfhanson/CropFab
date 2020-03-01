@@ -81,6 +81,7 @@ classes.imagelistmodel = class {
   deployConfig() {
     this.configMap.show_config(this.config);
     for(let image of this.images) {
+      if (image === undefined) {continue;}
       image.setConfig(this.config);
     }
   }
@@ -128,6 +129,7 @@ classes.imagelistmodel = class {
   async saveImages() {
     let zip = new JSZip();
     for(let image of this.images) {
+      if (image === undefined) {continue;}
       let result = await image.getFinalImage();
       zip.file(result.name,result.blob,{base64:true});
     }

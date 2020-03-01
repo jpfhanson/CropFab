@@ -46,6 +46,14 @@ classes.ImageModel = class {
     this.mouseDownListener = (event) => {this.onMouseDown(event)};
     this.mouseMoveListener = (event) => {this.onMouseMove(event)};
   }
+  // Begin public method /remove/
+  // Purpose   : remove the imagebox backend, allow garbage collection
+  // Arguments : none
+  // Returns   : none
+  // Actions   : Deletes the imagebox from the imagelist
+  remove() {
+    delete spa.imagelistmodel.images[this.id];
+  }
   // Begin public method setMainCanvas
   // Purpose   : Set and set up the main canvas
   //             resizeCanvas must be called at some point after this
@@ -87,6 +95,8 @@ classes.ImageModel = class {
   setToolbox(toolbox) {
     this.toolbox = toolbox;
     this.toolbox.setConfig( this );
+  }
+
   // Begin public method setId
   // Puprose   : set the id
   // Arguemnts : id  - the id
@@ -275,6 +285,25 @@ classes.ImageModel = class {
     }
     return {blob : blob,
             name : this.config.saveName};
+  }
+
+  // Begin public async method /saveSingle/
+  // Purpose    : Save the processed image
+  // Arguments  : none
+  // Returns    : none
+  // Throws     : none
+  async saveSingle() {
+    let zip = new JSZip();
+    let result = await this.getFinalImage();
+    zip.file(result.name,result.blob,{base64:true});
+    zip.generateAsync({type:"blob"}).then((content) => {
+        let fakeLink = document.createElement("a");
+        let dataURL= URL.createObjectURL(content);
+        fakeLink.href = dataURL;
+        fakeLink.download = "cropped_image.zip";
+        fakeLink.click();
+        setTimeout(() => {window.URL.revokeObjectURL(dataURL);});
+      });
   }
   
   // helper methods
