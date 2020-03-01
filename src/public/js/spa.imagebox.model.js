@@ -1,7 +1,7 @@
 "use strict";
 
 /*
- * back.imagebox.js
+ * spa.imagebox.model.js
  * Processes and displays individual images
  *
  * John Paul Hanson
@@ -31,6 +31,7 @@ classes.ImageModel = class {
   //   * originalImage    - an html image
   constructor(name,lastModifiedDate,originalImage) {
     this.name = name;
+    this.id = 0
     this.lastModifiedDate = lastModifiedDate;
     this.originalImage = originalImage;
     this.config = null;
@@ -59,11 +60,9 @@ classes.ImageModel = class {
   setMainCanvas(canvas) {
     if(this.mainCanvas != null) {
       this.mainCanvas.removeEventListener('mouseDown',this.mouseDownListener);
-      this.mainCanvas.removeEventListener('mousemove',this.mouseMoveListener);
     }
     this.mainCanvas = canvas;
     this.mainCanvas.addEventListener('mouseDown',this.mouseDownListener);
-    this.mainCanvas.addEventListener('mousemove', this.mouseMoveListener);
     this.mainCanvas.onmousedown = this.mouseDownListener;
     this.mainCanvas.onmousemove = this.mouseUpListener;
   }
@@ -88,6 +87,12 @@ classes.ImageModel = class {
   setToolbox(toolbox) {
     this.toolbox = toolbox;
     this.toolbox.setConfig( this );
+  // Begin public method setId
+  // Puprose   : set the id
+  // Arguemnts : id  - the id
+  // Returns   : none
+  setId(id) {
+    this.id = id;
   }
 
   // Begin public method resizeExternal
@@ -105,7 +110,9 @@ classes.ImageModel = class {
   // Arguemnts : config
   // Returns   : none
   setConfig(config) {
-    this.config = config;
+    this.config = null
+    this.updateConfig(config);
+    this.formatSaveName();
   }
   // Begin public method updateConfig
   // Purpose   : Update this objects config to match a global one
@@ -117,6 +124,7 @@ classes.ImageModel = class {
     } else {
       this.config.update(config);
     }
+    this.formatSaveName();
     if(this.mainCanvas != null) {
       this.mainCanvas.width = this.config.mainCanvasWidth;
       this.mainCanvas.height = this.config.mainCanvasHeight;
@@ -153,14 +161,17 @@ classes.ImageModel = class {
         let preview_ctx = this.previewCanvas.getContext('2d');
         preview_ctx.clearRect(0,0,this.previewCanvas.width,
                                   this.previewCanvas.height);
-        preview_ctx.drawImage(this.mainCanvas,-this.config.cropLeft,
-                                      -this.config.cropTop);
+        preview_ctx.drawImage(this.mainCanvas,
+                              -this.config.cropLeft,
+                              -this.config.cropTop,
+                              this.config.mainCanvasWidth*this.config.scale,
+                              this.config.mainCanvasHeight*this.config.scale);
       }
 
       // draw the croping rectangle
       ctx.lineWidth = 10;
-      ctx.strokeRect(this.config.cropLeft,this.config.cropTop,
-                            this.config.cropWidth,this.config.cropHeight);
+      ctx.strokeRect(this.config.scaledCropLeft,this.config.scaledCropTop,
+                    this.config.scaledCropWidth,this.config.scaledCropHeight);
     }
   }
   
@@ -190,8 +201,10 @@ classes.ImageModel = class {
         this.yResizeVec = 1;
       }
       if(this.yResizeVec != 0 || this.xResizeVec != 0) {
+        window.addEventListener('mousemove',this.mouseMoveListener)
         this.mouseMode = "resize"
       } else if(this.config.onCropBox(x,y)) {
+        window.addEventListener('mousemove',this.mouseMoveListener)
         this.mouseMode = "move";
       }
     }
@@ -207,6 +220,7 @@ classes.ImageModel = class {
     // For some reason, mouseup events don't always get here, so
     // whether the button is still pressed is checked before taking action
     // in other methods. This is called if it is not still pressed.
+    window.removeEventListener("mousemove",this.mouseMoveListener);
     this.mouseMode = "none";
     this.xResizeVec = 0;
     this.yResizeVec = 0;
@@ -224,12 +238,12 @@ classes.ImageModel = class {
         this.onMouseEnd(event);
         return;
       } else if(this.mouseMode == "move") {
-        let vx = this.clientToCanvasX(event.movementX);
-        let vy = this.clientToCanvasY(event.movementY);
+        let vx = Math.floor(this.clientToCanvasX(event.movementX));
+        let vy = Math.floor(this.clientToCanvasY(event.movementY));
         spa.imagelistmodel.moveCropBox(vx,vy)
       } else if(this.mouseMode == "resize") {
-        let vw = this.clientToCanvasX(event.movementX)*this.xResizeVec*2;
-        let vh = this.clientToCanvasY(event.movementY)*this.yResizeVec*2;
+        let vw = Math.floor(this.clientToCanvasX(event.movementX)*this.xResizeVec*2);
+        let vh = Math.floor(this.clientToCanvasY(event.movementY)*this.yResizeVec*2);
         spa.imagelistmodel.addToCropSize(vw,vh);
       }
     }
@@ -260,7 +274,7 @@ classes.ImageModel = class {
       this.previewCanvas = null;
     }
     return {blob : blob,
-            name : this.name};
+            name : this.config.saveName};
   }
   
   // helper methods
@@ -292,5 +306,24 @@ classes.ImageModel = class {
     } else {
       return 'png';
     }
+  }
+  formatSaveName() {
+    let name;
+    let original_name_end = this.name.lastIndexOf('.');
+    if(original_name_end == -1) {
+      name = this.name;
+    } else {
+      name = this.name.slice(0,original_name_end);
+    }
+    name = this.config.saveName.replace(/%n/g,name);
+    name = name.replace(/%d/g,this.id);
+    if(name.search('.') == -1) {
+      if(original_name_end == -1) {
+        name += '.jpeg';
+      } else {
+        name += this.name.slice(orogian_name_ned);
+      }
+    }
+    this.config.saveName = name;
   }
 }
