@@ -66,27 +66,23 @@ classes.imagelistmodel = class {
     this.config.setDefaultIfNull(image.naturalWidth,image.naturalHeight);
     this.config.increaseMainCanvasSize(image.naturalWidth,image.naturalHeight);
       
-    var backend = new classes.ImageModel(name,lastModifiedDate,image);
-    backend.updateConfig(this.config);
+    var backend = new classes.ImageModel(name,lastModifiedDate,image,
+                                          this.config.clone());
     this.configMap.add_image_frontend(backend);
     this.images.push(backend);
   }
   // End public method /addImagebox/
 
-  // Begin public method /deployConfig/
-  // Purpose     : Tell images and frontend about the config
-  // Arguments   : none
-  // Returns     : none
-  // Throws      : none
-  deployConfig() {
-    this.configMap.show_config(this.config);
+  deployMainCanvasSize() {
     for(let image of this.images) {
       if (image === undefined) {continue;}
-      image.setConfig(this.config);
+      image.setMainCanvasSize(this.config.mainCanvasWidth,
+                              this.config.mainCanvasHeight);
     }
+    this.configMap.show_config(this.config);
   }
-  // End public method /deployConfig/
 
+  /*
   // Begin public method /updateConfig/
   // Purpose     : Change the op config and tell the images and toolbox about
   //                the change.
@@ -98,7 +94,66 @@ classes.imagelistmodel = class {
     this.deployConfig();
   }
   // End public method /resizeCanvas/
+  */
+
+  // Begin public method /setSaveName/
+  // Purpose     : Change filename
+  // Arguments   : savename  - the new filename
+  // Returns     : none
+  // Throws      : none
+  setSavename(savename) {
+    this.config.savename = savename;
+    for(let image of this.images) {
+      image.setSavename(savename);
+    }
+    this.configMap.show_config(this.config);
+  }
+
+  // End public method /setScale/
+
+  // Begin public method /setCropSize/
+  // Purpose     : Change the crop size
+  // Arguments   : w,h  - the new crop size
+  // Returns     : none
+  // Throws      : none
+  setCropSize(w,h) {
+    this.config.setCropSize(w,h);
+    for(let image of this.images) {
+      image.trySetCropSize(w,h);
+    }
+    this.configMap.show_config(this.config);
+  }
+  // End public method /setCropSize/
+
     
+  // Begin public method /setCropPosition/
+  // Purpose     : Change the position of the crop box
+  // Arguments   : x,y  - the new position
+  // Returns     : none
+  // Throws      : none
+  setCropPosition(x,y) {
+    this.setCropPosition(x,y);
+    for(let image of this.images) {
+      image.trySetCropPosition(x,y);
+    }
+    this.configMap.show_config(this.config);
+  }
+  // End public method /setCropPosition/
+
+  // Begin public method /setScale/
+  // Purpose     : Change scale
+  // Arguments   : scale - the new scale
+  // Returns     : none
+  // Throws      : none
+  setScale(scale) {
+    this.config.setScale(scale)
+    for(let image of this.images) {
+      image.trySetScale(scale);
+    }
+    this.configMap.show_config(this.config);
+  }
+  // End public method /setScale/
+
   // Begin public method /addToCropSize/
   // Purpose    : Add a vector to the crop box size
   // Arguments  : vw,vh
@@ -106,7 +161,10 @@ classes.imagelistmodel = class {
   // Throws     : none
   addToCropSize(vw,vh) {
     this.config.dragCropSize(vw,vh);
-    this.deployConfig();
+    for(let image of this.images) {
+      image.trySetCropSize(this.config.cropWidth,this.config.cropHeight);
+    }
+    this.configMap.show_config(this.config);
   }
 
   // Begin public method /moveCropBox/
@@ -115,10 +173,11 @@ classes.imagelistmodel = class {
   // Returns    : none
   // Throws     : none
   moveCropBox(vx,vy) {
-    this.config.scaledCropLeft += vx;
-    this.config.scaledCropTop += vy;
-    this.config.moveCropWithinMainCanvas();
-    this.deployConfig();
+    this.config.dragCropPosition(vx,vy);
+    for(let image of this.images) {
+      image.trySetCropPosition(this.config.cropLeft,this.config.cropTop);
+    }
+    this.configMap.show_config(this.config);
   }
 
   // Begin public async method saveImages()
@@ -134,6 +193,9 @@ classes.imagelistmodel = class {
       zip.file(result.name,result.blob,{base64:true});
     }
     zip.generateAsync({type:"blob"}).then((content) => {
+      spa.util.saveFile(content,"cropped_images.zip");
+    });
+    /*
         let fakeLink = document.createElement("a");
         let dataURL= URL.createObjectURL(content);
         fakeLink.href = dataURL;
@@ -141,6 +203,7 @@ classes.imagelistmodel = class {
         fakeLink.click();
         setTimeout(() => {window.URL.revokeObjectURL(dataURL);});
       });
+    */
   }
 
   // Begin public methdo /lockAll/

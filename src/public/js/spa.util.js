@@ -87,9 +87,27 @@ spa.util = (function () {
   };
   // End Public constructor /getMarginLeft/
 
+  // Begin public method saveFile
+  // Purpose   : Save a file
+  // Arguments :
+  //    blob - A blob which is to be saved
+  //    name - The name to save it as
+  // Returns   : none
+  // Throws    : none
+  saveFile = function (blob, name) {
+    let fakeLink = document.createElement("a");
+    let dataURL = URL.createObjectURL(blob);
+    fakeLink.href = dataURL;
+    fakeLink.download = name;
+    fakeLink.click();
+    setTimeout(() => {window.URL.revokeObjectURL(dataURL);});
+  };
+  // End public method savFile
+
   return {
     makeError    : makeError,
     setConfigMap : setConfigMap,
-    getMarginLeft: getMarginLeft
+    getMarginLeft: getMarginLeft,
+    saveFile     : saveFile,
   };
 }());
